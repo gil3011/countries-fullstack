@@ -2,9 +2,9 @@
 *.env
 *.env.development
 *.env.production
-# appsettings.Development.json
-# appsettings.Local.json
-# appsettings.json
+appsettings.Development.json
+appsettings.Local.json
+appsettings.json
 
 ## Visual Studio files
 .vs/
