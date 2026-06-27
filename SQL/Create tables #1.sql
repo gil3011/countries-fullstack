@@ -27,8 +27,9 @@ CREATE TABLE Capitals2026 (
 
 CREATE TABLE Languages2026 (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Iso639_1 NCHAR(2) NOT NULL UNIQUE,        -- e.g. en, fr
+    Iso639_1 NCHAR(2) ,
     LanguageName NVARCHAR(200) NOT NULL
+	CONSTRAINT UQ_Languages2026_Iso_Name UNIQUE (Iso639_1, LanguageName)
 );
 
 CREATE TABLE Currencies2026 (

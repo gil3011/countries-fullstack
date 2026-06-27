@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>דאשבורד מדינות פשוט</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="../CSS/indexStyle.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+    <script src="../JS/ajaxCalls.js"></script>
+
+</head>
+<body>
+
+    <header>
+        <h1>מדינות העולם</h1>
+    </header>
+
+    <div id="map"></div>
+
+    <section class="controls-section">
+        <input type="text" id="search" placeholder="חיפוש חופשי...">
+
+        <select id="region">
+            <option value="">כל האזורים</option>
+            <option value="Asia">אסיה</option>
+            <option value="Europe">אירופה</option>
+            <option value="Americas">אמריקה</option>
+            <option value="Africa">אפריקה</option>
+            <option value="Oceania">אוקיאניה</option>
+        </select>
+
+        <select id="sort">
+            <option value="name">שם מדינה</option>
+            <option value="pop">אוכלוסייה</option>
+            <option value="area">שטח</option>
+        </select>
+
+        <button id="reset">איפוס</button>
+
+        <p class="counter-text">נמצאו <span id="count">0</span> מדינות</p>
+    </section>
+
+    <main id="grid"></main>
+    <script src="../JS/indexScript.js"></script>
+</body>
+</html>
