@@ -19,12 +19,12 @@ function update() {
 
     // סינון המדינות (תיקון שמות השדות בהתאם למבנה ה-API הטיפוסי שלך)
     let filtered = countries.filter(c => {
-        const countryName = (c.commonName || c.CommonName || "").toLowerCase();
-        const countryRegion = c.region || c.Region || "";
-        const countryCode = (c.cca3 || c.Code || "").toLowerCase();
-        const capitalName = (c.capitals && c.capitals[0]?.Name || c.capital || "").toLowerCase();
+        const countryName = (c.commonName ||"").toLowerCase();
+        const countryRegion = c.region|| "";
+        const countryCode = (c.cca3 || "").toLowerCase();
+        const capitalName = (c.capitals && c.capitals[0]?.Name || "").toLowerCase();
 
-        if (reg && countryRegion !== reg) return false;
+        if (reg && countryRegion != reg) return false;
         if (txt && !countryName.includes(txt) && !countryCode.includes(txt) && !capitalName.includes(txt)) return false;
         return true;
     });
