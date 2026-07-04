@@ -9,11 +9,10 @@ namespace Server.BL
         public string Cca3 { get; set; } = string.Empty;
         public string CommonName { get; set; } = string.Empty;
         public string OfficialName { get; set; } = string.Empty;
-        public Constants.Region Region { get; set; }
+        public string Region { get; set; } = string.Empty;
         public string Subregion { get; set; } = string.Empty;
         public double Latitude { get; set; }
-        public double Longitude { get; set; }
-        public double AreaKm2 { get; set; }
+        public double Longitude { get; set; }        public double AreaKm2 { get; set; }
         public bool IsLandlocked { get; set; }
 
         public int Population { get; set; }

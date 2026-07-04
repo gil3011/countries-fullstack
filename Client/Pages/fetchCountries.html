@@ -59,10 +59,10 @@
 
                         const formattedCountry = {
                             id: 0,
-                            cca3: rc.codes?.alpha_3 || "",
+                            cca3: rc.codes?.alpha_3 || null,
                             commonName: rc.names?.common || "",
                             officialName: rc.names?.official || "",
-                            region: mapRegionToId(rc.region),
+                            region: rc.region || "",
                             subregion: rc.subregion || "",
                             latitude: rc.coordinates?.lat || 0,
                             longitude: rc.coordinates?.lng || 0,
@@ -139,19 +139,7 @@
             }
         }
 
-        // Helper function to turn textual regions into required integers
-        function mapRegionToId(regionName) {
-            if (!regionName) return 0;
-            switch (regionName.toLowerCase()) {
-                case 'africa': return 1;
-                case 'americas': return 2;
-                case 'antarctic': return 3;
-                case 'asia': return 4;
-                case 'europe': return 5;
-                case 'oceania': return 6;
-                default: return 0;
-            }
-        }
+
     </script>
 </body>
 </html>

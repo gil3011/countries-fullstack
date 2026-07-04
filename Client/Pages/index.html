@@ -1,8 +1,8 @@
 ﻿<!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>דאשבורד מדינות פשוט</title>
+    <title>Simple Countries Dashboard</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <link href="../CSS/indexStyle.css" rel="stylesheet" />
@@ -13,33 +13,33 @@
 <body>
 
     <header>
-        <h1>מדינות העולם</h1>
+        <h1>World Countries</h1>
     </header>
 
     <div id="map"></div>
 
     <section class="controls-section">
-        <input type="text" id="search" placeholder="חיפוש חופשי...">
+        <input type="text" id="search" placeholder="Search...">
 
         <select id="region">
-            <option value="">כל האזורים</option>
-            <option value="4">אסיה</option>
-            <option value="5">אירופה</option>
-            <option value="2">אמריקה</option>
-            <option value="1">אפריקה</option>
-            <option value="6">אוקיאניה</option>
-            <option value="3">אנטרטיקה</option>
+            <option value="">All Regions</option>
+            <option value="Asia">Asia</option>
+            <option value="Europe">Europe</option>
+            <option value="Americas">Americas</option>
+            <option value="Africa">Africa</option>
+            <option value="Oceania">Oceania</option>
+            <option value="Antarctic">Antarctic</option>
         </select>
 
         <select id="sort">
-            <option value="name">שם מדינה</option>
-            <option value="pop">אוכלוסייה</option>
-            <option value="area">שטח</option>
+            <option value="name">Country Name</option>
+            <option value="pop">Population</option>
+            <option value="area">Area</option>
         </select>
 
-        <button id="reset">איפוס</button>
+        <button id="reset">Reset</button>
 
-        <p class="counter-text">נמצאו <span id="count">0</span> מדינות</p>
+        <p class="counter-text">Found <span id="count">0</span> countries</p>
     </section>
 
     <main id="grid"></main>

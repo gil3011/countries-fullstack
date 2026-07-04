@@ -1,127 +1,189 @@
-﻿
+﻿:root {
+    /* Dark theme variables (adjustable) */
+    --bg: #071226;         /* page background */
+    --card: #0f1724;       /* card / panel background */
+    --muted: #94a3b8;      /* subdued text */
+    --accent: #60a5fa;     /* primary accent (buttons, links) */
+    --border: #1f2a37;     /* panel borders */
+    --text: #e6f0fb;       /* primary text */
+    --danger: #ef4444;     /* reset button accent */
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: system-ui, -apple-system, sans-serif;
-    background-color: #0f172a;
-    color: #f8fafc;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+    background: var(--bg);
+    color: var(--text);
     margin: 0;
-    padding: 20px;
+    padding: 24px;
+}
+
+/* Page width increased to 1200px and centered */
+header {
+    max-width: 1200px;
+    margin: 0 auto 20px;
 }
 
 header h1 {
-    margin-top: 0;
-    margin-bottom: 20px;
+    margin: 0;
     font-size: 2rem;
+    font-weight: 800;
 }
 
+/* Map container - dark framed look */
 #map {
-    height: 300px;
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    height: 360px;
     width: 100%;
     border-radius: 12px;
-    margin-bottom: 24px;
-    background-color: #1e293b;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(13,24,39,0.6), rgba(9,18,34,0.9));
+    box-shadow: 0 6px 18px rgba(2,6,23,0.5);
 }
 
+/* Controls area uses card style and wider layout */
 .controls-section {
+    max-width: 1200px;
+    margin: 0 auto 24px;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 16px;
-    background-color: #1e293b;
+    background: var(--card);
     padding: 16px;
     border-radius: 12px;
-    margin-bottom: 24px;
+    border: 1px solid var(--border);
     align-items: center;
 }
 
-    .controls-section input,
-    .controls-section select,
-    .controls-section button {
-        background-color: #334155;
-        color: #ffffff;
-        border: none;
-        padding: 10px;
-        border-radius: 8px;
-        font-size: 1rem;
-        outline: none;
-        box-sizing: border-box;
-        width: 100%;
-    }
+.controls-section input,
+.controls-section select,
+.controls-section button {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color .12s, box-shadow .12s;
+}
 
-        .controls-section input::placeholder {
-            color: #94a3b8;
-        }
+.controls-section input::placeholder {
+    color: var(--muted);
+}
 
-        .controls-section button#reset {
-            background-color: #dc2626;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+.controls-section input:focus,
+.controls-section select:focus,
+.controls-section button:focus {
+    border-color: rgba(96,165,250,0.45);
+    box-shadow: 0 4px 12px rgba(96,165,250,0.08);
+}
 
-            .controls-section button#reset:hover {
-                background-color: #ef4444;
-            }
+.controls-section button#reset {
+    background: linear-gradient(180deg, rgba(239,68,68,0.06), rgba(239,68,68,0.03));
+    color: var(--danger);
+    border: 1px solid rgba(239,68,68,0.14);
+    font-weight: 700;
+    cursor: pointer;
+}
 
+.controls-section button#reset:hover {
+    background: rgba(239,68,68,0.06);
+}
+
+/* Counter */
 .counter-text {
     grid-column: 1 / -1;
     font-size: 0.9rem;
-    color: #94a3b8;
+    color: var(--muted);
     margin: 0;
 }
 
-/* גריד המדינות */
+/* Grid of country cards - centered and wider */
 #grid {
+    max-width: 1200px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
 }
 
-/* כרטיסיית מדינה */
+/* Card styles */
 .country-card {
-    background-color: #1e293b;
-    border: 1px solid #334155;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-sizing: border-box;
+    box-shadow: 0 4px 12px rgba(2,6,23,0.35);
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+
+.country-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(2,6,23,0.48);
 }
 
 .flag-img {
-    height: 140px;
+    height: 160px;
     width: 100%;
-    object-fit: contain;
-    background-color: #0f172a;
-    border-radius: 6px;
+    object-fit: cover;
+    background-color: rgba(255,255,255,0.03);
+    border-radius: 8px;
     margin-bottom: 12px;
+    border: 1px solid rgba(255,255,255,0.02);
 }
 
 .country-card h3 {
-    margin: 0 0 10px 0;
-    font-size: 1.25rem;
+    margin: 0 0 8px 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text);
 }
 
 .country-card p {
     margin: 4px 0;
-    font-size: 0.9rem;
-    color: #cbd5e1;
+    font-size: 0.95rem;
+    color: var(--muted);
 }
 
+/* Map button (accent) */
 .map-btn {
-    margin-top: 16px;
-    background-color: #4f46e5;
-    color: white;
+    margin-top: 12px;
+    background: linear-gradient(180deg, var(--accent), #2b8df6);
+    color: #021428;
     border: none;
     padding: 10px;
     border-radius: 8px;
-    font-weight: bold;
-    font-size: 0.9rem;
+    font-weight: 700;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: transform .08s, filter .08s;
     width: 100%;
 }
 
-    .map-btn:hover {
-        background-color: #6366f1;
+.map-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.03);
+}
+
+/* Responsive tweaks */
+@media (min-width: 1024px) {
+    #map {
+        height: 420px;
     }
+
+    .country-card {
+        padding: 18px;
+    }
+}
 

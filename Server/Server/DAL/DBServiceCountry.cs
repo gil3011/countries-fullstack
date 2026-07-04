@@ -78,7 +78,7 @@ namespace GamesServerSide.DAL
                     { "@Cca3", country.Cca3 ?? string.Empty },
                     { "@CommonName", country.CommonName ?? string.Empty },
                     { "@OfficialName", country.OfficialName ?? string.Empty },
-                    { "@Region", (int)country.Region },
+                    { "@Region", country.Region },
                     { "@Subregion", string.IsNullOrEmpty(country.Subregion) ? (object)DBNull.Value : country.Subregion },
                     { "@Latitude", country.Latitude == 0 ? (object)DBNull.Value : country.Latitude },
                     { "@Longitude", country.Longitude == 0 ? (object)DBNull.Value : country.Longitude },
@@ -253,7 +253,7 @@ namespace GamesServerSide.DAL
                     { "@Cca3", country.Cca3 ?? string.Empty },
                     { "@CommonName", country.CommonName ?? string.Empty },
                     { "@OfficialName", country.OfficialName ?? string.Empty },
-                    { "@Region", (int)country.Region },
+                    { "@Region", country.Region },
                     { "@Subregion", string.IsNullOrEmpty(country.Subregion) ? (object)DBNull.Value : country.Subregion },
                     { "@Latitude", country.Latitude == 0 ? (object)DBNull.Value : country.Latitude },
                     { "@Longitude", country.Longitude == 0 ? (object)DBNull.Value : country.Longitude },
@@ -460,14 +460,7 @@ namespace GamesServerSide.DAL
             c.Cca3 = dr.IsDBNull(dr.GetOrdinal("Cca3")) ? string.Empty : dr.GetString(dr.GetOrdinal("Cca3")).Trim();
             c.CommonName = dr.IsDBNull(dr.GetOrdinal("CommonName")) ? string.Empty : dr.GetString(dr.GetOrdinal("CommonName"));
             c.OfficialName = dr.IsDBNull(dr.GetOrdinal("OfficialName")) ? string.Empty : dr.GetString(dr.GetOrdinal("OfficialName"));
-
-            if (!dr.IsDBNull(dr.GetOrdinal("Region")))
-            {
-                int r = dr.GetInt32(dr.GetOrdinal("Region"));
-                if (Enum.IsDefined(typeof(Constants.Region), r))
-                    c.Region = (Constants.Region)r;
-            }
-
+            c.Region = dr.IsDBNull(dr.GetOrdinal("Region")) ? string.Empty : dr.GetString(dr.GetOrdinal("Region"));
             c.Subregion = dr.IsDBNull(dr.GetOrdinal("Subregion")) ? string.Empty : dr.GetString(dr.GetOrdinal("Subregion"));
 
             if (!dr.IsDBNull(dr.GetOrdinal("Latitude"))) c.Latitude = Convert.ToDouble(dr["Latitude"]);

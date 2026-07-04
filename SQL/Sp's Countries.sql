@@ -144,25 +144,26 @@ END
 GO
 
 -- Languages: get or create
-CREATE PROCEDURE sp_Languages2026_GetOrCreate
+ALTER PROCEDURE sp_Languages2026_GetOrCreate
     @Iso639_1 NCHAR(2) = NULL,
-    @LanguageName NVARCHAR(200) = NULL,
+    @LanguageName NVARCHAR(200),
     @LanguageId INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    IF @Iso639_1 IS NOT NULL
-    BEGIN
-        SELECT @LanguageId = Id FROM Languages2026 WHERE Iso639_1 = @Iso639_1;
-    END
+    SELECT @LanguageId = Id 
+    FROM Languages2026 
+    WHERE ISNULL(Iso639_1, '') = ISNULL(@Iso639_1, '') 
+      AND LanguageName = @LanguageName;
 
+    -- 2. If not found, insert it
     IF @LanguageId IS NULL
     BEGIN
         INSERT INTO Languages2026 (Iso639_1, LanguageName)
         VALUES (@Iso639_1, @LanguageName);
 
-        SET @LanguageId = CAST(SCOPE_IDENTITY() AS INT);
+        SET @LanguageId = SCOPE_IDENTITY();
     END
 END
 GO

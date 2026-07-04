@@ -5,7 +5,7 @@ CREATE TABLE Countries2026 (
     Cca3 NCHAR(3) NOT NULL UNIQUE,            -- alpha-3 code, e.g. ISR
     CommonName NVARCHAR(200) NOT NULL,
     OfficialName NVARCHAR(300) NOT NULL,
-    Region INT NOT NULL,                       -- store Constants.Region as integer
+    Region NVARCHAR(150) NOT NULL,                       
     Subregion NVARCHAR(150) NULL,
     Latitude FLOAT NULL,
     Longitude FLOAT NULL,
