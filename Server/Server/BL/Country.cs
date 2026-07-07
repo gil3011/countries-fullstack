@@ -1,4 +1,4 @@
-﻿using GamesServerSide.DAL;
+﻿using Server.DAL;
 
 namespace Server.BL
 {

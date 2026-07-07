@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 
-namespace GamesServerSide.DAL
+namespace Server.DAL
 {
     public class DBServiceCountry : DBServiceBase
     {

@@ -1,6 +1,6 @@
 ﻿using System.Data.SqlClient;
 
-namespace GamesServerSide.DAL
+namespace Server.DAL
 {
     public abstract class DBServiceBase
     {
