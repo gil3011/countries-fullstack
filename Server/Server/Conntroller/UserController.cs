@@ -65,6 +65,10 @@ namespace Server.Conntroller
             {
                 return Unauthorized("Invalid username or password");
             }
+            if (user.IsBlocked)
+            {
+                return Unauthorized("User is blocked");
+            }   
             return Ok(user);
         }
     }
