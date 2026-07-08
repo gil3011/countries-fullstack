@@ -62,5 +62,16 @@ namespace Server.BL
         {
             return DBServiceUser.UpdateUser(this);
         }
+
+        public static bool DeleteUser(int id)
+        {
+            return DBServiceUser.DeleteUser(id);
+
+        }
+        public static User GetUserByEmail(string email)
+        {
+            return DBServiceUser.GetUserByEmail(email);
+        }
+
     }
 }

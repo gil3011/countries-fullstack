@@ -41,5 +41,31 @@ namespace Server.Conntroller
                 return BadRequest("User update failed");
             return Ok(user);
         }
+
+        [HttpDelete("DeleteUser/{id}")]
+        public IActionResult DeleteUser(int id)
+        {
+            bool result = BL.User.DeleteUser(id);
+            if (!result)
+                return BadRequest("User deletion failed");
+            return Ok(new { message = "User deleted successfully" });
+        }
+
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] User loginUser)
+        {
+            var user = BL.User.GetUserByEmail(loginUser.Email);
+            if (user == null)
+            {
+                return Unauthorized("Invalid username or password");
+            }
+            var hasher = new PasswordHasher<User>();
+            var verificationResult = hasher.VerifyHashedPassword(user, user.Password, loginUser.Password);
+            if (verificationResult == PasswordVerificationResult.Failed)
+            {
+                return Unauthorized("Invalid username or password");
+            }
+            return Ok(user);
+        }
     }
 }
