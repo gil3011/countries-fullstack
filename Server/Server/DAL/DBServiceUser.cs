@@ -10,7 +10,7 @@ namespace Server.DAL
         {
             Connect();
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_Users2026_FinalProj_ReadAll", null);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Users2026_ReadAll", null);
             try
             {
                 List<User> users = new();
@@ -52,7 +52,7 @@ namespace Server.DAL
                 { "@IsAllowedToShare", user.IsAllowedToShare }
             };
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_Add_User_2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Add_User_2026", userParam);
 
 
             SqlParameter returnParameter = new SqlParameter();
@@ -93,7 +93,7 @@ namespace Server.DAL
                 { "@IsAdmin", user.IsAdmin },
                 { "@IsAllowedToShare", user.IsAllowedToShare }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_Update_User2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Update_User2026", userParam);
 
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;
@@ -125,7 +125,7 @@ namespace Server.DAL
             {
                 { "@Id", userID }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_DeleteUser2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_DeleteUser2026", userParam);
 
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;
@@ -157,7 +157,7 @@ namespace Server.DAL
             {
                 { "@Email", email }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_GetUserByEmail2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_GetUserByEmail2026", userParam);
             try
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
