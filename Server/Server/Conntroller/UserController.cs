@@ -55,9 +55,15 @@ namespace Server.Conntroller
         public IActionResult Login([FromBody] User loginUser)
         {
             var user = BL.User.GetUserByEmail(loginUser.Email);
+
+
             if (user == null)
             {
                 return Unauthorized("Invalid username or password");
+            }
+            if (user.IsBlocked)
+            {
+                return Unauthorized("User is blocked");
             }
             var hasher = new PasswordHasher<User>();
             var verificationResult = hasher.VerifyHashedPassword(user, user.Password, loginUser.Password);
@@ -65,11 +71,50 @@ namespace Server.Conntroller
             {
                 return Unauthorized("Invalid username or password");
             }
-            if (user.IsBlocked)
-            {
-                return Unauthorized("User is blocked");
-            }   
+            DAL.DBServiceUser.AddLoginLog(user.Id);
             return Ok(user);
+        }
+        [HttpPut("block/{id}")]
+        public IActionResult BlockUser(int id)
+        {
+            bool result = BL.User.BlockUser(id);
+            if (!result)
+                return BadRequest("User block failed");
+            return Ok(new { message = "User blocked successfully" });
+        }
+
+        [HttpPut("unblock/{id}")]
+        public IActionResult UnblockUser(int id)
+        {
+            bool result = BL.User.UnblockUser(id);
+            if (!result)
+                return BadRequest("User unblock failed");
+            return Ok(new { message = "User unblocked successfully" });
+        }
+
+        [HttpPut("preventSharing/{id}")]
+        public IActionResult PreventSharing(int id)
+        {
+            bool result = BL.User.PreventSharing(id);
+            if (!result)
+                return BadRequest("User prevent sharing failed");
+            return Ok(new { message = "User prevent sharing successfully" });
+        }
+
+        [HttpPut("allowSharing/{id}")]
+        public IActionResult AllowSharing(int id)
+        {
+            bool result = BL.User.AllowSharing(id);
+            if (!result)
+                return BadRequest("User allow sharing failed");
+            return Ok(new { message = "User allow sharing successfully" });
+        }
+
+        [HttpGet("admin/stats")]
+        public IActionResult GetStats()
+        {
+            var stats = BL.User.GetAdminStats();
+            return Ok(stats);
         }
     }
 }

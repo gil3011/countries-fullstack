@@ -190,5 +190,187 @@ namespace Server.DAL
             }
 
         }
+        
+        public static bool BlockUser(int id)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@Id", id }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Block_User", userParam);
+            
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+        public static bool unblockUser(int id)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@Id", id }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Unblock_User", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static bool preventSharing(int id)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@Id", id }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Prevent_Sharing", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static bool allowSharing(int id)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@Id", id }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Allow_Sharing", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+        public static Dictionary<string, int> GetAdminStats()
+        {
+            Dictionary<string, int> stats = new Dictionary<string, int>();
+
+            Connect();
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Get_Admin_Stats", null);
+
+            SqlDataReader reader = null;
+
+            try
+            {
+                reader = cmd.ExecuteReader();
+
+                reader.Read();
+
+                stats["login"] = Convert.ToInt32(reader["DailyLogins"]);
+                stats["import"] = Convert.ToInt32(reader["ImportedCountries"]);
+                stats["save"] = Convert.ToInt32(reader["SavedCountries"]);
+                stats["share"] = Convert.ToInt32(reader["Shares"]);
+
+                return stats;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (reader != null) reader.Close();
+                if (con != null) con.Close();
+            }
+        }
+
+        public static void AddLoginLog(int userId)
+        {
+            Connect();
+
+            Dictionary<string, object> paramDic = new Dictionary<string, object>();
+            paramDic.Add("@userId", userId);
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Add_Login_Log", paramDic);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
     }
 }

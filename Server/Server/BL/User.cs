@@ -73,5 +73,30 @@ namespace Server.BL
             return DBServiceUser.GetUserByEmail(email);
         }
 
+        public static bool BlockUser(int userId)
+        {
+            return DBServiceUser.BlockUser(userId);
+        }
+
+        public static bool UnblockUser(int userId)
+        {
+            return DBServiceUser.unblockUser(userId);
+        }
+
+        public static bool PreventSharing(int userId)
+        {
+            return DBServiceUser.preventSharing(userId);
+        }
+
+        public static bool AllowSharing(int userId)
+        {
+            return DBServiceUser.allowSharing(userId);
+        }
+
+        public static Dictionary<string, int> GetAdminStats()
+        {
+            return DBServiceUser.GetAdminStats();
+        }
+
     }
 }
