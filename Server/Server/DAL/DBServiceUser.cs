@@ -1,4 +1,4 @@
-﻿using Server.BL;
+using Server.BL;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -10,7 +10,7 @@ namespace Server.DAL
         {
             Connect();
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_Users2026_FinalProj_ReadAll", null);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_ReadAll", null);
             try
             {
                 List<User> users = new();
@@ -52,7 +52,7 @@ namespace Server.DAL
                 { "@IsAllowedToShare", user.IsAllowedToShare }
             };
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_Add_User_2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_AddUser", userParam);
 
 
             SqlParameter returnParameter = new SqlParameter();
@@ -93,7 +93,7 @@ namespace Server.DAL
                 { "@IsAdmin", user.IsAdmin },
                 { "@IsAllowedToShare", user.IsAllowedToShare }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_Update_User2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_UpdateUser", userParam);
 
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;
@@ -125,7 +125,7 @@ namespace Server.DAL
             {
                 { "@Id", userID }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_DeleteUser2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_DeleteUser", userParam);
 
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;
@@ -157,7 +157,7 @@ namespace Server.DAL
             {
                 { "@Email", email }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_GetUserByEmail2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_GetUserByEmail", userParam);
             try
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
@@ -189,6 +189,174 @@ namespace Server.DAL
                 if (con != null) con.Close();
             }
 
+        }
+
+        // Country Wishlist 
+        public static int addCountryToWishlist(int userId, int countryId)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@UserId", userId },
+                { "@CountryId", countryId }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_UserCountries_AddCountryToWishlist", userParam);
+            try
+            {
+                object result = cmd.ExecuteScalar();
+                return (result != null) ? Convert.ToInt32(result) : 0;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static int removeCountryFromWishlist(int userId, int countryId)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@UserId", userId },
+                { "@CountryId", countryId }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_UserCountries_RemoveCountryFromWishlist", userParam);
+            try
+            {
+                object result = cmd.ExecuteScalar();
+                return (result != null) ? Convert.ToInt32(result) : 0;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static List<Country> getWishlist(int userId)
+        {
+            Connect();
+            var param = new Dictionary<string, object>
+            {
+                { "@UserId", userId }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_UserCountries_GetWishlist", param);
+            try
+            {
+                List<Country> countries = new();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        Country c = DBServiceCountry.MapCountryFromReader(dr);
+                        countries.Add(c);
+                    }
+                }
+                foreach (var country in countries)
+                {
+                    DBServiceCountry.LoadChildCollections(country.Id, country);
+                }
+                return countries;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        // Country Visited
+        public static int addCountryToVisited(int userId, int countryId)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@UserId", userId },
+                { "@CountryId", countryId }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_UserCountries_AddCountryToVisited", userParam);
+            try
+            {
+                object result = cmd.ExecuteScalar();
+                return (result != null) ? Convert.ToInt32(result) : 0;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static int removeCountryFromVisited(int userId, int countryId)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@UserId", userId },
+                { "@CountryId", countryId }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_UserCountries_RemoveCountryFromVisited", userParam);
+            try
+            {
+                object result = cmd.ExecuteScalar();
+                return (result != null) ? Convert.ToInt32(result) : 0;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static List<Country> getVisited(int userId)
+        {
+            Connect();
+            var param = new Dictionary<string, object>
+            {
+                { "@UserId", userId }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_UserCountries_GetVisited", param);
+            try
+            {
+                List<Country> countries = new();
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        Country c = DBServiceCountry.MapCountryFromReader(dr);
+                        countries.Add(c);
+                    }
+                }
+                foreach (var country in countries)
+                {
+                    DBServiceCountry.LoadChildCollections(country.Id, country);
+                }
+                return countries;
+            }
+            catch (Exception ex)
+            {
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
         }
     }
 }

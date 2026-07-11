@@ -56,7 +56,7 @@ namespace Server.DAL
                 }
                 if (c == null)
                 {
-                    throw new Exception($"Unable to find country with cca3 {cca3}");
+                    return null;
                 }
                 LoadChildCollections(c.Id, c);
                 return c;
@@ -453,7 +453,7 @@ namespace Server.DAL
             }
         }
 
-        private static Country MapCountryFromReader(SqlDataReader dr)
+        internal static Country MapCountryFromReader(SqlDataReader dr)
         {
             Country c = new();
             c.Id = dr.IsDBNull(dr.GetOrdinal("Id")) ? 0 : dr.GetInt32(dr.GetOrdinal("Id"));
@@ -475,7 +475,7 @@ namespace Server.DAL
             return c;
         }
 
-        private static void LoadChildCollections(int countryId, Country c)
+        internal static void LoadChildCollections(int countryId, Country c)
         {
             var childParams = new Dictionary<string, object> { { "@CountryId", countryId } };
 

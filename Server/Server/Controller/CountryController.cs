@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Server.BL;
 
 namespace Server.Conntroller
@@ -14,9 +14,14 @@ namespace Server.Conntroller
         }
 
         [HttpGet("GetByCca3")]
-        public Country Get(string cca3)
+        public IActionResult Get(string cca3)
         {
-            return Country.GetByCca3(cca3);
+            var country = Country.GetByCca3(cca3);
+            if (country == null)
+            {
+                return NotFound($"Country with code {cca3} not found.");
+            }
+            return Ok(country);
         }
 
         [HttpPost]

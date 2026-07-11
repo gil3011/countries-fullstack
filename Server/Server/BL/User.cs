@@ -1,4 +1,4 @@
-﻿using Server.DAL;
+using Server.DAL;
 using System.ComponentModel;
 using System.Text.Json.Serialization;
 
@@ -73,5 +73,36 @@ namespace Server.BL
             return DBServiceUser.GetUserByEmail(email);
         }
 
+        // --- User Countries
+
+        public static int addCountryToWishlist(int userId, int countryId)
+        {
+            return DBServiceUser.addCountryToWishlist(userId, countryId);
+        }
+
+        public static int removeCountryFromWishlist(int userId, int countryId)
+        {
+            return DBServiceUser.removeCountryFromWishlist(userId, countryId);
+        }
+
+        public static List<Country> getWishlist(int userId)
+        {
+            return DBServiceUser.getWishlist(userId);
+        }
+
+        public static int addCountryToVisited(int userId, int countryId)
+        {
+            return DBServiceUser.addCountryToVisited(userId, countryId);
+        }
+
+        public static int removeCountryFromVisited(int userId, int countryId)
+        {
+            return DBServiceUser.removeCountryFromVisited(userId, countryId);
+        }
+
+        public static List<Country> getVisited(int userId)
+        {
+            return DBServiceUser.getVisited(userId);
+        }
     }
 }
