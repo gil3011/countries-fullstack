@@ -1,4 +1,5 @@
-﻿using Server.BL;
+﻿using Microsoft.Extensions.Logging;
+using Server.BL;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -10,7 +11,7 @@ namespace Server.DAL
         {
             Connect();
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Users2026_ReadAll", null);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_ReadAll", null);
             try
             {
                 List<User> users = new();
@@ -253,7 +254,6 @@ namespace Server.DAL
                 if (con != null) con.Close();
             }
         }
-
         public static bool preventSharing(int id)
         {
             Connect();
@@ -350,7 +350,6 @@ namespace Server.DAL
                 if (con != null) con.Close();
             }
         }
-
         public static void AddLoginLog(int userId)
         {
             Connect();
@@ -366,6 +365,215 @@ namespace Server.DAL
             }
             catch
             {
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static bool AddContinentPreference(int userId, string contincent)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@userId", userId},
+                { "@continentName" , contincent}
+            };
+
+            //
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Add_User_Continent", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static bool RemoveContinentPreference(int userId, string contincent)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@userId", userId},
+                { "@continentName" , contincent}
+            };
+
+            //
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Delete_User_Continent", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+
+        public static bool AddLanguageToUser(int userId, string language,string LanLevel)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@userId", userId},
+                { "@Language" , language},
+                { "@lanLevel",  LanLevel}
+            };
+
+            //
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Add_Language_To_User", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static bool RemoveLanguageFromUser(int userId, string language)
+        {
+            Connect();
+            var userParam = new Dictionary<string, object>
+            {
+                { "@userId", userId},
+                { "@Language" , language}
+            };
+
+            //
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Remove_Language_From_User", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static List<string> GetContinentPrefernces(int userId)
+        {
+            Connect();
+
+            var ParamDic = new Dictionary<string, object>
+            {
+                {"@userId", userId}
+            };
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_read_user_continents_preferences", ParamDic);
+
+            List<string> continents = new();
+
+            try
+            {
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        continents.Add(dr["ContinentName"].ToString());
+                    }
+                }
+                return continents;
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static Dictionary<string,string> GetUserLanguages(int userId)
+        {
+            Connect();
+
+            var ParamDic = new Dictionary<string, object>
+            {
+                {"@userId", userId}
+            };
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_read_user_languages", ParamDic);
+
+            Dictionary<string, string> languages = new();
+
+            try
+            {
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        string language = dr["LanguageName"].ToString();
+                        string level = dr["Level"].ToString();
+
+                        languages[language] = level;
+                    }
+                }
+                return languages;
             }
             finally
             {

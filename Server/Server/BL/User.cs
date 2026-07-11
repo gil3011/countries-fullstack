@@ -4,6 +4,13 @@ using System.Text.Json.Serialization;
 
 namespace Server.BL
 {
+    public enum LanguageLevel
+    {
+        Beginner,
+        Intermediate,
+        Advanced
+    }
+
     public class User
     {
         private int id;
@@ -97,6 +104,40 @@ namespace Server.BL
         {
             return DBServiceUser.GetAdminStats();
         }
+
+        public static bool AddContinentPreference(int userId, string preference)
+        {
+            return DBServiceUser.AddContinentPreference(userId, preference);
+        }
+
+        public static bool RemoveContinentPreference(int userId, string preference)
+        {
+            return DBServiceUser.RemoveContinentPreference(userId, preference);
+        }
+
+        public static bool AddLanguageToUser(int userId, string language, string lanLevel)
+        {
+            if (!Enum.TryParse<LanguageLevel>(lanLevel, true, out var level))
+            {
+                return false;
+            }
+            return DBServiceUser.AddLanguageToUser(userId, language, level.ToString());
+        }
+        public static bool RemoveLanguageFromUser(int userId, string language)
+        {
+            return DBServiceUser.RemoveLanguageFromUser(userId, language);
+        }
+
+        public static List<string> GetContinentPrefernces(int userId)
+        {
+            return DBServiceUser.GetContinentPrefernces(userId);
+        }
+
+        public static Dictionary<string, string> GetUserLanguages(int userId)
+        {
+            return DBServiceUser.GetUserLanguages(userId);
+        }
+
 
     }
 }
