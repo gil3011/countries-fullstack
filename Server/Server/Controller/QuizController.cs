@@ -59,8 +59,8 @@ namespace Server.Controllers
             {
                 return Ok(true);
             }
-            // EDIT RULE: Returns 400 Bad Request if it's public or not owned by user!
-            return BadRequest("Cannot update quiz: The quiz is either public, does not exist, or you are not the creator.");
+            // EDIT RULE: Returns 403 Forbidden if it's public or not owned by user!
+            return StatusCode(403, "Cannot update quiz: The quiz is either public, does not exist, or you are not the creator.");
         }
 
         // POST: api/Quiz/5/Publish
@@ -76,17 +76,18 @@ namespace Server.Controllers
                 return Ok(true);
             }
             // PUBLISHING RULE: Cannot publish an already public quiz or unowned quiz
-            return BadRequest("Cannot publish quiz: It may already be public, or you are not the creator.");
+            return StatusCode(403, "Cannot publish quiz: It may already be public, or you are not the creator.");
         }
 
         // POST: api/Quiz/5/Like
         [HttpPost("{id}/Like")]
-        public IActionResult AddLike(int id)
+        public IActionResult ToggleLike(int id, [FromQuery] int userId)
         {
             Quiz quiz = new Quiz { Id = id };
-            int result = quiz.AddLike();
-            if (result > 0) return Ok(true);
-            return BadRequest("Failed to add like.");
+            int result = quiz.ToggleLike(userId);
+            // result == 1 means Liked, result == 2 means Unliked.
+            if (result > 0) return Ok(result);
+            return StatusCode(403, "Failed to toggle like. Quiz may not exist or is not public.");
         }
 
         // DELETE: api/Quiz/5
@@ -100,7 +101,7 @@ namespace Server.Controllers
             {
                 return Ok(true);
             }
-            return BadRequest("Cannot delete quiz: The quiz is public or you are not the creator.");
+            return StatusCode(403, "Cannot delete quiz: The quiz is public or you are not the creator.");
         }
 
         // ==========================================
@@ -119,7 +120,7 @@ namespace Server.Controllers
                 return Created($"/api/Quiz/Question/{newQId}", newQId);
             }
             // EDIT RULE: Prevents adding questions to public quizzes
-            return BadRequest("Cannot add question: The quiz is public, does not exist, or you are not the creator.");
+            return StatusCode(403, "Cannot add question: The quiz is public, does not exist, or you are not the creator.");
         }
 
         // PUT: api/Quiz/Question/5
@@ -132,7 +133,7 @@ namespace Server.Controllers
                 return Ok(true);
             }
             // EDIT RULE: Prevents editing questions of public quizzes
-            return BadRequest("Cannot update question: The quiz is public, does not exist, or you are not the creator.");
+            return StatusCode(403, "Cannot update question: The quiz is public, does not exist, or you are not the creator.");
         }
 
         // DELETE: api/Quiz/Question/5
@@ -145,7 +146,7 @@ namespace Server.Controllers
                 return Ok(true);
             }
             // EDIT RULE: Prevents deleting questions from public quizzes
-            return BadRequest("Cannot delete question: The quiz is public, does not exist, or you are not the creator.");
+            return StatusCode(403, "Cannot delete question: The quiz is public, does not exist, or you are not the creator.");
         }
     }
 }

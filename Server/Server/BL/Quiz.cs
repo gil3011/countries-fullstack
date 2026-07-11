@@ -77,9 +77,9 @@ namespace Server.BL
             return DBServiceQuiz.PublishQuiz(this.Id, userId);
         }
 
-        public int AddLike()
+        public int ToggleLike(int userId)
         {
-            return DBServiceQuiz.AddLike(this.Id);
+            return DBServiceQuiz.ToggleLike(this.Id, userId);
         }
 
         // ==========================================

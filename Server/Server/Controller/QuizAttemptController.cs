@@ -50,7 +50,7 @@ namespace Server.Controllers
             {
                 return Ok(true);
             }
-            return BadRequest("Cannot delete attempt: It does not exist or does not belong to you.");
+            return StatusCode(403, "Cannot delete attempt: It does not exist or does not belong to you.");
         }
     }
 }

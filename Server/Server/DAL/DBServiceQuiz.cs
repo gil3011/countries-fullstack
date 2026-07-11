@@ -542,15 +542,16 @@ namespace Server.DAL
                 if (con != null) con.Close();
             }
         }
-        public static int AddLike(int quizId)
+        public static int ToggleLike(int quizId, int userId)
         {
             Connect();
             var param = new Dictionary<string, object>
             {
-                { "@Id", quizId }
+                { "@QuizId", quizId },
+                { "@UserId", userId }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_AddLike", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_ToggleLike", param);
             try
             {
                 object result = cmd.ExecuteScalar();

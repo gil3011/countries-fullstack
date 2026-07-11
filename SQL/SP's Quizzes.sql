@@ -246,20 +246,34 @@ BEGIN
 END
 GO
 
--- 13b. Add Like to Quiz
-CREATE OR ALTER PROCEDURE FP_sp_Quizzes_AddLike
-    @Id INT
+-- 13b. Toggle Like to Quiz
+CREATE OR ALTER PROCEDURE FP_sp_Quizzes_ToggleLike
+    @QuizId INT,
+    @UserId INT
 AS
 BEGIN
     SET NOCOUNT ON;
-    UPDATE FP_Quizzes2026
-    SET Likes = Likes + 1
-    WHERE Id = @Id AND IsPublic = 1; -- Usually you only like public quizzes, but we can just require Id
     
-    IF @@ROWCOUNT > 0
-        SELECT 1 AS Result;
+    IF NOT EXISTS (SELECT 1 FROM FP_Quizzes2026 WHERE Id = @QuizId AND IsPublic = 1)
+    BEGIN
+        SELECT 0 AS Result; -- Quiz not found or not public
+        RETURN;
+    END
+
+    IF EXISTS (SELECT 1 FROM FP_QuizLikes2026 WHERE QuizId = @QuizId AND UserId = @UserId)
+    BEGIN
+        -- Unlike
+        DELETE FROM FP_QuizLikes2026 WHERE QuizId = @QuizId AND UserId = @UserId;
+        UPDATE FP_Quizzes2026 SET Likes = Likes - 1 WHERE Id = @QuizId;
+        SELECT 2 AS Result; -- 2 means unliked
+    END
     ELSE
-        SELECT 0 AS Result;
+    BEGIN
+        -- Like
+        INSERT INTO FP_QuizLikes2026 (QuizId, UserId) VALUES (@QuizId, @UserId);
+        UPDATE FP_Quizzes2026 SET Likes = Likes + 1 WHERE Id = @QuizId;
+        SELECT 1 AS Result; -- 1 means liked
+    END
 END
 GO
 

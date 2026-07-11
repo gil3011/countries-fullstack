@@ -50,4 +50,14 @@ CREATE TABLE FP_QuizAttemptAnswers2026 (
     -- We generally don't cascade delete questions if an attempt exists, but if a question is deleted, we cascade delete the answer.
     CONSTRAINT FK_AttemptAnswers_Question FOREIGN KEY (QuestionId) REFERENCES FP_Questions2026(Id)
 );
+
+-- 5. Quiz Likes Table
+-- Tracks which user liked which quiz to prevent multiple likes.
+CREATE TABLE FP_QuizLikes2026 (
+    QuizId INT NOT NULL,
+    UserId INT NOT NULL,
+    PRIMARY KEY (QuizId, UserId),
+    CONSTRAINT FK_QuizLikes_Quizzes FOREIGN KEY (QuizId) REFERENCES FP_Quizzes2026(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_QuizLikes_Users FOREIGN KEY (UserId) REFERENCES FP_Users2026(Id) ON DELETE CASCADE
+);
 GO
