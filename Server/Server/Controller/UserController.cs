@@ -121,5 +121,100 @@ namespace Server.Conntroller
             var visited = BL.User.getVisited(userId);
             return Ok(visited);
         }
+
+
+        // --- Admin Endpoints ---
+        
+        [HttpPut("block/{id}")]
+        public IActionResult BlockUser(int id)
+        {
+            bool result = BL.User.BlockUser(id);
+            if (!result)
+                return BadRequest("User block failed");
+            return Ok(new { message = "User blocked successfully" });
+        }
+
+        [HttpPut("unblock/{id}")]
+        public IActionResult UnblockUser(int id)
+        {
+            bool result = BL.User.UnblockUser(id);
+            if (!result)
+                return BadRequest("User unblock failed");
+            return Ok(new { message = "User unblocked successfully" });
+        }
+
+        [HttpPut("preventSharing/{id}")]
+        public IActionResult PreventSharing(int id)
+        {
+            bool result = BL.User.PreventSharing(id);
+            if (!result)
+                return BadRequest("User prevent sharing failed");
+            return Ok(new { message = "User prevent sharing successfully" });
+        }
+
+        [HttpPut("allowSharing/{id}")]
+        public IActionResult AllowSharing(int id)
+        {
+            bool result = BL.User.AllowSharing(id);
+            if (!result)
+                return BadRequest("User allow sharing failed");
+            return Ok(new { message = "User allow sharing successfully" });
+        }
+
+        [HttpGet("admin/stats")]
+        public IActionResult GetStats()
+        {
+            var stats = BL.User.GetAdminStats();
+            return Ok(stats);
+        }
+
+        [HttpPost("addContinentPreference/{userId}")]
+        public IActionResult AddContinentPreference(int userId,[FromBody] string preference)
+        {
+            bool result = BL.User.AddContinentPreference(userId, preference);
+            if (!result)
+                return BadRequest("Adding preference failed");
+            return Ok(new { message = "Preference added successfully" });
+        }
+
+        [HttpPost("removeContinentPreference/{userId}")]
+        public IActionResult RemovePreference(int userId, [FromBody] string preference)
+        {
+            bool result = BL.User.RemoveContinentPreference(userId, preference);
+            if (!result)
+                return BadRequest("Removing preference failed");
+            return Ok(new { message = "Preference removed successfully" });
+        }
+
+        [HttpPost("addLanguageToUser/{userId}")]
+        public IActionResult AddLanguageToUser(int userId, [FromBody] string language, string lanLevel)
+        {
+            bool result = BL.User.AddLanguageToUser(userId, language, lanLevel);
+            if (!result)
+                return BadRequest("Adding preference failed");
+            return Ok(new { message = "Language added successfully" });
+        }
+
+        [HttpPost("removeLanguageFromUser/{userId}")]
+        public IActionResult RemoveLanguageFromUser(int userId, [FromBody] string language)
+        {
+            bool result = BL.User.RemoveLanguageFromUser(userId, language);
+            if (!result)
+                return BadRequest("Removing language failed");
+            return Ok(new { message = "Language removed successfully" });
+        }
+
+        [HttpGet("getContinentPreferences/{userId}")]
+        public IEnumerable<string> GetContinentPrefernces(int userId)
+        {
+            return BL.User.GetContinentPrefernces(userId);
+        }
+
+        [HttpGet("getUserLanguages/{userId}")]
+        public IActionResult GetUserLanguages(int userId)
+        {
+            var result = BL.User.GetUserLanguages(userId);
+            return Ok(result);
+        }
     }
 }
