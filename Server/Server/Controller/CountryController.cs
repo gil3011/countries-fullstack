@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Server.BL;
+using System.Diagnostics.Metrics;
 
 namespace Server.Conntroller
 {
@@ -8,39 +9,104 @@ namespace Server.Conntroller
     public class CountryController : ControllerBase
     {
         [HttpGet]
-        public IEnumerable<Country> Get()
+        public IActionResult Get()
         {
-            return Country.Read();
+            try
+            {
+                var countries = Country.Read();
+
+                if (countries == null || countries.Count == 0)
+                {
+                    return NotFound("No countries found.");
+                }
+
+                return Ok(countries);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
+            }
         }
 
         [HttpGet("GetByCca3")]
         public IActionResult Get(string cca3)
         {
-            var country = Country.GetByCca3(cca3);
-            if (country == null)
+            try
             {
-                return NotFound($"Country with code {cca3} not found.");
+                var country = Country.GetByCca3(cca3);
+                if (country == null)
+                {
+                    return NotFound($"Country with code {cca3} not found.");
+                }
+                return Ok(country);
             }
-            return Ok(country);
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
+            }
+
         }
 
         [HttpPost]
-        public bool Post([FromBody] Country country)
+        public IActionResult Post([FromBody] Country country)
         {
-            return country.Insert();
+            try
+            {
+                if (country.Insert())
+                {
+                    return Ok("");
+                }
+                else
+                {
+                    return BadRequest("Failed to insert the country into the database.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
+            }
         }
 
 
         [HttpPut("{id}")]
-        public bool UpdateCountry(int id, [FromBody] Country country)
+        public IActionResult UpdateCountry(int id, [FromBody] Country country)
         {
-            return Country.UpdateCountry(id, country);
+            try
+            {
+                if (Country.UpdateCountry(id, country))
+                {
+                    return Ok("");
+                }
+                else
+                {
+                    return BadRequest("Failed to insert the country into the database.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
+            }
         }
 
         [HttpDelete("{id}")]
-        public bool UpdateCountry(int id)
+        public IActionResult UpdateCountry(int id)
+
         {
-            return Country.DeleteCountry(id);
+            try
+            {
+                if (Country.DeleteCountry(id))
+                {
+                    return Ok("");
+                }
+                else
+                {
+                    return BadRequest("Failed to insert the country into the database.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
+            }
         }
     }
 }
