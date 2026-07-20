@@ -79,6 +79,10 @@ namespace Server.BL
         {
             return DBServiceUser.GetUserByEmail(email);
         }
+        public static void AddLoginLog(int userId)
+        {
+            DBServiceUser.AddLoginLog(userId);
+        }
 
         // --- User Countries
 

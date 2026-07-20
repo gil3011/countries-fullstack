@@ -65,7 +65,15 @@ namespace Server.Conntroller
             {
                 return Unauthorized("Invalid username or password");
             }
-            return Ok(user);
+            BL.User.AddLoginLog(user.Id);
+            return Ok(new
+            {
+                user.Id,
+                user.Username,
+                user.Email,
+                user.IsAdmin,
+                user.IsAllowedToShare
+            });
         }
 
         // --- Wishlist Endpoints ---
