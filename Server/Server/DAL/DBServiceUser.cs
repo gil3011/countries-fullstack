@@ -7,6 +7,7 @@ namespace Server.DAL
 {
     public class DBServiceUser : DBServiceBase
     {
+        // User functions
         public static List<User> ReadUsers()
         {
             Connect();
@@ -158,7 +159,7 @@ namespace Server.DAL
             {
                 { "@Email", email }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_GetUserByEmail2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_GetUserByEmail", userParam);
             try
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
@@ -192,6 +193,7 @@ namespace Server.DAL
 
         }
         
+        // Admin functions
         public static bool BlockUser(int id)
         {
             Connect();
@@ -332,11 +334,11 @@ namespace Server.DAL
 
                 reader.Read();
 
-                stats["login"] = Convert.ToInt32(reader["DailyLogins"]);
-                stats["import"] = Convert.ToInt32(reader["ImportedCountries"]);
-                stats["save"] = Convert.ToInt32(reader["SavedCountries"]);
-                stats["share"] = Convert.ToInt32(reader["Shares"]);
-
+                stats["DailyLogins"] = Convert.ToInt32(reader["DailyLogins"]);
+                stats["WishlistCountries"] = Convert.ToInt32(reader["WishlistCountries"]);
+                stats["VisitedCountries"] = Convert.ToInt32(reader["VisitedCountries"]);
+                stats["ImportedCountries"] = Convert.ToInt32(reader["ImportedCountries"]);
+                stats["Shares"] = Convert.ToInt32(reader["Shares"]);
                 return stats;
             }
             catch (Exception ex)
@@ -348,6 +350,38 @@ namespace Server.DAL
             {
                 if (reader != null) reader.Close();
                 if (con != null) con.Close();
+            }
+        }
+
+        public static Dictionary<DateTime, int> GetDailyLoginCounts()
+        {
+            Connect();
+
+            Dictionary<DateTime, int> dailyLogins = new Dictionary<DateTime, int>();
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
+                "FP_SP_UserLogins_ReadDailyCounts",
+                new Dictionary<string, object>()
+            );
+
+            try
+            {
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    DateTime loginDate = Convert.ToDateTime(reader["LoginDate"]);
+                    int loginCount = Convert.ToInt32(reader["LoginCount"]);
+
+                    dailyLogins.Add(loginDate, loginCount);
+                }
+
+                return dailyLogins;
+            }
+            finally
+            {
+                if (con != null)
+                    con.Close();
             }
         }
         public static void AddLoginLog(int userId)
@@ -372,6 +406,7 @@ namespace Server.DAL
             }
         }
 
+        // User Preferences
         public static bool AddContinentPreference(int userId, string contincent)
         {
             Connect();
@@ -443,7 +478,6 @@ namespace Server.DAL
                 if (con != null) con.Close();
             }
         }
-
 
         public static bool AddLanguageToUser(int userId, string language,string LanLevel)
         {

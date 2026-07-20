@@ -139,6 +139,11 @@ namespace Server.BL
             return DBServiceUser.GetAdminStats();
         }
 
+        public static Dictionary<DateTime, int> GetDailyLoginCounts()
+        {
+            return DBServiceUser.GetDailyLoginCounts();
+        }
+
         public static bool AddContinentPreference(int userId, string preference)
         {
             return DBServiceUser.AddContinentPreference(userId, preference);

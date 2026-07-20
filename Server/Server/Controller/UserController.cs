@@ -168,6 +168,13 @@ namespace Server.Conntroller
             return Ok(stats);
         }
 
+        [HttpGet("GetDailyLoginCounts")]
+        public IActionResult GetDailyLoginCounts()
+        {
+            var dailyLoginCounts = BL.User.GetDailyLoginCounts();
+            return Ok(dailyLoginCounts);
+        }
+
         [HttpPost("addContinentPreference/{userId}")]
         public IActionResult AddContinentPreference(int userId,[FromBody] string preference)
         {
