@@ -214,7 +214,7 @@ namespace Server.Conntroller
 
         // --- Admin Endpoints ---
         
-        [HttpPut("block/{id}")]
+        [HttpPut("admin/block/{id}")]
         public IActionResult BlockUser(int id)
         {
             try
@@ -230,7 +230,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpPut("unblock/{id}")]
+        [HttpPut("admin/unblock/{id}")]
         public IActionResult UnblockUser(int id)
         {
             try
@@ -246,7 +246,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpPut("preventSharing/{id}")]
+        [HttpPut("admin/preventSharing/{id}")]
         public IActionResult PreventSharing(int id)
         {
             try
@@ -262,7 +262,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpPut("allowSharing/{id}")]
+        [HttpPut("admin/allowSharing/{id}")]
         public IActionResult AllowSharing(int id)
         {
             try
@@ -292,7 +292,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpGet("GetDailyLoginCounts")]
+        [HttpGet("admin/GetDailyLoginCounts")]
         public IActionResult GetDailyLoginCounts()
         {
             try
