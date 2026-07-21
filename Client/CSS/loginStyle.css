@@ -1,0 +1,243 @@
+﻿:root {
+    /* Reuse dark theme variables from indexStyle.css */
+    --bg: #071226;
+    --card: #0f1724;
+    --muted: #94a3b8;
+    --accent: #60a5fa;
+    --border: #1f2a37;
+    --text: #e6f0fb;
+    --danger: #ef4444;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px;
+}
+
+/* Page container centered and constrained */
+.container {
+    max-width: 480px;
+    margin: 32px auto;
+    padding: 0 12px;
+}
+
+/* Card-style panels for both login and register sections */
+.login-wrapper {
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    border-radius: 12px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 20px rgba(2,6,23,0.45);
+}
+
+/* Title */
+.login-title {
+    margin: 0 0 16px 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+}
+
+/* Form layout */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+    .form-group label {
+        font-size: 0.95rem;
+        color: var(--muted);
+    }
+
+/* Inputs (text, email, password) */
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 1rem;
+    outline: none;
+    width: 100%;
+    transition: border-color .12s, box-shadow .12s;
+}
+
+input::placeholder {
+    color: var(--muted);
+}
+
+/* Focus states */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: rgba(96,165,250,0.45);
+    box-shadow: 0 6px 18px rgba(96,165,250,0.06);
+}
+
+/* Error box */
+.login-error {
+    color: var(--danger);
+    background: rgba(239,68,68,0.05);
+    border: 1px solid rgba(239,68,68,0.12);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    display: none; /* toggle via JS: block when showing an error */
+}
+
+/* Primary action button (Login / Register) */
+.login-btn {
+    margin-top: 6px;
+    background: linear-gradient(180deg, var(--accent), #2b8df6);
+    color: #021428;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform .08s, filter .08s;
+    width: 100%;
+    box-shadow: 0 6px 14px rgba(2,6,23,0.24);
+}
+
+    .login-btn:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.03);
+    }
+
+/* Secondary link area */
+.register-link {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+    .register-link a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+        .register-link a:hover {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+/* Registration step 2 controls */
+.language-control {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#lang-select,
+#lang-level-select {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    outline: none;
+}
+
+.btn-small {
+    width: auto;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+}
+
+.languages-list {
+    margin-top: 10px;
+    list-style: none;
+    padding: 0;
+}
+
+.languages-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.languages-list li small {
+    color: rgba(255,255,255,0.6);
+    margin-left: 8px;
+}
+
+.languages-list button {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.continents-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.step2-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.btn-secondary {
+    background: #334155;
+    color: var(--text);
+    width: auto;
+    padding: 10px 14px;
+    font-weight: 700;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Small helper text */
+.small-muted {
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+/* Hidden helper class used in HTML */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive tweaks */
+@media (min-width: 720px) {
+    .container {
+        max-width: 520px;
+    }
+
+    .login-wrapper {
+        padding: 28px;
+    }
+}
