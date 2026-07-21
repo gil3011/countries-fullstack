@@ -10,62 +10,108 @@ namespace Server.Controller
     public class ShareController : ControllerBase
     {
         [HttpGet("ReadAllShares")]
-        public IEnumerable<Share> GetAllShares()
+        public IActionResult GetAllShares()
         {
-            return BL.Share.GetAllShares();
+            try
+            {
+                var shares = BL.Share.GetAllShares();
+                return Ok(shares);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving shares.");
+            }
         }
 
         [HttpGet("GetUserShares/{userId}")]
-        public IEnumerable<Share> GetUserShares(int userId)
+        public IActionResult GetUserShares(int userId)
         {
-            return BL.Share.GetUserShares(userId);
+            try
+            {
+                var shares = BL.Share.GetUserShares(userId);
+                return Ok(shares);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving user shares.");
+            }
         }
 
         [HttpGet("GetCountryShares/{countryName}")]
-        public IEnumerable<Share> GetCountryShares(string countryName)
+        public IActionResult GetCountryShares(string countryName)
         {
-            return BL.Share.GetCountryShares(countryName);
+            try
+            {
+                var shares = BL.Share.GetCountryShares(countryName);
+                return Ok(shares);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving country shares.");
+            }
         }
 
         [HttpPost("CreateShare")]
         public IActionResult CreateShare([FromBody] Share share)
         {
-            bool result = BL.Share.CreateShare(share);
-            if (result)
+            try
             {
-                return Ok("Share created successfully");
+                bool result = BL.Share.CreateShare(share);
+                if (result)
+                {
+                    return Ok("Share created successfully");
+                }
+                else
+                {
+                    return BadRequest("Share was not created");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return BadRequest("Share was not created");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the share.");
             }
         }
 
         [HttpPut("UpdateShare")]
         public IActionResult UpdateShare([FromBody] Share share)
         {
-            bool result = BL.Share.UpdateShare(share);
-            if (result)
+            try
             {
-                return Ok("Share updated successfully");
+                bool result = BL.Share.UpdateShare(share);
+                if (result)
+                {
+                    return Ok("Share updated successfully");
+                }
+                else
+                {
+                    return NotFound("Share was not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return NotFound("Share was not found");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the share.");
             }
+
         }
 
         [HttpDelete("DeleteShare")]
         public IActionResult DeleteShare([FromQuery] int shareID, [FromQuery] int userID)
         {
-            bool result = BL.Share.DeleteShare(shareID, userID);
-            if (result)
+            try
             {
-                return Ok("Share deleted successfully");
+                bool result = BL.Share.DeleteShare(shareID, userID);
+                if (result)
+                {
+                    return Ok("Share deleted successfully");
+                }
+                else
+                {
+                    return NotFound("Share was not found");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return NotFound("Share was not found");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the share.");
             }
         }
     }
