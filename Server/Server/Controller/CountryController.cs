@@ -22,7 +22,7 @@ namespace Server.Conntroller
 
                 return Ok(countries);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
             }
@@ -40,7 +40,7 @@ namespace Server.Conntroller
                 }
                 return Ok(country);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
             }
@@ -61,7 +61,7 @@ namespace Server.Conntroller
                     return BadRequest("Failed to insert the country into the database.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
             }
@@ -82,7 +82,7 @@ namespace Server.Conntroller
                     return BadRequest("Failed to insert the country into the database.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
             }
@@ -103,7 +103,7 @@ namespace Server.Conntroller
                     return BadRequest("Failed to insert the country into the database.");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
             }
