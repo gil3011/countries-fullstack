@@ -54,7 +54,7 @@ namespace Server.DAL
                 { "@IsAllowedToShare", user.IsAllowedToShare }
             };
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_Add_User_2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_AddUser", userParam);
 
 
             SqlParameter returnParameter = new SqlParameter();
@@ -95,7 +95,7 @@ namespace Server.DAL
                 { "@IsAdmin", user.IsAdmin },
                 { "@IsAllowedToShare", user.IsAllowedToShare }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_Update_User2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_UpdateUser", userParam);
 
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;
@@ -127,7 +127,7 @@ namespace Server.DAL
             {
                 { "@Id", userID }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("SP_DeleteUser2026_FinalProj", userParam);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_DeleteUser", userParam);
 
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;
