@@ -37,37 +37,44 @@ namespace Server.BL
 
         public static List<Country> Read()
         {
-            return DBServiceCountry.ReadAllCountries();
+            DBServiceCountry dbs = new();
+            return dbs.ReadAllCountries();
         }
 
         public static Country GetByCca3(string cca3)
         {
+            DBServiceCountry dbs = new();
+
             if (string.IsNullOrEmpty(cca3))
             {
                 throw new ArgumentException("CCA3 code cannot be null or empty.", nameof(cca3));
             }
 
-            return DBServiceCountry.GetCountriesByCca3(cca3);
+            return dbs.GetCountriesByCca3(cca3);
         }
 
         public bool Insert()
         {
-            return DBServiceCountry.InsertCountry(this);
+            DBServiceCountry dbs = new();
+            return dbs.InsertCountry(this);
         }
 
         public static bool UpdateCountry(int id, Country country)
         {
+            DBServiceCountry dbs = new();
+
             if (country == null)
             {
                 throw new ArgumentNullException(nameof(country));
             }
 
-            return DBServiceCountry.UpdateCountry(id, country);
+            return dbs.UpdateCountry(id, country);
         }
 
         public static bool DeleteCountry(int id)
         {
-            return DBServiceCountry.DeleteCountry(id);
+            DBServiceCountry dbs = new();
+            return dbs.DeleteCountry(id);
         }
     }
 }

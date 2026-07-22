@@ -1,5 +1,6 @@
 using Server.DAL;
 using System.ComponentModel;
+using System.Net;
 using System.Text.Json.Serialization;
 
 namespace Server.BL
@@ -57,130 +58,152 @@ namespace Server.BL
 
         public static List<User> Read()
         {
-            return DBServiceUser.ReadUsers();
+            DBServiceUser dbs = new();
+            return dbs.ReadUsers();
         }
 
         public bool Register()
         {
-            return DBServiceUser.Register(this);
+            DBServiceUser dbs = new();
+            return dbs.Register(this);
         }
 
         public bool UpdateUser()
         {
-            return DBServiceUser.UpdateUser(this);
+            DBServiceUser dbs = new();
+            return dbs.UpdateUser(this);
         }
 
         public static bool DeleteUser(int id)
         {
-            return DBServiceUser.DeleteUser(id);
+            DBServiceUser dbs = new();
+            return dbs.DeleteUser(id);
 
         }
         public static User GetUserByEmail(string email)
         {
-            return DBServiceUser.GetUserByEmail(email);
+            DBServiceUser dbs = new();
+            return dbs.GetUserByEmail(email);
         }
         public static void AddLoginLog(int userId)
         {
-            DBServiceUser.AddLoginLog(userId);
+            DBServiceUser dbs = new();
+            dbs.AddLoginLog(userId);
         }
 
         // --- User Countries
 
         public static int addCountryToWishlist(int userId, int countryId)
         {
-            return DBServiceUser.addCountryToWishlist(userId, countryId);
+            DBServiceUser dbs = new();
+            return dbs.addCountryToWishlist(userId, countryId);
         }
 
         public static int removeCountryFromWishlist(int userId, int countryId)
         {
-            return DBServiceUser.removeCountryFromWishlist(userId, countryId);
+            DBServiceUser dbs = new();
+            return dbs.removeCountryFromWishlist(userId, countryId);
         }
 
         public static List<Country> getWishlist(int userId)
         {
-            return DBServiceUser.getWishlist(userId);
+            DBServiceUser dbs = new();
+            return dbs.getWishlist(userId);
         }
 
         public static int addCountryToVisited(int userId, int countryId)
         {
-            return DBServiceUser.addCountryToVisited(userId, countryId);
+            DBServiceUser dbs = new();
+            return dbs.addCountryToVisited(userId, countryId);
         }
 
         public static int removeCountryFromVisited(int userId, int countryId)
         {
-            return DBServiceUser.removeCountryFromVisited(userId, countryId);
+            DBServiceUser dbs = new();
+            return dbs.removeCountryFromVisited(userId, countryId);
         }
 
         public static List<Country> getVisited(int userId)
         {
-            return DBServiceUser.getVisited(userId);
+            DBServiceUser dbs = new();
+            return dbs.getVisited(userId);
         }
 
         // --- Admin Methods
 
         public static bool BlockUser(int userId)
         {
-            return DBServiceUser.BlockUser(userId);
+            DBServiceUser dbs = new();
+            return dbs.BlockUser(userId);
         }
 
         public static bool UnblockUser(int userId)
         {
-            return DBServiceUser.unblockUser(userId);
+            DBServiceUser dbs = new();
+            return dbs.unblockUser(userId);
         }
 
         public static bool PreventSharing(int userId)
         {
-            return DBServiceUser.preventSharing(userId);
+            DBServiceUser dbs = new();
+            return dbs.preventSharing(userId);
         }
 
         public static bool AllowSharing(int userId)
         {
-            return DBServiceUser.allowSharing(userId);
+            DBServiceUser dbs = new();
+            return dbs.allowSharing(userId);
         }
 
         public static Dictionary<string, int> GetAdminStats()
         {
-            return DBServiceUser.GetAdminStats();
+            DBServiceUser dbs = new();
+            return dbs.GetAdminStats();
         }
 
         public static Dictionary<DateTime, int> GetDailyLoginCounts()
         {
-            return DBServiceUser.GetDailyLoginCounts();
+            DBServiceUser dbs = new();
+            return dbs.GetDailyLoginCounts();
         }
 
         public static bool AddContinentPreference(int userId, string preference)
         {
-            return DBServiceUser.AddContinentPreference(userId, preference);
+            DBServiceUser dbs = new();
+            return dbs.AddContinentPreference(userId, preference);
         }
 
         public static bool RemoveContinentPreference(int userId, string preference)
         {
-            return DBServiceUser.RemoveContinentPreference(userId, preference);
+            DBServiceUser dbs = new();
+            return dbs.RemoveContinentPreference(userId, preference);
         }
 
         public static bool AddLanguageToUser(int userId, string language, string lanLevel)
         {
+            DBServiceUser dbs = new();
             if (!Enum.TryParse<LanguageLevel>(lanLevel, true, out var level))
             {
                 return false;
             }
-            return DBServiceUser.AddLanguageToUser(userId, language, level.ToString());
+            return dbs.AddLanguageToUser(userId, language, level.ToString());
         }
         public static bool RemoveLanguageFromUser(int userId, string language)
         {
-            return DBServiceUser.RemoveLanguageFromUser(userId, language);
+            DBServiceUser dbs = new();
+            return dbs.RemoveLanguageFromUser(userId, language);
         }
 
         public static List<string> GetContinentPrefernces(int userId)
         {
-            return DBServiceUser.GetContinentPrefernces(userId);
+            DBServiceUser dbs = new();
+            return dbs.GetContinentPrefernces(userId);
         }
 
         public static Dictionary<string, string> GetUserLanguages(int userId)
         {
-            return DBServiceUser.GetUserLanguages(userId);
+            DBServiceUser dbs = new();
+            return dbs.GetUserLanguages(userId);
         }
-
-
     }
 }

@@ -6,14 +6,26 @@ namespace Server.DAL
 {
     public class DBServiceCountry : DBServiceBase
     {
-        public static List<Country> ReadAllCountries()
+        public List<Country> ReadAllCountries()
         {
-            Connect();
+            SqlConnection con;
+            SqlCommand cmd;
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Countries2026_ReadAll", null);
             try
             {
-                List<Country> countries = new();
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Countries2026_ReadAll", null);
+            List<Country> countries = new();
+
+            try
+            {
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     while (dr.Read())
@@ -36,14 +48,27 @@ namespace Server.DAL
             }
         }
 
-        public static Country GetCountriesByCca3(string cca3)
+        public Country GetCountriesByCca3(string cca3)
         {
-            Connect();
+            SqlConnection con;
+            SqlCommand cmd;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
             var param = new Dictionary<string, object>()
             {
                 { "@Cca3", cca3 ?? string.Empty }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Countries2026_GetByCca3", param);
+            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Countries2026_GetByCca3", param);
+
             try
             {
                 Country c = null;
@@ -67,9 +92,19 @@ namespace Server.DAL
             }
         }
 
-        public static bool InsertCountry(Country country)
+        public bool InsertCountry(Country country)
         {
-            Connect();
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
             SqlTransaction tx = con.BeginTransaction();
             try
             {
@@ -89,7 +124,7 @@ namespace Server.DAL
                     { "@WikipediaUrl", string.IsNullOrEmpty(country.WikipediaUrl) ? (object)DBNull.Value : country.WikipediaUrl }
                 };
 
-                using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Countries2026_Insert", countryParams))
+                using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Countries2026_Insert", countryParams))
                 {
                     cmd.Transaction = tx;
                     var outParam = new SqlParameter("@NewId", SqlDbType.Int) { Direction = ParameterDirection.Output };
@@ -113,7 +148,7 @@ namespace Server.DAL
                             { "@Longitude", cap.Longitude == 0 ? (object)DBNull.Value : cap.Longitude }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Capitals2026_Insert", capParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Capitals2026_Insert", capParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -132,7 +167,7 @@ namespace Server.DAL
                             { "@LanguageName", lang.LanguageName ?? string.Empty }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Languages2026_GetOrCreate", langGetParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Languages2026_GetOrCreate", langGetParams))
                         {
                             cmd.Transaction = tx;
                             var outLang = new SqlParameter("@LanguageId", SqlDbType.Int) { Direction = ParameterDirection.Output };
@@ -147,7 +182,7 @@ namespace Server.DAL
                             { "@LanguageId", langId }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryLanguages2026_Insert", langRelParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con ,"FP_sp_CountryLanguages2026_Insert", langRelParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -167,7 +202,7 @@ namespace Server.DAL
                             { "@CurrencySymbol", string.IsNullOrEmpty(cur.CurrencySymbol) ? (object)DBNull.Value : cur.CurrencySymbol }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Currencies2026_GetOrCreate", curGetParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Currencies2026_GetOrCreate", curGetParams))
                         {
                             cmd.Transaction = tx;
                             var outCur = new SqlParameter("@CurrencyId", SqlDbType.Int) { Direction = ParameterDirection.Output };
@@ -182,7 +217,7 @@ namespace Server.DAL
                             { "@CurrencyId", curId }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryCurrencies2026_Insert", curRelParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_CountryCurrencies2026_Insert", curRelParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -201,7 +236,7 @@ namespace Server.DAL
                             { "@BorderCca3", borderCca3 }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryBorders2026_InsertByBorderCca3", borderParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_CountryBorders2026_InsertByBorderCca3", borderParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -219,7 +254,7 @@ namespace Server.DAL
                             { "@Timezone", tz ?? string.Empty }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryTimezones2026_Insert", tzParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_CountryTimezones2026_Insert", tzParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -241,9 +276,19 @@ namespace Server.DAL
             }
         }
 
-        public static bool UpdateCountry(int id, Country country)
+        public bool UpdateCountry(int id, Country country)
         {
-            Connect();
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
             SqlTransaction tx = con.BeginTransaction();
             try
             {
@@ -264,7 +309,7 @@ namespace Server.DAL
                     { "@WikipediaUrl", string.IsNullOrEmpty(country.WikipediaUrl) ? (object)DBNull.Value : country.WikipediaUrl }
                 };
 
-                using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Countries2026_Update", updateParams))
+                using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Countries2026_Update", updateParams))
                 {
                     cmd.Transaction = tx;
                     cmd.ExecuteNonQuery();
@@ -280,7 +325,7 @@ namespace Server.DAL
                 var deleteParams = new Dictionary<string, object> { { "@CountryId", id } };
                 foreach (var sp in deletes)
                 {
-                    using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(sp, deleteParams))
+                    using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, sp, deleteParams))
                     {
                         cmd.Transaction = tx;
                         cmd.ExecuteNonQuery();
@@ -301,7 +346,7 @@ namespace Server.DAL
                             { "@Longitude", cap.Longitude == 0 ? (object)DBNull.Value : cap.Longitude }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Capitals2026_Insert", capParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Capitals2026_Insert", capParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -320,7 +365,7 @@ namespace Server.DAL
                             { "@LanguageName", lang.LanguageName ?? string.Empty }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Languages2026_GetOrCreate", langGetParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Languages2026_GetOrCreate", langGetParams))
                         {
                             cmd.Transaction = tx;
                             var outLang = new SqlParameter("@LanguageId", SqlDbType.Int) { Direction = ParameterDirection.Output };
@@ -335,7 +380,7 @@ namespace Server.DAL
                             { "@LanguageId", langId }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryLanguages2026_Insert", langRelParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_CountryLanguages2026_Insert", langRelParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -355,7 +400,7 @@ namespace Server.DAL
                             { "@CurrencySymbol", string.IsNullOrEmpty(cur.CurrencySymbol) ? (object)DBNull.Value : cur.CurrencySymbol }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Currencies2026_GetOrCreate", curGetParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Currencies2026_GetOrCreate", curGetParams))
                         {
                             cmd.Transaction = tx;
                             var outCur = new SqlParameter("@CurrencyId", SqlDbType.Int) { Direction = ParameterDirection.Output };
@@ -370,7 +415,7 @@ namespace Server.DAL
                             { "@CurrencyId", curId }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryCurrencies2026_Insert", curRelParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_CountryCurrencies2026_Insert", curRelParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -388,7 +433,7 @@ namespace Server.DAL
                             { "@BorderCca3", border.Cca3 ?? string.Empty }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryBorders2026_InsertByBorderCca3", borderParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_CountryBorders2026_InsertByBorderCca3", borderParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -406,7 +451,7 @@ namespace Server.DAL
                             { "@Timezone", tz ?? string.Empty }
                         };
 
-                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryTimezones2026_Insert", tzParams))
+                        using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_CountryTimezones2026_Insert", tzParams))
                         {
                             cmd.Transaction = tx;
                             cmd.ExecuteNonQuery();
@@ -428,12 +473,24 @@ namespace Server.DAL
             }
         }
 
-        public static bool DeleteCountry(int id)
+        public bool DeleteCountry(int id)
         {
-            Connect();
+            SqlConnection con;
+            SqlCommand cmd;
+
             try
             {
-                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            try
+            {
+                cmd = CreateCommandWithStoredProcedureGeneral(
+                    con,
                     "FP_sp_Countries2026_Delete",
                     new Dictionary<string, object>() { { "@Id", id } }
                 );
@@ -475,11 +532,21 @@ namespace Server.DAL
             return c;
         }
 
-        internal static void LoadChildCollections(int countryId, Country c)
+        internal void LoadChildCollections(int countryId, Country c)
         {
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var childParams = new Dictionary<string, object> { { "@CountryId", countryId } };
 
-            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Capitals2026_GetByCountryId", childParams))
+            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Capitals2026_GetByCountryId", childParams))
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -498,7 +565,7 @@ namespace Server.DAL
                 }
             }
 
-            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryLanguages2026_GetByCountryId", childParams))
+            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_CountryLanguages2026_GetByCountryId", childParams))
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -516,7 +583,7 @@ namespace Server.DAL
                 }
             }
 
-            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryCurrencies2026_GetByCountryId", childParams))
+            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_CountryCurrencies2026_GetByCountryId", childParams))
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -535,7 +602,7 @@ namespace Server.DAL
                 }
             }
 
-            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryBorders2026_GetByCountryId", childParams))
+            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_CountryBorders2026_GetByCountryId", childParams))
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -553,7 +620,7 @@ namespace Server.DAL
                 }
             }
 
-            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_CountryTimezones2026_GetByCountryId", childParams))
+            using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_CountryTimezones2026_GetByCountryId", childParams))
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {

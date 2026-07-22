@@ -1,6 +1,7 @@
 using Server.BL;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics.Contracts;
 
 namespace Server.DAL
 {
@@ -10,16 +11,25 @@ namespace Server.DAL
         // CREATE
         // ==========================================
 
-        public static int CreateQuiz(Quiz quiz)
+        public int CreateQuiz(Quiz quiz)
         {
-            Connect();
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@Title", quiz.Title },
                 { "@CreatorId", quiz.CreatorId }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_CreateQuiz", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_CreateQuiz", param);
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -45,9 +55,19 @@ namespace Server.DAL
             }
         }
 
-        public static int AddQuestion(int quizId, int userId, Question q)
+        public int AddQuestion(int quizId, int userId, Question q)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@QuizId", quizId },
@@ -60,7 +80,8 @@ namespace Server.DAL
                 { "@CorrectAnswer", q.CorrectAnswer }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_AddQuestion", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_AddQuestion", param);
+
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -78,9 +99,19 @@ namespace Server.DAL
             }
         }
 
-        public static int CreateAttempt(QuizAttempt attempt)
+        public int CreateAttempt(QuizAttempt attempt)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@QuizId", attempt.QuizId },
@@ -88,7 +119,7 @@ namespace Server.DAL
                 { "@Score", attempt.Score }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_CreateAttempt", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_CreateAttempt", param);
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -114,9 +145,19 @@ namespace Server.DAL
             }
         }
 
-        private static void AddAttemptAnswer(int attemptId, int questionId, string userAnswer)
+        private void AddAttemptAnswer(int attemptId, int questionId, string userAnswer)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@AttemptId", attemptId },
@@ -124,7 +165,7 @@ namespace Server.DAL
                 { "@UserAnswer", userAnswer }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_AddAttemptAnswer", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_AddAttemptAnswer", param);
             try
             {
                 cmd.ExecuteNonQuery();
@@ -143,11 +184,21 @@ namespace Server.DAL
         // GET
         // ==========================================
 
-        public static Quiz GetQuizById(int id)
+        public Quiz GetQuizById(int id)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object> { { "@Id", id } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetQuizById", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetQuizById", param);
             
             Quiz quiz = null;
             try
@@ -183,11 +234,21 @@ namespace Server.DAL
             }
         }
 
-        public static List<Question> GetQuestionsByQuizId(int quizId)
+        public List<Question> GetQuestionsByQuizId(int quizId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object> { { "@QuizId", quizId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetQuestionsByQuizId", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetQuestionsByQuizId", param);
             
             List<Question> questions = new List<Question>();
             try
@@ -220,10 +281,21 @@ namespace Server.DAL
             }
         }
 
-        public static List<Quiz> GetAllPublicQuizzes()
+        public List<Quiz> GetAllPublicQuizzes()
         {
-            Connect();
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetAllPublicQuizzes", null);
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetAllPublicQuizzes", null);
             
             List<Quiz> quizzes = new List<Quiz>();
             try
@@ -254,11 +326,22 @@ namespace Server.DAL
             }
         }
 
-        public static List<Quiz> GetQuizzesByUserId(int userId)
+        public List<Quiz> GetQuizzesByUserId(int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
             var param = new Dictionary<string, object> { { "@UserId", userId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetQuizzesByUserId", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetQuizzesByUserId", param);
             
             List<Quiz> quizzes = new List<Quiz>();
             try
@@ -289,11 +372,22 @@ namespace Server.DAL
             }
         }
 
-        public static QuizAttempt GetAttempt(int attemptId)
+        public QuizAttempt GetAttempt(int attemptId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
             var param = new Dictionary<string, object> { { "@AttemptId", attemptId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetAttempt", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetAttempt", param);
             
             QuizAttempt attempt = null;
             try
@@ -317,9 +411,19 @@ namespace Server.DAL
                 if (attempt != null)
                 {
                     // Fetch answers
-                    Connect(); // Ensure connection is open for second query
+                    // Ensure connection is open for second query
+
+                    try
+                    {
+                        con = Connect(); // create the connection
+                    }
+                    catch (Exception ex)
+                    {
+                        // write to log
+                        throw (ex);
+                    }
                     var paramAnswers = new Dictionary<string, object> { { "@AttemptId", attemptId } };
-                    SqlCommand cmdAnswers = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetAttemptAnswers", paramAnswers);
+                    SqlCommand cmdAnswers = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetAttemptAnswers", paramAnswers);
                     using (SqlDataReader dr = cmdAnswers.ExecuteReader())
                     {
                         while (dr.Read())
@@ -341,11 +445,21 @@ namespace Server.DAL
             }
         }
 
-        public static List<QuizAttempt> GetAttemptsByUserId(int userId)
+        public List<QuizAttempt> GetAttemptsByUserId(int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object> { { "@UserId", userId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetAttemptsByUserId", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetAttemptsByUserId", param);
             
             List<QuizAttempt> attempts = new List<QuizAttempt>();
             try
@@ -382,9 +496,19 @@ namespace Server.DAL
         // ==========================================
 
 
-        public static int UpdateQuiz(int quizId, int userId, string title)
+        public int UpdateQuiz(int quizId, int userId, string title)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@Id", quizId },
@@ -392,7 +516,7 @@ namespace Server.DAL
                 { "@Title", title }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_UpdateQuiz", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_UpdateQuiz", param);
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -408,9 +532,20 @@ namespace Server.DAL
             }
         }
 
-        public static int UpdateQuestion(int questionId, int userId, Question q)
+        public int UpdateQuestion(int questionId, int userId, Question q)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
             var param = new Dictionary<string, object>
             {
                 { "@Id", questionId },
@@ -423,7 +558,7 @@ namespace Server.DAL
                 { "@CorrectAnswer", q.CorrectAnswer }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_UpdateQuestion", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_UpdateQuestion", param);
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -439,16 +574,26 @@ namespace Server.DAL
             }
         }
 
-        public static int PublishQuiz(int quizId, int userId)
+        public int PublishQuiz(int quizId, int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@Id", quizId },
                 { "@UserId", userId }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_PublishQuiz", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_PublishQuiz", param);
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -468,16 +613,26 @@ namespace Server.DAL
         // DELETE
         // ==========================================
 
-        public static int DeleteQuiz(int quizId, int userId)
+        public int DeleteQuiz(int quizId, int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@Id", quizId },
                 { "@UserId", userId }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_DeleteQuiz", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_DeleteQuiz", param);
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -493,16 +648,26 @@ namespace Server.DAL
             }
         }
 
-        public static int DeleteQuestion(int questionId, int userId)
+        public int DeleteQuestion(int questionId, int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@Id", questionId },
                 { "@UserId", userId }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_DeleteQuestion", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_DeleteQuestion", param);
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -518,16 +683,26 @@ namespace Server.DAL
             }
         }
 
-        public static int DeleteAttempt(int attemptId, int userId)
+        public int DeleteAttempt(int attemptId, int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@AttemptId", attemptId },
                 { "@UserId", userId }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_DeleteAttempt", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_DeleteAttempt", param);
             try
             {
                 object result = cmd.ExecuteScalar();
@@ -542,16 +717,26 @@ namespace Server.DAL
                 if (con != null) con.Close();
             }
         }
-        public static int ToggleLike(int quizId, int userId)
+        public int ToggleLike(int quizId, int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@QuizId", quizId },
                 { "@UserId", userId }
             };
             
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_ToggleLike", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_ToggleLike", param);
             try
             {
                 object result = cmd.ExecuteScalar();
