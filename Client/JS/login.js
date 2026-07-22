@@ -14,32 +14,52 @@ $(document).ready(function () {
     $(".register-link a").click(toggleForms);
     $("#login-form .login-btn").click(authenticate);
 
-    $("#register-next-btn").click(registerNext);
     $("#add-language-btn").click(addLanguage);
-    $("#back-to-step1-btn").click(backToStep1);
     $("#final-register-btn").click(registerUser);
+
+    // Load languages to the datalist on page ready
+    loadLanguages();
 });
 
+function loadLanguages() {
+    // GET list of languages from backend. Expecting e.g. [ "English", "Spanish" ] or [ { name: "English" }, ... ]
+    ajaxCall("GET", API_ROUTES.languagesApi, null,
+        function (data) {
+            const datalist = $("#languages-datalist");
+            datalist.empty();
+
+            options = ["English", "Spanish"]
+            options.forEach(opt => {
+                const optionEl = $(`<option value="${opt}"></option>`);
+                datalist.append(optionEl);
+            });
+        },
+        function (err) {
+            console.error("Error loading languages:", err);
+            // Non-fatal: leave default options if any are present in markup
+        }
+    );
+}
+
 function registerUser() {
-    // Final submission: collect basic info + languages + continents
     const name = $("#reg-name").val();
     const email = $("#reg-email").val();
     const password = $("#reg-password").val();
 
     if (!isValidName(name)) {
-        $("#register-step2-error").text("Name must contain only letters and at least 2 characters").show();
+        $("#register-error").text("Username must contain least 2 characters and include only English letters and numbers").show();
         return
     }
     else if (!isValidEmail(email)) {
-        $("#register-step2-error").text("Email format is incorrect!").show();
+        $("#register-error").text("Email format is incorrect!").show();
         return
     }
     else if (!isValidPassword(password)) {
-        $("#register-step2-error").text("Password must be at least 8 characters, include 1 uppercase letter and 1 number!").show();
+        $("#register-error").text("Password must be at least 8 characters, include 1 uppercase letter and 1 number!").show();
         return
     }
     else {
-        $("#register-step2-error").text("").hide();
+        $("#register-error").text("").hide();
     }
 
     const selectedContinents = [];
@@ -67,11 +87,11 @@ function registerUser() {
         },
         function (err) {
             if (err.status === 409) {
-                $("#register-step2-error").text(err.responseText).show();
+                $("#register-error").text(err.responseText).show();
                 return;
             }
             const message = "An error occurred";
-            $("#register-step2-error").text(message).show();
+            $("#register-error").text(message).show();
         }
     );
 }
@@ -124,9 +144,10 @@ function toggleForms(event) {
     }
 }
 function isValidName(name) {
-    const regex = /^[A-Za-z]{2,}$/;
+    const regex = /^[A-Za-z0-9]{2,}$/;
     return regex.test(name);
 }
+
 function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
@@ -136,41 +157,14 @@ function isValidPassword(password) {
     return regex.test(password);
 }
 
-// Registration step handlers and language management
-function registerNext() {
-    const name = $("#reg-name").val();
-    const email = $("#reg-email").val();
-    const password = $("#reg-password").val();
-
-    if (!isValidName(name)) {
-        $("#register-error").text("Name must contain only letters and at least 2 characters").show();
-        return;
-    }
-    else if (!isValidEmail(email)) {
-        $("#register-error").text("Email format is incorrect!").show();
-        return;
-    }
-    else if (!isValidPassword(password)) {
-        $("#register-error").text("Password must be at least 8 characters, include 1 uppercase letter and 1 number!").show();
-        return;
-    }
-    else {
-        $("#register-error").text("").hide();
-    }
-
-    // Show step 2
-    $("#register-step-1").addClass('hidden');
-    $("#register-step-2").removeClass('hidden');
-}
-
-function backToStep1() {
-    $("#register-step-2").addClass('hidden');
-    $("#register-step-1").removeClass('hidden');
-}
-
 function addLanguage() {
-    const lang = $("#lang-select").val();
+    const lang = $("#lang-select").val()?.trim();
     const level = parseInt($("#lang-level-select").val(), 10);
+
+    if (!lang) {
+        alert('Please select or type a language');
+        return;
+    }
 
     if (Number.isNaN(level) || level < 0) {
         alert('Please select a valid language level');
@@ -211,7 +205,7 @@ function renderLanguages() {
         list.append(li);
     });
 }
-
+    
 function removeLanguage(language) {
     if (!addedLanguages.hasOwnProperty(language)) {
         return;
