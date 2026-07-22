@@ -30,7 +30,7 @@ function loadLanguages() {
 
             const options = Array.isArray(data) ? data : [];
             options.forEach(opt => {
-                const name = opt : (opt?.name ?? opt?.language ?? String(opt));
+                const name = (typeof opt === "string") ? opt : (opt?.name ?? opt?.language ?? String(opt));
                 const optionEl = $(`<option></option>`).val(name).text(name);
                 select.append(optionEl);
             });
