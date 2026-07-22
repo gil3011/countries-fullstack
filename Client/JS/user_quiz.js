@@ -51,8 +51,43 @@ $(document).ready(function () {
     });
 });
 
+function initUser() {
+    const userStr = localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser');
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            $('#logged-user-name').text(user.username || user.email || 'Logged In User');
+        } catch (e) {
+            $('#logged-user-name').text('Invalid User Data');
+        }
+    } else {
+        showToast("No logged in user found. Please log in.", "error");
+        // window.location.href = 'login.html';
+    }
+}
+
+// Call initUser on load
+$(document).ready(function() {
+    initUser();
+});
+
 function getUserId() {
-    return $('#simulateUserId').val() || 2;
+    const userStr = localStorage.getItem('loggedInUser') || sessionStorage.getItem('loggedInUser');
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            if (user.id) return parseInt(user.id);
+        } catch (e) {
+            return null;
+        }
+    }
+    return null; // No user logged in
+}
+
+function logout() {
+    localStorage.removeItem('loggedInUser');
+    sessionStorage.removeItem('loggedInUser');
+    window.location.href = 'login.html';
 }
 
 /* ==========================================================================
