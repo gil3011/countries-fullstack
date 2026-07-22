@@ -39,31 +39,37 @@ namespace Server.BL
 
         public static List<Share> GetAllShares()
         {
-            return DBServiceShare.GetAllShares();
+            DBServiceShare dbs = new();
+            return dbs.GetAllShares();
         }
 
         public static List<Share> GetUserShares(int userId)
         {
-            return DBServiceShare.GetUserShares(userId);
+            DBServiceShare dbs = new();
+            return dbs.GetUserShares(userId);
         }
         public static List<Share> GetCountryShares(string countryName)
         {
-            return DBServiceShare.GetCountryShares(countryName);
+            DBServiceShare dbs = new();
+            return dbs.GetCountryShares(countryName);
         }
 
         public static bool CreateShare(Share share)
         {
-            return DBServiceShare.CreateShare(share);
+            DBServiceShare dbs = new();
+            return dbs.CreateShare(share);
         }
 
         public static bool UpdateShare(Share share)
         {
-            return DBServiceShare.UpdateShare(share);
+            DBServiceShare dbs = new();
+            return dbs.UpdateShare(share);
         }
 
         public static bool DeleteShare(int shareID,int userID)
         {
-            return DBServiceShare.DeleteShare(shareID,userID);
+            DBServiceShare dbs = new();
+            return dbs.DeleteShare(shareID,userID);
         }
     }
 }
