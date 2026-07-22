@@ -6,7 +6,8 @@
     <title>Country Profile Viewer</title>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="../JS/ajaxCalls.js"></script>
-
+    <script src="../JS/navbar.js"></script>
+    <link href="../CSS/NavBar.css" rel="stylesheet" />
     <style>
         :root {
             --bg: #071226;
@@ -240,6 +241,9 @@
     </style>
 </head>
 <body>
+
+    <div id="navbar-container"></div>
+
     <main class="page">
 
         <!-- Loading -->
@@ -311,7 +315,7 @@
         </div>
     </main>
 
-    <script>    
+    <script>
 
         function renderCountry(country) {
             document.getElementById('cca3-badge').textContent = country.cca3;
