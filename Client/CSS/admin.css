@@ -195,14 +195,6 @@ body {
             color: var(--text);
         }
 
-/* Chart */
-
-.chart-container {
-    width: 100%;
-    min-height: 320px;
-    position: relative;
-}
-
 /* Table */
 
 .table-wrapper {
@@ -306,11 +298,15 @@ body {
     font-size: 0.82rem;
     font-weight: 700;
     cursor: pointer;
-    transition: transform 0.12s, background 0.12s, border-color 0.12s;
+    transition: transform 0.12s, background 0.12s, border-color 0.12s, color 0.12s;
 }
 
     .action-btn:hover {
         transform: translateY(-1px);
+    }
+
+    .action-btn:active {
+        transform: translateY(0);
     }
 
 .block-btn {
@@ -344,6 +340,42 @@ body {
     .permission-btn:hover {
         background: rgba(96, 165, 250, 0.14);
         border-color: rgba(96, 165, 250, 0.35);
+    }
+
+.admin-btn {
+    color: #cbd5e1;
+    background: rgba(148, 163, 184, 0.07);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+    .admin-btn:hover {
+        color: var(--text);
+        background: rgba(96, 165, 250, 0.11);
+        border-color: rgba(96, 165, 250, 0.38);
+    }
+
+.promote-admin-btn {
+    color: var(--accent);
+    background: rgba(96, 165, 250, 0.08);
+    border: 1px solid rgba(96, 165, 250, 0.24);
+}
+
+    .promote-admin-btn:hover {
+        color: #bfdbfe;
+        background: rgba(96, 165, 250, 0.16);
+        border-color: rgba(96, 165, 250, 0.42);
+    }
+
+.demote-admin-btn {
+    color: var(--warning);
+    background: rgba(245, 158, 11, 0.07);
+    border: 1px solid rgba(245, 158, 11, 0.22);
+}
+
+    .demote-admin-btn:hover {
+        color: #fbbf24;
+        background: rgba(245, 158, 11, 0.14);
+        border-color: rgba(245, 158, 11, 0.38);
     }
 
 /* Empty state */

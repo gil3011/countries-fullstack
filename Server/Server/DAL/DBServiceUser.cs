@@ -370,7 +370,7 @@ namespace Server.DAL
                 { "@Id", id }
             };
 
-            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_SP_Prevent_Sharing", userParam);
+            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Prevent_User_Sharing", userParam);
 
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;
@@ -415,7 +415,7 @@ namespace Server.DAL
                 { "@Id", id }
             };
 
-            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_SP_Allow_Sharing", userParam);
+            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Allow_User_Sharing", userParam);
 
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;

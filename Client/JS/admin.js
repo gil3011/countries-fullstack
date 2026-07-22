@@ -1,4 +1,5 @@
 let allUsers = [];
+let allLoginCounts = {};
 
 $(document).ready(function () {
     getUsers();
@@ -8,7 +9,7 @@ $(document).ready(function () {
     $("#user-search").on("input", filterUsers);
 
     $("#login-range").on("change", function () {
-        getDailyLoginCounts();
+        filterAndRenderLoginCounts();
     });
 });
 
@@ -40,11 +41,9 @@ function getAdminStats() {
 
 
 function getDailyLoginCounts() {
-    const days = Number($("#login-range").val());
-
     ajaxCall(
         "GET",
-        userAPI + "/admin/GetDailyLoginCounts?days=" + days,
+        userAPI + "/admin/GetDailyLoginCounts",
         null,
         getDailyLoginCountsSuccess,
         requestFailed
@@ -64,8 +63,6 @@ function getUsersSuccess(users) {
 
 
 function getAdminStatsSuccess(data) {
-    console.log("Admin stats:", data);
-
     const stats = Array.isArray(data)
         ? data[0]
         : data;
@@ -74,10 +71,63 @@ function getAdminStatsSuccess(data) {
 }
 
 
-function getDailyLoginCountsSuccess(loginData) {
-    console.log("Daily login counts:", loginData);
+function getDailyLoginCountsSuccess(loginCounts) {
+    allLoginCounts = loginCounts ?? {};
 
-    renderDailyLoginCounts(loginData);
+    filterAndRenderLoginCounts();
+}
+
+
+/* =========================
+   Filter daily login counts
+========================= */
+
+function filterAndRenderLoginCounts() {
+    const days = Number($("#login-range").val());
+
+    let loginItems = [];
+
+    if (Array.isArray(allLoginCounts)) {
+        loginItems = allLoginCounts.map(function (item) {
+            return {
+                date:
+                    item.date ??
+                    item.Date ??
+                    item.loginDate ??
+                    item.LoginDate ??
+                    "",
+
+                count:
+                    item.loginCount ??
+                    item.LoginCount ??
+                    item.dailyLogins ??
+                    item.DailyLogins ??
+                    item.count ??
+                    item.Count ??
+                    0
+            };
+        });
+    } else if (
+        allLoginCounts &&
+        typeof allLoginCounts === "object"
+    ) {
+        loginItems = Object.entries(allLoginCounts).map(
+            function ([date, count]) {
+                return {
+                    date: date,
+                    count: count
+                };
+            }
+        );
+    }
+
+    loginItems.sort(function (a, b) {
+        return new Date(a.date) - new Date(b.date);
+    });
+
+    const filteredLoginCounts = loginItems.slice(-days);
+
+    renderDailyLoginCounts(filteredLoginCounts);
 }
 
 
@@ -87,7 +137,10 @@ function getDailyLoginCountsSuccess(loginData) {
 
 function renderAdminStats(stats) {
     if (!stats) {
-        console.error("Admin statistics were not received");
+        console.error(
+            "Admin statistics were not received"
+        );
+
         return;
     }
 
@@ -134,9 +187,10 @@ function renderDailyLoginCounts(loginData) {
 
     tableBody.empty();
 
-    console.log("Login data received:", loginData);
-
-    if (!loginData) {
+    if (
+        !Array.isArray(loginData) ||
+        loginData.length === 0
+    ) {
         tableBody.html(`
             <tr>
                 <td colspan="2" class="empty-table-message">
@@ -148,34 +202,7 @@ function renderDailyLoginCounts(loginData) {
         return;
     }
 
-    let loginItems = [];
-
-    if (Array.isArray(loginData)) {
-        loginItems = loginData;
-    } else if (typeof loginData === "object") {
-        loginItems = Object.entries(loginData).map(
-            function ([date, count]) {
-                return {
-                    date: date,
-                    count: count
-                };
-            }
-        );
-    }
-
-    if (loginItems.length === 0) {
-        tableBody.html(`
-            <tr>
-                <td colspan="2" class="empty-table-message">
-                    No login activity was found
-                </td>
-            </tr>
-        `);
-
-        return;
-    }
-
-    loginItems.forEach(function (item) {
+    loginData.forEach(function (item) {
         const date =
             item.date ??
             item.Date ??
@@ -334,6 +361,10 @@ function getUserActionButtons(user) {
         ? "Disable Sharing"
         : "Enable Sharing";
 
+    const adminButtonText = user.isAdmin
+        ? "Demote from Admin"
+        : "Promote to Admin";
+
     return `
         <div class="action-buttons">
 
@@ -351,10 +382,158 @@ function getUserActionButtons(user) {
                 ${sharingButtonText}
             </button>
 
+            <button
+                type="button"
+                class="action-btn admin-btn"
+                data-user-id="${user.id}">
+                ${adminButtonText}
+            </button>
+
         </div>
     `;
 }
 
+/* =========================
+   User action events
+========================= */
+
+$(document).on("click", ".block-btn", function () {
+    const userId = Number($(this).data("user-id"));
+
+    changeUserBlockStatus(userId);
+});
+
+
+$(document).on("click", ".permission-btn", function () {
+    const userId = Number($(this).data("user-id"));
+
+    changeUserSharingPermission(userId);
+});
+
+
+$(document).on("click", ".admin-btn", function () {
+    const userId = Number($(this).data("user-id"));
+
+    changeUserAdminRole(userId);
+});
+
+/* =========================
+   User action events
+========================= */
+
+function changeUserBlockStatus(userId) {
+    const user = allUsers.find(function (item) {
+        return item.id === userId;
+    });
+
+    if (!user) {
+        console.error("User was not found:", userId);
+        return;
+    }
+
+    const endpoint = user.isBlocked
+        ? `${userAPI}/admin/unblock/${userId}`
+        : `${userAPI}/admin/block/${userId}`;
+
+    const actionText = user.isBlocked
+        ? "unblock"
+        : "block";
+
+    const confirmed = confirm(
+        `Are you sure you want to ${actionText} ${user.username}?`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    ajaxCall(
+        "PUT",
+        endpoint,
+        null,
+        function () {
+            user.isBlocked = !user.isBlocked;
+            renderUsers(allUsers);
+        },
+        requestFailed
+    );
+}
+
+function changeUserSharingPermission(userId) {
+    const user = allUsers.find(function (item) {
+        return item.id === userId;
+    });
+
+    if (!user) {
+        console.error("User was not found:", userId);
+        return;
+    }
+
+    const endpoint = user.isAllowedToShare
+        ? `${userAPI}/admin/preventSharing/${userId}`
+        : `${userAPI}/admin/allowSharing/${userId}`;
+
+    const actionText = user.isAllowedToShare
+        ? "disable sharing for"
+        : "enable sharing for";
+
+    const confirmed = confirm(
+        `Are you sure you want to ${actionText} ${user.username}?`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    ajaxCall(
+        "PUT",
+        endpoint,
+        null,
+        function () {
+            user.isAllowedToShare = !user.isAllowedToShare;
+            renderUsers(allUsers);
+        },
+        requestFailed
+    );
+}
+
+function changeUserAdminRole(userId) {
+    const user = allUsers.find(function (item) {
+        return item.id === userId;
+    });
+
+    if (!user) {
+        console.error("User was not found:", userId);
+        return;
+    }
+
+    const endpoint = user.isAdmin
+        ? `${userAPI}/admin/demote/${userId}`
+        : `${userAPI}/admin/promote/${userId}`;
+
+    const actionText = user.isAdmin
+        ? "demote from admin"
+        : "promote to admin";
+
+    const confirmed = confirm(
+        `Are you sure you want to ${actionText}: ${user.username}?`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    ajaxCall(
+        "PUT",
+        endpoint,
+        null,
+        function () {
+            user.isAdmin = !user.isAdmin;
+            renderUsers(allUsers);
+        },
+        requestFailed
+    );
+}
 
 /* =========================
    Search users
@@ -369,23 +548,26 @@ function filterUsers() {
 
     if (searchText === "") {
         renderUsers(allUsers);
+
         return;
     }
 
-    const filteredUsers = allUsers.filter(function (user) {
-        const username = String(
-            user.username ?? ""
-        ).toLowerCase();
+    const filteredUsers = allUsers.filter(
+        function (user) {
+            const username = String(
+                user.username ?? ""
+            ).toLowerCase();
 
-        const email = String(
-            user.email ?? ""
-        ).toLowerCase();
+            const email = String(
+                user.email ?? ""
+            ).toLowerCase();
 
-        return (
-            username.includes(searchText) ||
-            email.includes(searchText)
-        );
-    });
+            return (
+                username.includes(searchText) ||
+                email.includes(searchText)
+            );
+        }
+    );
 
     renderUsers(filteredUsers);
 }
@@ -431,5 +613,7 @@ function requestFailed(error) {
         error
     );
 
-    alert("Failed to load admin dashboard data");
+    alert(
+        "Failed to load admin dashboard data"
+    );
 }
