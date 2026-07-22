@@ -19,40 +19,20 @@ namespace Server.BL
         private string password;
         private string email;
 
-        private bool isBlocked;
-        private bool isAdmin;
-        private bool isAllowedToShare;
+        private bool isBlocked = false;
+        private bool isAdmin = false;
+        private bool isAllowedToShare = true;
 
-        public User() {
-
-            isBlocked = false;
-            isAdmin = false;
-            isAllowedToShare = true;
-        }
-
-        public User(int id, string username, string password, string email, bool isBlocked, bool isAdmin, bool isAllowedToShare)
-        {
-            Id = id;
-            Username = username;
-            Password = password;
-            Email = email;
-            IsBlocked = isBlocked;
-            IsAdmin = isAdmin;
-            IsAllowedToShare = isAllowedToShare;
-        }
         public int Id { get => id; set => id = value; }
         public string Username { get => username; set => username = value; }
         public string Password { get => password; set => password = value; }
         public string Email { get => email; set => email = value; }
 
-        [DefaultValue(false)]
         public bool IsBlocked { get => isBlocked; set => isBlocked = value; }
-
-        [DefaultValue(false)]
         public bool IsAdmin { get => isAdmin; set => isAdmin = value; }
-
-        [DefaultValue(true)]
         public bool IsAllowedToShare { get => isAllowedToShare; set => isAllowedToShare = value; }
+        public List<string> PreferdContinents { get; set; } = new List<string>();
+        public Dictionary<string, LanguageLevel> LanguegeLevels { get; set; } = new Dictionary<string, LanguageLevel>();
 
         // --- BLL Methods 
 
@@ -62,7 +42,7 @@ namespace Server.BL
             return dbs.ReadUsers();
         }
 
-        public bool Register()
+        public int Register()
         {
             DBServiceUser dbs = new();
             return dbs.Register(this);
@@ -115,6 +95,14 @@ namespace Server.BL
         {
             DBServiceUser dbs = new();
             return dbs.addCountryToVisited(userId, countryId);
+        }
+
+        public static bool moveToVisited(int userId, int countryId)
+        {
+            // First try to remove from wishlist, we don't strictly care if it fails (it might not be there)
+            DBServiceUser.removeCountryFromWishlist(userId, countryId);
+            // Then add to visited
+            return DBServiceUser.addCountryToVisited(userId, countryId) > 0;
         }
 
         public static int removeCountryFromVisited(int userId, int countryId)

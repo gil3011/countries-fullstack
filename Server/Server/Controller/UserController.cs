@@ -181,6 +181,15 @@ namespace Server.Conntroller
             }
         }
 
+        [HttpPost("{userId}/moveToVisited/{countryId}")]
+        public IActionResult MoveToVisited(int userId, int countryId)
+        {
+            bool result = BL.User.moveToVisited(userId, countryId);
+            if (!result)
+                return BadRequest("Failed to move country to visited list.");
+            return Ok(new { message = "Country moved to visited list successfully." });
+        }
+
         [HttpDelete("{userId}/visited/{countryId}")]
         public IActionResult RemoveFromVisited(int userId, int countryId)
         {
@@ -210,201 +219,6 @@ namespace Server.Conntroller
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving visited list.");
             }   
         }
-
-
-        // --- Admin Endpoints ---
-        
-        [HttpPut("admin/block/{id}")]
-        public IActionResult BlockUser(int id)
-        {
-            try
-            {
-                bool result = BL.User.BlockUser(id);
-                if (!result)
-                    return BadRequest("User block failed");
-                return Ok(new { message = "User blocked successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while blocking the user.");
-            }
-        }
-
-        [HttpPut("admin/unblock/{id}")]
-        public IActionResult UnblockUser(int id)
-        {
-            try
-            {
-                bool result = BL.User.UnblockUser(id);
-                if (!result)
-                    return BadRequest("User unblock failed");
-                return Ok(new { message = "User unblocked successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while unblocking the user.");
-            }
-        }
-
-        [HttpPut("admin/preventSharing/{id}")]
-        public IActionResult PreventSharing(int id)
-        {
-            try
-            {
-                bool result = BL.User.PreventSharing(id);
-                if (!result)
-                    return BadRequest("User prevent sharing failed");
-                return Ok(new { message = "User prevent sharing successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while preventing sharing for the user.");
-            }
-        }
-
-        [HttpPut("admin/allowSharing/{id}")]
-        public IActionResult AllowSharing(int id)
-        {
-            try
-            {
-                bool result = BL.User.AllowSharing(id);
-                if (!result)
-                    return BadRequest("User allow sharing failed");
-                return Ok(new { message = "User allow sharing successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while allowing sharing for the user.");
-            }
-        }
-
-        [HttpGet("admin/stats")]
-        public IActionResult GetStats()
-        {
-            try
-            {
-                var stats = BL.User.GetAdminStats();
-                return Ok(stats);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving admin stats.");
-            }
-        }
-
-        [HttpGet("admin/GetDailyLoginCounts")]
-        public IActionResult GetDailyLoginCounts()
-        {
-            try
-            {
-                var dailyLoginCounts = BL.User.GetDailyLoginCounts();
-                return Ok(dailyLoginCounts);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving daily login counts.");
-            }
-        }
-
-        [HttpPut("admin/promote/{userId}")]
-        public IActionResult PromoteToAdmin(int userId)
-        {
-            try
-            {
-                bool result = BL.User.PromoteToAdmin(userId);
-                if (!result)
-                    return BadRequest("User promotion to admin failed");
-                return Ok(new { message = "User promoted to admin successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while promoting the user to admin.");
-            }
-        }   
-
-        [HttpPut("admin/demote/{userId}")]
-        public IActionResult DemoteFromAdmin(int userId)
-        {
-            try
-            {
-                bool result = BL.User.DemoteFromAdmin(userId);
-                if (!result)
-                    return BadRequest("User demotion from admin failed");
-                return Ok(new { message = "User demoted from admin successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while demoting the user from admin.");
-            }
-        }
-
-        // --- User preferences Endpoints ---
-
-
-        [HttpPost("addContinentPreference/{userId}")]
-        public IActionResult AddContinentPreference(int userId,[FromBody] string preference)
-        {
-            try
-            {
-                bool result = BL.User.AddContinentPreference(userId, preference);
-                if (!result)
-                    return BadRequest("Adding preference failed");
-                return Ok(new { message = "Preference added successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding continent preference.");
-            }
-        }
-
-        [HttpPost("removeContinentPreference/{userId}")]
-        public IActionResult RemovePreference(int userId, [FromBody] string preference)
-        {
-            try
-            {
-                bool result = BL.User.RemoveContinentPreference(userId, preference);
-                if (!result)
-                    return BadRequest("Removing preference failed");
-                return Ok(new { message = "Preference removed successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing continent preference.");
-            }
-        }
-
-        [HttpPost("addLanguageToUser/{userId}")]
-        public IActionResult AddLanguageToUser(int userId, [FromBody] string language, string lanLevel)
-        {
-            try
-            {
-                bool result = BL.User.AddLanguageToUser(userId, language, lanLevel);
-                if (!result)
-                    return BadRequest("Adding preference failed");
-                return Ok(new { message = "Language added successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding language to user.");
-            }
-        }
-
-        [HttpPost("removeLanguageFromUser/{userId}")]
-        public IActionResult RemoveLanguageFromUser(int userId, [FromBody] string language)
-        {
-            try
-            {
-                bool result = BL.User.RemoveLanguageFromUser(userId, language);
-                if (!result)
-                    return BadRequest("Removing language failed");
-                return Ok(new { message = "Language removed successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing language from user.");
-            }
-        }
-
         [HttpGet("getContinentPreferences/{userId}")]
         public IActionResult GetContinentPrefernces(int userId)
         {
