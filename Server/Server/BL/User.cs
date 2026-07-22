@@ -99,10 +99,11 @@ namespace Server.BL
 
         public static bool moveToVisited(int userId, int countryId)
         {
+            DBServiceUser dbs = new();
             // First try to remove from wishlist, we don't strictly care if it fails (it might not be there)
-            DBServiceUser.removeCountryFromWishlist(userId, countryId);
+            dbs.removeCountryFromWishlist(userId, countryId);
             // Then add to visited
-            return DBServiceUser.addCountryToVisited(userId, countryId) > 0;
+            return dbs.addCountryToVisited(userId, countryId) > 0;
         }
 
         public static int removeCountryFromVisited(int userId, int countryId)
