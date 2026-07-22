@@ -106,6 +106,15 @@ namespace Server.Conntroller
             return Ok(new { message = "Country added to visited list successfully." });
         }
 
+        [HttpPost("{userId}/moveToVisited/{countryId}")]
+        public IActionResult MoveToVisited(int userId, int countryId)
+        {
+            bool result = BL.User.moveToVisited(userId, countryId);
+            if (!result)
+                return BadRequest("Failed to move country to visited list.");
+            return Ok(new { message = "Country moved to visited list successfully." });
+        }
+
         [HttpDelete("{userId}/visited/{countryId}")]
         public IActionResult RemoveFromVisited(int userId, int countryId)
         {

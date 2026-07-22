@@ -69,10 +69,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
 
             finally
@@ -108,10 +108,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -140,10 +140,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -180,10 +180,10 @@ namespace Server.DAL
                 }
                 return null; // User not found
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -213,10 +213,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -244,10 +244,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -275,10 +275,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -307,10 +307,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -339,10 +339,10 @@ namespace Server.DAL
 
                 return stats;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -397,10 +397,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -433,10 +433,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -471,10 +471,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -507,10 +507,10 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // write to log
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -596,9 +596,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -620,9 +620,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -655,9 +655,9 @@ namespace Server.DAL
                 }
                 return countries;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -680,9 +680,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -704,9 +704,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -739,9 +739,9 @@ namespace Server.DAL
                 }
                 return countries;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -750,3 +750,4 @@ namespace Server.DAL
         }
     }
 }
+
