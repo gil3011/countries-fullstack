@@ -35,9 +35,9 @@ namespace Server.DAL
                 
                 return newQuizId;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -65,9 +65,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -103,9 +103,9 @@ namespace Server.DAL
                 
                 return newAttemptId;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -128,9 +128,9 @@ namespace Server.DAL
             {
                 cmd.ExecuteNonQuery();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -172,9 +172,9 @@ namespace Server.DAL
                 }
                 return quiz;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -208,9 +208,9 @@ namespace Server.DAL
                 }
                 return questions;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -242,9 +242,9 @@ namespace Server.DAL
                 }
                 return quizzes;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -277,9 +277,9 @@ namespace Server.DAL
                 }
                 return quizzes;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -329,9 +329,9 @@ namespace Server.DAL
                 
                 return attempt;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -365,9 +365,9 @@ namespace Server.DAL
                 }
                 return attempts;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -396,9 +396,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -426,9 +426,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -451,9 +451,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -480,9 +480,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -505,9 +505,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -530,9 +530,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -554,9 +554,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -565,3 +565,5 @@ namespace Server.DAL
         }
     }
 }
+
+

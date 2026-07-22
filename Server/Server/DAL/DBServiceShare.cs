@@ -32,9 +32,9 @@ namespace Server.DAL
                     return shares;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -72,9 +72,9 @@ namespace Server.DAL
                     return shares;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -112,9 +112,9 @@ namespace Server.DAL
                     return shares;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -238,3 +238,4 @@ namespace Server.DAL
         }
     }
 }
+
