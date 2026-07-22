@@ -59,7 +59,7 @@ namespace Server.DAL
             }
         }
 
-        public bool Register(User user)
+        public int Register(User user)
         {
             SqlConnection con;
             SqlCommand cmd;
@@ -91,6 +91,7 @@ namespace Server.DAL
 
             try
             {
+
                 cmd.ExecuteNonQuery(); // execute the command
                 int result = Convert.ToInt32(returnParameter.Value);
 
@@ -107,7 +108,7 @@ namespace Server.DAL
                                 { "@userId", newUserId },
                                 { "@continentName", continent }
                             };
-                            using (SqlCommand cmdCont = CreateCommandWithStoredProcedureGeneral("FP_sp_Add_User_Continent", contParams))
+                            using (SqlCommand cmdCont = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Add_User_Continent", contParams))
                             {
                                 SqlParameter contRet = new SqlParameter();
                                 contRet.Direction = ParameterDirection.ReturnValue;
@@ -134,7 +135,7 @@ namespace Server.DAL
                                 { "@Language", kv.Key },
                                 { "@lanLevel", kv.Value.ToString() }
                             };
-                            using (SqlCommand cmdLang = CreateCommandWithStoredProcedureGeneral("FP_SP_Add_Language_To_User", langParams))
+                            using (SqlCommand cmdLang = CreateCommandWithStoredProcedureGeneral(con,"FP_SP_Add_Language_To_User", langParams))
                             {
                                 SqlParameter langRet = new SqlParameter();
                                 langRet.Direction = ParameterDirection.ReturnValue;
@@ -1012,7 +1013,7 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // write to log
                 throw (ex);
@@ -1051,7 +1052,7 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // write to log
                 throw (ex);
@@ -1102,7 +1103,7 @@ namespace Server.DAL
                 }
                 return countries;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // write to log
                 throw (ex);
@@ -1142,7 +1143,7 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // write to log
                 throw (ex);
@@ -1181,7 +1182,7 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // write to log
                 throw (ex);
@@ -1231,7 +1232,7 @@ namespace Server.DAL
                 }
                 return countries;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // write to log
                 throw (ex);

@@ -33,10 +33,12 @@ namespace Server.Conntroller
                 var hasher = new PasswordHasher<User>();
                 user.Password = hasher.HashPassword(user, user.Password);
 
-                bool result = user.Register();
+                int result = user.Register();
 
-                if (!result)
-                    return BadRequest("User already exists");
+                if (result == -1)
+                    return Conflict("email already exists");
+                if (result == -2)
+                    return Conflict("username already exists");
                 return Ok(user);
             }
             catch (Exception ex)
