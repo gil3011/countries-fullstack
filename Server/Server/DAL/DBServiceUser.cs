@@ -40,7 +40,7 @@ namespace Server.DAL
             }
         }
 
-        public static bool Register(User user)
+        public static int Register(User user)
         {
             Connect();
             var userParam = new Dictionary<string, object>
@@ -54,8 +54,6 @@ namespace Server.DAL
             };
 
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Users_AddUser", userParam);
-
-
             SqlParameter returnParameter = new SqlParameter();
             returnParameter.Direction = ParameterDirection.ReturnValue;
             cmd.Parameters.Add(returnParameter);
@@ -65,16 +63,70 @@ namespace Server.DAL
                 cmd.ExecuteNonQuery(); // execute the command
                 int result = Convert.ToInt32(returnParameter.Value);
 
-                if (result != 0)
-                    return true;
-                return false;
+                int newUserId = result;
+
+                if (user.PreferdContinents != null && user.PreferdContinents.Count > 0)
+                {
+                    foreach (var continent in user.PreferdContinents)
+                    {
+                        try
+                        {
+                            var contParams = new Dictionary<string, object>
+                            {
+                                { "@userId", newUserId },
+                                { "@continentName", continent }
+                            };
+                            using (SqlCommand cmdCont = CreateCommandWithStoredProcedureGeneral("FP_sp_Add_User_Continent", contParams))
+                            {
+                                SqlParameter contRet = new SqlParameter();
+                                contRet.Direction = ParameterDirection.ReturnValue;
+                                cmdCont.Parameters.Add(contRet);
+                                cmdCont.ExecuteNonQuery();
+                            }
+                        }
+                        catch
+                        {
+                            // do not fail but log
+                        }
+                    }
+                }
+
+                if (user.LanguegeLevels != null && user.LanguegeLevels.Count > 0)
+                {
+                    foreach (var kv in user.LanguegeLevels)
+                    {
+                        try
+                        {
+                            var langParams = new Dictionary<string, object>
+                            {
+                                { "@userId", newUserId },
+                                { "@Language", kv.Key },
+                                { "@lanLevel", kv.Value.ToString() }
+                            };
+                            using (SqlCommand cmdLang = CreateCommandWithStoredProcedureGeneral("FP_SP_Add_Language_To_User", langParams))
+                            {
+                                SqlParameter langRet = new SqlParameter();
+                                langRet.Direction = ParameterDirection.ReturnValue;
+                                cmdLang.Parameters.Add(langRet);
+                                cmdLang.ExecuteNonQuery();
+                            }
+                        }
+                        catch
+                        {
+                            // do not fail but log
+                        }
+                    }
+            }
+
+                return result;
             }
             catch (Exception)
             {
+                // log as needed
+                throw;
                 // write to log
                 throw;
             }
-
             finally
             {
                 if (con != null) con.Close();

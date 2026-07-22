@@ -22,10 +22,12 @@ namespace Server.Conntroller
             var hasher = new PasswordHasher<User>();
             user.Password = hasher.HashPassword(user, user.Password);
 
-            bool result = user.Register();
+            int result = user.Register();
 
-            if (!result)
-                return BadRequest("User already exists");
+            if (result == -1)
+                return Conflict("email already exists");
+            if (result == -2)
+                return Conflict("username already exists");
 
             return Ok(user);
         }
@@ -130,6 +132,7 @@ namespace Server.Conntroller
             var visited = BL.User.getVisited(userId);
             return Ok(visited);
         }
+<<<<<<< HEAD
 
 
         // --- Admin Endpoints ---
@@ -175,42 +178,6 @@ namespace Server.Conntroller
         {
             var stats = BL.User.GetAdminStats();
             return Ok(stats);
-        }
-
-        [HttpPost("addContinentPreference/{userId}")]
-        public IActionResult AddContinentPreference(int userId,[FromBody] string preference)
-        {
-            bool result = BL.User.AddContinentPreference(userId, preference);
-            if (!result)
-                return BadRequest("Adding preference failed");
-            return Ok(new { message = "Preference added successfully" });
-        }
-
-        [HttpPost("removeContinentPreference/{userId}")]
-        public IActionResult RemovePreference(int userId, [FromBody] string preference)
-        {
-            bool result = BL.User.RemoveContinentPreference(userId, preference);
-            if (!result)
-                return BadRequest("Removing preference failed");
-            return Ok(new { message = "Preference removed successfully" });
-        }
-
-        [HttpPost("addLanguageToUser/{userId}")]
-        public IActionResult AddLanguageToUser(int userId, [FromBody] string language, string lanLevel)
-        {
-            bool result = BL.User.AddLanguageToUser(userId, language, lanLevel);
-            if (!result)
-                return BadRequest("Adding preference failed");
-            return Ok(new { message = "Language added successfully" });
-        }
-
-        [HttpPost("removeLanguageFromUser/{userId}")]
-        public IActionResult RemoveLanguageFromUser(int userId, [FromBody] string language)
-        {
-            bool result = BL.User.RemoveLanguageFromUser(userId, language);
-            if (!result)
-                return BadRequest("Removing language failed");
-            return Ok(new { message = "Language removed successfully" });
         }
 
         [HttpGet("getContinentPreferences/{userId}")]
