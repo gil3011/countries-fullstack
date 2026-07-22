@@ -561,6 +561,95 @@ namespace Server.DAL
             }
         }
 
+        public bool promoteToAdmin(int userID)
+        {
+            SqlConnection con;
+            SqlCommand cmd;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            var userParam = new Dictionary<string, object>
+            {
+                { "@userId", userID}
+            };
+
+            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_SP_Promote_To_Admin", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public bool demoteFromAdmin(int userID)
+        {
+            SqlConnection con;
+            SqlCommand cmd;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            var userParam = new Dictionary<string, object>
+            {
+                { "@userId", userID}
+            };
+
+            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_SP_Demote_From_Admin", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+
         // User Preferences
         public bool AddContinentPreference(int userId, string contincent)
         {

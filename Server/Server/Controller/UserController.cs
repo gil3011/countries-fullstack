@@ -306,6 +306,41 @@ namespace Server.Conntroller
             }
         }
 
+        [HttpPut("admin/promote/{userId}")]
+        public IActionResult PromoteToAdmin(int userId)
+        {
+            try
+            {
+                bool result = BL.User.PromoteToAdmin(userId);
+                if (!result)
+                    return BadRequest("User promotion to admin failed");
+                return Ok(new { message = "User promoted to admin successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while promoting the user to admin.");
+            }
+        }   
+
+        [HttpPut("admin/demote/{userId}")]
+        public IActionResult DemoteFromAdmin(int userId)
+        {
+            try
+            {
+                bool result = BL.User.DemoteFromAdmin(userId);
+                if (!result)
+                    return BadRequest("User demotion from admin failed");
+                return Ok(new { message = "User demoted from admin successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while demoting the user from admin.");
+            }
+        }
+
+        // --- User preferences Endpoints ---
+
+
         [HttpPost("addContinentPreference/{userId}")]
         public IActionResult AddContinentPreference(int userId,[FromBody] string preference)
         {

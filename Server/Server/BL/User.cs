@@ -167,6 +167,20 @@ namespace Server.BL
             return dbs.GetDailyLoginCounts();
         }
 
+        public static bool PromoteToAdmin(int userId)
+        {
+            DBServiceUser dbs = new();
+            return dbs.promoteToAdmin(userId);
+        }
+
+        public static bool DemoteFromAdmin(int userId)
+        {
+            DBServiceUser dbs = new();
+            return dbs.demoteFromAdmin(userId);
+        }
+
+        // --- User Methods
+
         public static bool AddContinentPreference(int userId, string preference)
         {
             DBServiceUser dbs = new();
