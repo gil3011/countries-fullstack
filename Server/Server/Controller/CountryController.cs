@@ -108,5 +108,24 @@ namespace Server.Conntroller
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
             }
         }
+        [HttpGet]
+        public IActionResult GetLangueges()
+        {
+            try
+            {
+                var countries = Country.Read();
+
+                if (countries == null || countries.Count == 0)
+                {
+                    return NotFound("No countries found.");
+                }
+
+                return Ok(countries);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
+            }
+        }
     }
 }
