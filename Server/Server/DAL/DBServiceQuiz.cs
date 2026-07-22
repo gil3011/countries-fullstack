@@ -56,8 +56,7 @@ namespace Server.DAL
                 { "@OptionA", q.OptionA },
                 { "@OptionB", q.OptionB },
                 { "@OptionC", q.OptionC },
-                { "@OptionD", q.OptionD },
-                { "@CorrectAnswer", q.CorrectAnswer }
+                { "@OptionD", q.OptionD }
             };
             
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_AddQuestion", param);
@@ -203,8 +202,7 @@ namespace Server.DAL
                             OptionA = dr["OptionA"].ToString(),
                             OptionB = dr["OptionB"].ToString(),
                             OptionC = dr["OptionC"].ToString(),
-                            OptionD = dr["OptionD"].ToString(),
-                            CorrectAnswer = dr["CorrectAnswer"].ToString()
+                            OptionD = dr["OptionD"].ToString()
                         });
                     }
                 }
@@ -419,8 +417,7 @@ namespace Server.DAL
                 { "@OptionA", q.OptionA },
                 { "@OptionB", q.OptionB },
                 { "@OptionC", q.OptionC },
-                { "@OptionD", q.OptionD },
-                { "@CorrectAnswer", q.CorrectAnswer }
+                { "@OptionD", q.OptionD }
             };
             
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_UpdateQuestion", param);

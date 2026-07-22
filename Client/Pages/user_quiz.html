@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Master - User Actions Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="../CSS/user_quiz.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+    <script src="../JS/ajaxCalls.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="brand">
+                <i class="fa-solid fa-brain"></i>
+                <span>QuizMaster</span>
+            </div>
+            <ul class="nav-links">
+                <li class="active" data-target="explore-section">
+                    <i class="fa-solid fa-compass"></i> Explore Quizzes
+                </li>
+                <li data-target="manage-section">
+                    <i class="fa-solid fa-pen-ruler"></i> Manage My Quizzes
+                </li>
+                <li data-target="attempts-section">
+                    <i class="fa-solid fa-clock-rotate-left"></i> My Attempts
+                </li>
+            </ul>
+            <div class="user-simulation">
+                <label for="simulateUserId">Simulate User ID:</label>
+                <input type="number" id="simulateUserId" value="1" min="1">
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <h1 id="section-title">Explore Quizzes</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="btn-create-quiz" style="display: none;">
+                        <i class="fa-solid fa-plus"></i> Create Quiz
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                
+                <!-- Explore Section -->
+                <section id="explore-section" class="tab-section active">
+                    <div class="controls-bar">
+                        <input type="text" id="search-quiz" placeholder="Search public quizzes..." class="glass-input">
+                        <button class="btn btn-secondary" onclick="fetchPublicQuizzes()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    </div>
+                    <div id="public-quizzes-grid" class="cards-grid">
+                        <!-- Cards will be populated here by JS -->
+                    </div>
+                </section>
+
+                <!-- Manage Section -->
+                <section id="manage-section" class="tab-section">
+                    <div class="controls-bar">
+                        <p class="section-desc">Manage quizzes you've created. Add questions, update titles, or publish them for the world to see.</p>
+                        <button class="btn btn-secondary" onclick="fetchMyQuizzes()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    </div>
+                    <div id="my-quizzes-grid" class="cards-grid">
+                        <!-- Cards will be populated here by JS -->
+                    </div>
+                </section>
+
+                <!-- Attempts Section -->
+                <section id="attempts-section" class="tab-section">
+                    <div class="controls-bar">
+                        <p class="section-desc">Review your past quiz attempts and scores.</p>
+                        <button class="btn btn-secondary" onclick="fetchMyAttempts()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    </div>
+                    <div id="my-attempts-grid" class="list-layout">
+                        <!-- List items populated by JS -->
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Create/Edit Quiz Modal -->
+    <div id="quiz-modal" class="modal-overlay">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h2 id="modal-quiz-title">Create New Quiz</h2>
+                <button class="btn-close" onclick="closeModal('quiz-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="quiz-id-input">
+                <div class="form-group">
+                    <label for="quiz-title-input">Quiz Title</label>
+                    <input type="text" id="quiz-title-input" class="glass-input" placeholder="e.g., European Capitals">
+                </div>
+                <div class="form-group">
+                    <label for="quiz-desc-input">Description (optional)</label>
+                    <textarea id="quiz-desc-input" class="glass-input" rows="3" placeholder="What is this quiz about?"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('quiz-modal')">Cancel</button>
+                <button class="btn btn-primary" id="btn-save-quiz">Save Quiz</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Questions Modal -->
+    <div id="questions-modal" class="modal-overlay">
+        <div class="modal-content glass-panel large-modal">
+            <div class="modal-header">
+                <h2>Manage Questions <span id="mq-quiz-title" class="text-accent"></span></h2>
+                <button class="btn-close" onclick="closeModal('questions-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body flex-row">
+                <div class="questions-list-pane">
+                    <h3>Existing Questions</h3>
+                    <ul id="questions-list" class="styled-list">
+                        <!-- Questions injected here -->
+                    </ul>
+                </div>
+                <div class="question-editor-pane glass-panel-inner">
+                    <h3>Add / Edit Question</h3>
+                    <input type="hidden" id="q-id-input">
+                    <div class="form-group">
+                        <label>Question Text</label>
+                        <textarea id="q-text-input" class="glass-input" rows="2"></textarea>
+                    </div>
+                    <!-- Assuming generic format for answers -->
+                    <div class="form-group">
+                        <label>Option 1 (Correct Answer)</label>
+                        <input type="text" id="q-opt1-input" class="glass-input answer-correct">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 2</label>
+                        <input type="text" id="q-opt2-input" class="glass-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 3</label>
+                        <input type="text" id="q-opt3-input" class="glass-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 4</label>
+                        <input type="text" id="q-opt4-input" class="glass-input">
+                    </div>
+                    <button class="btn btn-primary mt-2" id="btn-save-question" style="width: 100%;">Save Question</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="../JS/user_quiz.js"></script>
+</body>
+</html>

@@ -33,8 +33,7 @@ CREATE OR ALTER PROCEDURE FP_sp_Quizzes_AddQuestion
     @OptionA NVARCHAR(1000),
     @OptionB NVARCHAR(1000),
     @OptionC NVARCHAR(1000),
-    @OptionD NVARCHAR(1000),
-    @CorrectAnswer NVARCHAR(1000)
+    @OptionD NVARCHAR(1000)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -46,8 +45,8 @@ BEGIN
         RETURN;
     END
 
-    INSERT INTO FP_Questions2026 (QuizId, [Text], OptionA, OptionB, OptionC, OptionD, CorrectAnswer)
-    VALUES (@QuizId, @Text, @OptionA, @OptionB, @OptionC, @OptionD, @CorrectAnswer);
+    INSERT INTO FP_Questions2026 (QuizId, [Text], OptionA, OptionB, OptionC, OptionD)
+    VALUES (@QuizId, @Text, @OptionA, @OptionB, @OptionC, @OptionD);
     
     SELECT SCOPE_IDENTITY() AS NewQuestionId;
 END
@@ -105,7 +104,7 @@ CREATE OR ALTER PROCEDURE FP_sp_Quizzes_GetQuestionsByQuizId
 AS
 BEGIN
     SET NOCOUNT ON;
-    SELECT Id, QuizId, [Text], OptionA, OptionB, OptionC, OptionD, CorrectAnswer
+    SELECT Id, QuizId, [Text], OptionA, OptionB, OptionC, OptionD
     FROM FP_Questions2026
     WHERE QuizId = @QuizId;
 END
@@ -202,8 +201,7 @@ CREATE OR ALTER PROCEDURE FP_sp_Quizzes_UpdateQuestion
     @OptionA NVARCHAR(1000),
     @OptionB NVARCHAR(1000),
     @OptionC NVARCHAR(1000),
-    @OptionD NVARCHAR(1000),
-    @CorrectAnswer NVARCHAR(1000)
+    @OptionD NVARCHAR(1000)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -218,7 +216,7 @@ BEGIN
     END
 
     UPDATE FP_Questions2026
-    SET [Text] = @Text, OptionA = @OptionA, OptionB = @OptionB, OptionC = @OptionC, OptionD = @OptionD, CorrectAnswer = @CorrectAnswer
+    SET [Text] = @Text, OptionA = @OptionA, OptionB = @OptionB, OptionC = @OptionC, OptionD = @OptionD
     WHERE Id = @Id;
     
     IF @@ROWCOUNT > 0
