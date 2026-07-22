@@ -152,15 +152,28 @@ input[type="password"]:focus {
     align-items: center;
 }
 
+/* improved select styling for contrast and consistent dropdown colors */
 #lang-select,
 #lang-level-select {
-    background: transparent;
+    background: var(--card);
     color: var(--text);
     border: 1px solid var(--border);
     padding: 10px;
     border-radius: 10px;
     font-size: 0.95rem;
     outline: none;
+
+    /* help ensure consistent rendering across browsers */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* attempt to style native option backgrounds (some browsers ignore these) */
+#lang-select option,
+#lang-level-select option {
+    background: var(--card);
+    color: var(--text);
 }
 
 .btn-small {

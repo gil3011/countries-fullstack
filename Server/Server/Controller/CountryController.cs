@@ -105,19 +105,19 @@ namespace Server.Controller
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
             }
         }
-        [HttpGet]
+        [HttpGet("langueges")]
         public IActionResult GetLangueges()
         {
             try
             {
-                var countries = Country.Read();
+                List<string> langueges = Language.GetAll();
 
-                if (countries == null || countries.Count == 0)
+                if (langueges == null || langueges.Count == 0)
                 {
                     return NotFound("No countries found.");
                 }
 
-                return Ok(countries);
+                return Ok(langueges);
             }
             catch (Exception)
             {

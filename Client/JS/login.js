@@ -23,15 +23,16 @@ $(document).ready(function () {
 
 function loadLanguages() {
     // GET list of languages from backend. Expecting e.g. [ "English", "Spanish" ] or [ { name: "English" }, ... ]
-    ajaxCall("GET", API_ROUTES.languagesApi, null,
+    ajaxCall("GET", API_ROUTES.countryApi + "/langueges", null,
         function (data) {
-            const datalist = $("#languages-datalist");
-            datalist.empty();
+            const select = $("#lang-select");
+            select.empty();
 
-            options = ["English", "Spanish"]
+            const options = Array.isArray(data) ? data : [];
             options.forEach(opt => {
-                const optionEl = $(`<option value="${opt}"></option>`);
-                datalist.append(optionEl);
+                const name = opt : (opt?.name ?? opt?.language ?? String(opt));
+                const optionEl = $(`<option></option>`).val(name).text(name);
+                select.append(optionEl);
             });
         },
         function (err) {

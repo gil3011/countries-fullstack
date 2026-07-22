@@ -13,7 +13,8 @@ namespace Server.BL
 
         public static List<string> GetAll()
         {
-            return null;
+            DBServiceCountry dbs = new();
+            return dbs.ReadAllLanguages();
         }
     }
 }
