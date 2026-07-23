@@ -6,7 +6,6 @@ import {
     logout
 } from './login.js';
 
-
 async function loadNavbar() {
     try {
         const response = await fetch("../Pages/navbar.html");

@@ -1,7 +1,4 @@
 ﻿let currentForm = 'login';
-if (localStorage.getItem("loggedInUser") !== null)
-    window.location.href = "index.html";
-
 let addedLanguages = {};
 
 const LEVEL_NAMES = {
@@ -10,16 +7,24 @@ const LEVEL_NAMES = {
     2: "Advanced"
 };
 
-$(document).ready(function () {
-    $(".register-link a").click(toggleForms);
-    $("#login-form .login-btn").click(authenticate);
+//wrapper to ensure the code runs only on login.html page
+if (window.location.pathname.toLowerCase().includes("login.html")) {
 
-    $("#add-language-btn").click(addLanguage);
-    $("#final-register-btn").click(registerUser);
+    const userLoggedIn = localStorage.getItem("loggedInUser");
+    if (userLoggedIn != "" && userLoggedIn !== null && userLoggedIn !== "null") {
+        window.location.href = "index.html";
+    }
 
-    // Load languages to the datalist on page ready
-    loadLanguages();
-});
+    $(document).ready(function () {
+        $(".register-link a").click(toggleForms);
+        $("#login-form .login-btn").click(authenticate);
+
+        $("#add-language-btn").click(addLanguage);
+        $("#final-register-btn").click(registerUser);
+
+        loadLanguages();
+    });
+}
 
 function loadLanguages() {
     // GET list of languages from backend. Expecting e.g. [ "English", "Spanish" ] or [ { name: "English" }, ... ]
@@ -217,7 +222,7 @@ function removeLanguage(language) {
 }
 
 export function getUserLoggedIn() {
-    const userJson = localStorage.getItem("user");
+    const userJson = localStorage.getItem("loggedInUser");
 
     if (!userJson) {
         return null;
@@ -227,7 +232,7 @@ export function getUserLoggedIn() {
         return JSON.parse(userJson);
     } catch (error) {
         console.error("Invalid user data in localStorage:", error);
-        localStorage.removeItem("user");
+        localStorage.removeItem("loggedInUser");
         return null;
     }
 }
@@ -237,7 +242,7 @@ export function isAdmin() {
 }
 
 export function logout() {
-    localStorage.removeItem("user");
-    window.location.href = "../HTML/login.html";
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "../Pages/login.html";
 }
 
