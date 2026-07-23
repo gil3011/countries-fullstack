@@ -432,8 +432,8 @@ function changeUserBlockStatus(userId) {
     }
 
     const endpoint = user.isBlocked
-        ? `${userAPI}/admin/unblock/${userId}`
-        : `${userAPI}/admin/block/${userId}`;
+        ? `${userAPI}/admin/unblockUser/${userId}`
+        : `${userAPI}/admin/blockUser/${userId}`;
 
     const actionText = user.isBlocked
         ? "unblock"
