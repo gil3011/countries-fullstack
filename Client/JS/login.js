@@ -221,3 +221,28 @@ function removeLanguage(language) {
     renderLanguages();
 }
 
+export function getUserLoggedIn() {
+    const userJson = localStorage.getItem("user");
+
+    if (!userJson) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(userJson);
+    } catch (error) {
+        console.error("Invalid user data in localStorage:", error);
+        localStorage.removeItem("user");
+        return null;
+    }
+}
+
+export function isAdmin() {
+    return getUserLoggedIn()?.isAdmin === "true";
+}
+
+export function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "../HTML/login.html";
+}
+

@@ -1,5 +1,12 @@
 document.addEventListener("DOMContentLoaded", loadNavbar);
 
+import {
+    isAdmin,
+    getUserLoggedIn,
+    logout
+} from './login.js';
+
+
 async function loadNavbar() {
     try {
         const response = await fetch("../Pages/navbar.html");
@@ -16,9 +23,9 @@ async function loadNavbar() {
     } catch (error) {
         console.error("Navbar error:", error);
     }
-    updateWelcomeMessage()
+    updateWelcomeMessage();
+    updateNavbar();
 }
-
 function initializeNavbar() {
     const logoutButton = document.getElementById("logout-btn");
     const usernameElement = document.getElementById("nav-username");
@@ -38,9 +45,25 @@ function initializeNavbar() {
     markActivePage();
 }
 
-function logout() {
-    localStorage.removeItem("loggedInUser");
-    window.location.href = "../HTML/login.html";
+function updateNavbar() {
+    const loginLink = document.getElementById("login-link");
+    const logoutButton = document.getElementById("logout-btn");
+    const adminLink = document.getElementById("admin-link");
+
+    const loggedIn = getUserLoggedIn();
+    const admin = isAdmin();
+
+    if (loginLink) {
+        loginLink.style.display = loggedIn ? "none" : "inline-flex";
+    }
+
+    if (logoutButton) {
+        logoutButton.style.display = loggedIn ? "inline-flex" : "none";
+    }
+
+    if (adminLink) {
+        adminLink.style.display = admin ? "inline-flex" : "none";
+    }
 }
 
 function markActivePage() {
@@ -64,9 +87,7 @@ function markActivePage() {
 function updateWelcomeMessage() {
     const welcomeElement = document.getElementById("welcome-user");
 
-    const loggedInUser = JSON.parse(
-        localStorage.getItem("loggedInUser")
-    );
+    const loggedInUser = getUserLoggedIn();
 
     if (loggedInUser && loggedInUser.username) {
         welcomeElement.textContent = `Welcome ${loggedInUser.username}!`;
