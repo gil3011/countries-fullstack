@@ -7,6 +7,8 @@
     --border: #1f2a37;     /* panel borders */
     --text: #e6f0fb;       /* primary text */
     --danger: #ef4444;     /* reset button accent */
+    --visited: #22c55e;    /* visited pin */
+    --wishlist: #f59e0b;   /* wishlist pin */
 }
 
 * {
@@ -44,6 +46,175 @@ header h1 {
     background: linear-gradient(180deg, rgba(13,24,39,0.6), rgba(9,18,34,0.9));
     box-shadow: 0 6px 18px rgba(2,6,23,0.5);
 }
+
+/* Loading state */
+.loading-state {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 48px 0;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Dim the grid while a fetch is in progress */
+body.is-loading #grid { opacity: 0.4; pointer-events: none; }
+
+/* Colored status pins (Leaflet divIcon) */
+.status-pin { background: transparent; border: none; }
+
+.status-pin-dot {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Map legend */
+.map-legend {
+    max-width: 1200px;
+    margin: -12px auto 24px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.legend-dot.visited { background: var(--visited); }
+.legend-dot.wishlist { background: var(--wishlist); }
+.legend-dot.other { background: var(--accent); }
+
+/* Card list-action buttons */
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.card-action-btn {
+    flex: 1;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, transform .08s;
+}
+
+.card-action-btn:hover { transform: translateY(-1px); }
+
+.card-action-btn.active-visited {
+    color: var(--visited);
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.card-action-btn.active-wishlist {
+    color: var(--wishlist);
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+/* Map popup content (bigger, with flag) */
+.map-popup { text-align: center; min-width: 180px; }
+
+.popup-flag {
+    width: 100%;
+    max-width: 180px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    display: block;
+    margin: 0 auto 8px;
+}
+
+.popup-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 2px;
+}
+
+.popup-sub {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.popup-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1d4ed8;
+    text-decoration: none;
+}
+
+.popup-link:hover { text-decoration: underline; }
+
+.leaflet-popup-content { margin: 12px 14px; }
+
+/* Map popup action buttons */
+.popup-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+.popup-btn {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #111;
+    padding: 5px 6px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.popup-btn.active-visited { color: #15803d; border-color: #86efac; background: #f0fdf4; }
+.popup-btn.active-wishlist { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
 
 /* Controls area uses card style and wider layout */
 .controls-section {

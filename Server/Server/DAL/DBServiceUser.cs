@@ -315,6 +315,106 @@ namespace Server.DAL
             }
         }
 
+        public User GetUserById(int id)
+        {
+            SqlConnection con;
+            SqlCommand cmd;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            var userParam = new Dictionary<string, object>
+            {
+                { "@Id", id }
+            };
+
+            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Users_GetUserById", userParam);
+
+            try
+            {
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    if (dr.Read())
+                    {
+                        User user = new User
+                        {
+                            Id = Convert.ToInt32(dr["Id"]),
+                            Username = dr["Username"].ToString(),
+                            Password = dr["Password"].ToString(),
+                            Email = dr["Email"].ToString(),
+                            IsBlocked = Convert.ToBoolean(dr["IsBlocked"]),
+                            IsAdmin = Convert.ToBoolean(dr["IsAdmin"]),
+                            IsAllowedToShare = Convert.ToBoolean(dr["IsAllowedToShare"])
+                        };
+                        return user;
+                    }
+                }
+                return null; // User not found
+            }
+            catch (Exception)
+            {
+                // write to log
+                throw;
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public bool UpdatePassword(int userId, string hashedPassword)
+        {
+            SqlConnection con;
+            SqlCommand cmd;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            var userParam = new Dictionary<string, object>
+            {
+                { "@Id", userId },
+                { "@Password", hashedPassword }
+            };
+
+            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Users_UpdatePassword", userParam);
+
+            SqlParameter returnParameter = new SqlParameter();
+            returnParameter.Direction = ParameterDirection.ReturnValue;
+            cmd.Parameters.Add(returnParameter);
+
+            try
+            {
+                cmd.ExecuteNonQuery(); // execute the command
+                int result = Convert.ToInt32(returnParameter.Value);
+                if (result == 1)
+                    return true;
+                return false;
+            }
+            catch (Exception)
+            {
+                // write to log
+                throw;
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
         // Admin functions
         public bool BlockUser(int id)
         {
