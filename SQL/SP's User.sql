@@ -161,3 +161,35 @@ BEGIN
 END
 GO
 
+-- 7. Get User By Id (used for Change Password verification)
+CREATE OR ALTER PROCEDURE FP_sp_Users_GetUserById
+    @Id INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT Id, Username, Password, Email, IsBlocked, IsAdmin, IsAllowedToShare
+    FROM FP_Users2026
+    WHERE Id = @Id;
+END
+GO
+
+-- 8. Update Password Only (returns 1 on success, 0 if user not found)
+CREATE OR ALTER PROCEDURE FP_sp_Users_UpdatePassword
+    @Id INT,
+    @Password NVARCHAR(MAX)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM FP_Users2026 WHERE Id = @Id)
+        RETURN 0;
+
+    UPDATE FP_Users2026
+    SET Password = @Password
+    WHERE Id = @Id;
+
+    RETURN 1;
+END
+GO
+

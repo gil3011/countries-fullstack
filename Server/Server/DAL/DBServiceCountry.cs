@@ -510,6 +510,43 @@ namespace Server.DAL
             }
         }
 
+        public List<string> ReadAllLanguages()
+        {
+            SqlConnection con;
+            SqlCommand cmd;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+
+            cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Langueges2026_ReadAll", null);
+            List<string> langueges = new();
+
+            try
+            {
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        string l = dr.GetString(dr.GetOrdinal("LanguageName")).Trim();
+                        langueges.Add(l);
+                    }
+                }
+
+                return langueges;
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
         internal static Country MapCountryFromReader(SqlDataReader dr)
         {
             Country c = new();
@@ -546,6 +583,8 @@ namespace Server.DAL
             }
             var childParams = new Dictionary<string, object> { { "@CountryId", countryId } };
 
+            try
+            {
             using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Capitals2026_GetByCountryId", childParams))
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
@@ -631,6 +670,11 @@ namespace Server.DAL
                         c.Timezones.Add(tz);
                     }
                 }
+            }
+            }
+            finally
+            {
+                if (con != null) con.Close();
             }
         }
     }

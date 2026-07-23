@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Server.BL;
+using Server.DTO;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -84,7 +85,7 @@ namespace Server.Conntroller
         }
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] User loginUser)
+        public IActionResult Login([FromBody] UserLoginDto loginUser)
         {
             try
             {
@@ -248,5 +249,121 @@ namespace Server.Conntroller
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving user languages.");
             }
         }
+
+        // --- Continent Preference Endpoints ---
+
+        [HttpPost("{userId}/continent/{continentName}")]
+        public IActionResult AddContinentPreference(int userId, string continentName)
+        {
+            try
+            {
+                bool result = BL.User.AddContinentPreference(userId, continentName);
+                if (!result)
+                    return BadRequest("Failed to add continent preference.");
+                return Ok(new { message = "Continent preference added successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding continent preference.");
+            }
+        }
+
+        [HttpDelete("{userId}/continent/{continentName}")]
+        public IActionResult RemoveContinentPreference(int userId, string continentName)
+        {
+            try
+            {
+                bool result = BL.User.RemoveContinentPreference(userId, continentName);
+                if (!result)
+                    return BadRequest("Failed to remove continent preference.");
+                return Ok(new { message = "Continent preference removed successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing continent preference.");
+            }
+        }
+
+        // --- Language Endpoints ---
+
+        [HttpPost("{userId}/language")]
+        public IActionResult AddLanguage(int userId, [FromBody] LanguageRequest request)
+        {
+            try
+            {
+                if (request == null || string.IsNullOrWhiteSpace(request.Language) || string.IsNullOrWhiteSpace(request.Level))
+                    return BadRequest("Language and level are required.");
+
+                bool result = BL.User.AddLanguageToUser(userId, request.Language, request.Level);
+                if (!result)
+                    return BadRequest("Failed to add language. Level must be Beginner, Intermediate, or Advanced.");
+                return Ok(new { message = "Language added successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while adding the language.");
+            }
+        }
+
+        [HttpDelete("{userId}/language/{language}")]
+        public IActionResult RemoveLanguage(int userId, string language)
+        {
+            try
+            {
+                bool result = BL.User.RemoveLanguageFromUser(userId, language);
+                if (!result)
+                    return BadRequest("Failed to remove language.");
+                return Ok(new { message = "Language removed successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while removing the language.");
+            }
+        }
+
+        // --- Change Password ---
+
+        [HttpPost("changePassword")]
+        public IActionResult ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            try
+            {
+                if (request == null || string.IsNullOrWhiteSpace(request.CurrentPassword) || string.IsNullOrWhiteSpace(request.NewPassword))
+                    return BadRequest("Current and new passwords are required.");
+
+                var user = BL.User.GetUserById(request.UserId);
+                if (user == null)
+                    return NotFound("User not found.");
+
+                var hasher = new PasswordHasher<User>();
+                var verification = hasher.VerifyHashedPassword(user, user.Password, request.CurrentPassword);
+                if (verification == PasswordVerificationResult.Failed)
+                    return Unauthorized("Current password is incorrect.");
+
+                string newHash = hasher.HashPassword(user, request.NewPassword);
+                bool updated = BL.User.UpdatePassword(request.UserId, newHash);
+                if (!updated)
+                    return BadRequest("Failed to update password.");
+
+                return Ok(new { message = "Password changed successfully." });
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while changing the password.");
+            }
+        }
+    }
+
+    public class LanguageRequest
+    {
+        public string Language { get; set; } = string.Empty;
+        public string Level { get; set; } = string.Empty;
+    }
+
+    public class ChangePasswordRequest
+    {
+        public int UserId { get; set; }
+        public string CurrentPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Server.BL
+﻿using Server.DAL;
+
+namespace Server.BL
 {
     public class Language
     {
@@ -8,5 +10,11 @@
         public string Iso639_1 { get; set; } = string.Empty;
 
         public string LanguageName { get; set; } = string.Empty;
+
+        public static List<string> GetAll()
+        {
+            DBServiceCountry dbs = new();
+            return dbs.ReadAllLanguages();
+        }
     }
 }

@@ -35,68 +35,59 @@
         <div id="register-section" class="login-wrapper hidden" autocomplete="off">
             <h2 class="login-title">Create Account</h2>
             <form id="register-form">
-                <!-- Step 1: Basic details -->
-                <div id="register-step-1">
-                    <div class="form-group">
-                        <label for="reg-name">Name</label>
-                        <input type="text" id="reg-name" name="name" placeholder="Michael Jackson" autocomplete="off" required />
+                <!-- Combined registration form: basic details + languages + continents -->
+                <div class="form-group">
+                    <label for="reg-name">Username</label>
+                    <input type="text" id="reg-name" name="name" placeholder="MichaelJackson123" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Email</label>
+                    <input type="email" id="reg-email" name="email" placeholder="email@example.com" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" name="password" placeholder="••••••••" autocomplete="new-password" required />
+                </div>
+                <h2 class="login-title">Add Preferances</h2>
+                <div class="form-group">
+                    <h4>Add languages you speak</h4>
+                    <div class="language-control">
+                        <!-- default if error accure-->
+                        <select id="lang-select">
+                            <option value="English">English</option>
+                            <option value="Spanish">Spanish</option>
+                            <option value="Hebrew">Hebrew</option>
+                            <option value="German">German</option>
+                            <option value="Chinese">Chinese</option>
+                        </select>
+                        <select id="lang-level-select">
+                            <option value="0">Beginner</option>
+                            <option value="1">Intermediate</option>
+                            <option value="2">Advanced</option>
+                        </select>
+                        <input type="button" id="add-language-btn" class="login-btn btn-small" value="Add" />
                     </div>
-                    <div class="form-group">
-                        <label for="reg-email">Email</label>
-                        <input type="email" id="reg-email" name="email" placeholder="email@example.com" autocomplete="off" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-password">Password</label>
-                        <input type="password" id="reg-password" name="password" placeholder="••••••••" autocomplete="new-password" required />
-                    </div>
-                    <div id="register-error" class="login-error"></div>
-                    <input type="button" id="register-next-btn" class="login-btn" value="Next" />
-                    <div class="register-link">
-                        <span>Already have an account?</span>
-                        <a href="">Sign in here</a>
+                    <ul id="languages-list" class="languages-list">
+                    </ul>
+                </div>
+
+                <div class="form-group">
+                    <h4>Preferred Continents</h4>
+                    <div class="continents-grid">
+                        <label><input type="checkbox" name="continent" value="Africa" /> Africa</label>
+                        <label><input type="checkbox" name="continent" value="Asia" /> Asia</label>
+                        <label><input type="checkbox" name="continent" value="Europe" /> Europe</label>
+                        <label><input type="checkbox" name="continent" value="Americas" /> Americas</label>
+                        <label><input type="checkbox" name="continent" value="Oceania" /> Oceania</label>
+                        <label><input type="checkbox" name="continent" value="Antarctic" /> Antarctic</label>
                     </div>
                 </div>
 
-                <!-- Step 2: Languages & Continents -->
-                <div id="register-step-2" class="hidden">
-                    <div class="form-group">
-                        <label>Add languages you speak</label>
-                    <div class="language-control">
-                            <select id="lang-select">
-                                <option value="English">English</option>
-                                <option value="Spanish">Spanish</option>
-                                <option value="French">French</option>
-                                <option value="German">German</option>
-                                <option value="Chinese">Chinese</option>
-                            </select>
-                            <select id="lang-level-select">
-                                <option value="0">Beginner</option>
-                                <option value="1">Intermediate</option>
-                                <option value="2">Advanced</option>
-                            </select>
-                            <input type="button" id="add-language-btn" class="login-btn btn-small" value="Add" />
-                        </div>
-                        <ul id="languages-list" class="languages-list">
-                        </ul>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Preferred continents</label>
-                        <div class="continents-grid">
-                            <label><input type="checkbox" name="continent" value="Africa" /> Africa</label>
-                            <label><input type="checkbox" name="continent" value="Asia" /> Asia</label>
-                            <label><input type="checkbox" name="continent" value="Europe" /> Europe</label>
-                            <label><input type="checkbox" name="continent" value="Americas" /> Americas</label>
-                            <label><input type="checkbox" name="continent" value="Oceania" /> Oceania</label>
-                            <label><input type="checkbox" name="continent" value="Antarctic" /> Antarctic</label>
-                        </div>
-                    </div>
-
-                    <div id="register-step2-error" class="login-error"></div>
-                    <div class="step2-actions">
-                        <input type="button" id="final-register-btn" class="login-btn" value="Register" />
-                        <input type="button" id="back-to-step1-btn" class="login-btn btn-secondary" value="Back" />
-                    </div>
+                <div id="register-error" class="login-error"></div>
+                <input type="button" id="final-register-btn" class="login-btn" value="Register" />
+                <div class="register-link" style="margin-top:8px;">
+                    <span>Already have an account?</span>
+                    <a href="">Sign in here</a>
                 </div>
             </form>
         </div>

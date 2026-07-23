@@ -65,6 +65,16 @@ namespace Server.BL
             DBServiceUser dbs = new();
             return dbs.GetUserByEmail(email);
         }
+        public static User GetUserById(int id)
+        {
+            DBServiceUser dbs = new();
+            return dbs.GetUserById(id);
+        }
+        public static bool UpdatePassword(int userId, string hashedPassword)
+        {
+            DBServiceUser dbs = new();
+            return dbs.UpdatePassword(userId, hashedPassword);
+        }
         public static void AddLoginLog(int userId)
         {
             DBServiceUser dbs = new();
