@@ -546,6 +546,8 @@ namespace Server.DAL
             }
             var childParams = new Dictionary<string, object> { { "@CountryId", countryId } };
 
+            try
+            {
             using (SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Capitals2026_GetByCountryId", childParams))
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
@@ -631,6 +633,11 @@ namespace Server.DAL
                         c.Timezones.Add(tz);
                     }
                 }
+            }
+            }
+            finally
+            {
+                if (con != null) con.Close();
             }
         }
     }

@@ -40,7 +40,7 @@ function initializeNavbar() {
 
 function logout() {
     localStorage.removeItem("loggedInUser");
-    window.location.href = "../HTML/login.html";
+    window.location.href = "../Pages/login.html";
 }
 
 function markActivePage() {
