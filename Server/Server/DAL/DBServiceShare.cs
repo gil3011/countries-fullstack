@@ -6,10 +6,20 @@ namespace Server.DAL
 {
     public class DBServiceShare : DBServiceBase
     {
-        public static List<Share> GetAllShares()
+        public List<Share> GetAllShares()
         {
-            Connect();
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Shares_ReadAll", null);
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_SP_Shares_ReadAll", null);
             try
             {
                 List<Share> shares = new();
@@ -42,14 +52,24 @@ namespace Server.DAL
             }
         }
 
-        public static List<Share> GetUserShares(int userId)
+        public List<Share> GetUserShares(int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@UserId", userId }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Shares_ReadUserShares", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_SP_Shares_ReadUserShares", param);
             try
             {
                 List<Share> shares = new();
@@ -82,14 +102,24 @@ namespace Server.DAL
             }
         }
 
-        public static List<Share> GetCountryShares(string countryName)
+        public List<Share> GetCountryShares(string countryName)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@CountryName", countryName }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_SP_Shares_ReadCountryShares", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_SP_Shares_ReadCountryShares", param);
             try
             {
                 List<Share> shares = new();
@@ -123,9 +153,19 @@ namespace Server.DAL
         }
 
 
-        public static bool CreateShare(Share share)
+        public bool CreateShare(Share share)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
 
             var param = new Dictionary<string, object>
             {
@@ -137,6 +177,7 @@ namespace Server.DAL
             };
 
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
+                con,
                 "FP_SP_Shares_Create",
                 param
             );
@@ -167,9 +208,19 @@ namespace Server.DAL
             }
         }
 
-        public static bool UpdateShare(Share share)
+        public bool UpdateShare(Share share)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
 
             var param = new Dictionary<string, object>
             {
@@ -182,6 +233,7 @@ namespace Server.DAL
             };
 
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
+                con,
                 "FP_SP_Shares_Update",
                 param
             );
@@ -198,9 +250,19 @@ namespace Server.DAL
             }
         }
 
-        public static bool DeleteShare(int ShareID, int UserID)
+        public bool DeleteShare(int ShareID, int UserID)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
 
             var param = new Dictionary<string, object>
             {
@@ -209,6 +271,7 @@ namespace Server.DAL
             };
 
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
+                con,
                 "FP_SP_Shares_Delete",
                 param
             );

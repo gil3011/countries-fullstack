@@ -36,12 +36,14 @@ namespace Server.BL
         // ==========================================
         public int Insert()
         {
-            return DBServiceQuiz.CreateQuiz(this);
+            DBServiceQuiz dbs = new();
+            return dbs.CreateQuiz(this);
         }
 
         public int AddQuestion(int userId, Question q)
         {
-            return DBServiceQuiz.AddQuestion(this.Id, userId, q);
+            DBServiceQuiz dbs = new();
+            return dbs.AddQuestion(this.Id, userId, q);
         }
 
         // ==========================================
@@ -49,17 +51,20 @@ namespace Server.BL
         // ==========================================
         public static Quiz GetQuizById(int id)
         {
-            return DBServiceQuiz.GetQuizById(id);
+            DBServiceQuiz dbs = new();
+            return dbs.GetQuizById(id);
         }
 
         public static List<Quiz> GetAllPublicQuizzes()
         {
-            return DBServiceQuiz.GetAllPublicQuizzes();
+            DBServiceQuiz dbs = new();
+            return dbs.GetAllPublicQuizzes();
         }
 
         public static List<Quiz> GetQuizzesByUserId(int userId)
         {
-            return DBServiceQuiz.GetQuizzesByUserId(userId);
+            DBServiceQuiz dbs = new();
+            return dbs.GetQuizzesByUserId(userId);
         }
 
         // ==========================================
@@ -67,27 +72,26 @@ namespace Server.BL
         // ==========================================
         public int UpdateQuiz(int userId)
         {
-            return DBServiceQuiz.UpdateQuiz(this, userId);
+            DBServiceQuiz dbs = new();
+            return dbs.UpdateQuiz(this.Id, userId, newTitle);
         }
 
         public static int UpdateQuestion(int questionId, int userId, Question q)
         {
-            return DBServiceQuiz.UpdateQuestion(questionId, userId, q);
+            DBServiceQuiz dbs = new();
+            return dbs.UpdateQuestion(questionId, userId, q);
         }
 
         public int PublishQuiz(int userId)
         {
-            return DBServiceQuiz.PublishQuiz(this.Id, userId);
-        }
-
-        public int UnpublishQuiz(int userId)
-        {
-            return DBServiceQuiz.UnpublishQuiz(this.Id, userId);
+            DBServiceQuiz dbs = new();
+            return dbs.PublishQuiz(this.Id, userId);
         }
 
         public int ToggleLike(int userId)
         {
-            return DBServiceQuiz.ToggleLike(this.Id, userId);
+            DBServiceQuiz dbs = new();
+            return dbs.ToggleLike(this.Id, userId);
         }
 
         // ==========================================
@@ -95,12 +99,14 @@ namespace Server.BL
         // ==========================================
         public int DeleteQuiz(int userId)
         {
-            return DBServiceQuiz.DeleteQuiz(this.Id, userId);
+            DBServiceQuiz dbs = new();
+            return dbs.DeleteQuiz(this.Id, userId);
         }
 
         public static int DeleteQuestion(int questionId, int userId)
         {
-            return DBServiceQuiz.DeleteQuestion(questionId, userId);
+            DBServiceQuiz dbs = new();
+            return dbs.DeleteQuestion(questionId, userId);
         }
     }
 }

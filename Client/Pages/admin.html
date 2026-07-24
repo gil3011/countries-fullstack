@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Dashboard</title>
+
+    <link rel="stylesheet"
+          href="../CSS/admin.css">
+
+    <link rel="stylesheet"
+          href="../CSS/NavBar.css">
+
+    <script src="../JS/apiRoutes.js"></script>
+
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"
+            integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao="
+            crossorigin="anonymous">
+    </script>
+
+    <script src="../JS/ajaxCalls.js"></script>
+    <script src="../JS/admin.js"></script>
+</head>
+
+<body>
+
+    <div id="navbar-container"></div>
+
+    <header class="admin-header">
+        <div>
+            <h1>Admin Dashboard</h1>
+
+            <p>
+                Manage users and monitor system activity
+            </p>
+        </div>
+    </header>
+
+    <main class="admin-container">
+
+        <!-- Admin statistics -->
+
+        <section class="stats-grid">
+
+            <article class="stat-card">
+                <span class="stat-label">
+                    Daily Logins
+                </span>
+
+                <strong id="daily-logins"
+                        class="stat-value">
+                    0
+                </strong>
+
+                <span class="stat-description">
+                    User logins today
+                </span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">
+                    Imported Countries
+                </span>
+
+                <strong id="imported-countries"
+                        class="stat-value">
+                    0
+                </strong>
+
+                <span class="stat-description">
+                    Countries imported from the API
+                </span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">
+                    Wishlist Countries
+                </span>
+
+                <strong id="wishlist-countries"
+                        class="stat-value">
+                    0
+                </strong>
+
+                <span class="stat-description">
+                    Countries saved to wishlist
+                </span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">
+                    Visited Countries
+                </span>
+
+                <strong id="visited-countries"
+                        class="stat-value">
+                    0
+                </strong>
+
+                <span class="stat-description">
+                    Countries marked as visited
+                </span>
+            </article>
+
+            <article class="stat-card">
+                <span class="stat-label">
+                    Shares
+                </span>
+
+                <strong id="shares-count"
+                        class="stat-value">
+                    0
+                </strong>
+
+                <span class="stat-description">
+                    Shares created in the system
+                </span>
+            </article>
+
+        </section>
+
+        <!-- Daily login activity -->
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>Daily Login Activity</h2>
+
+                    <p>
+                        Number of user logins per day
+                    </p>
+                </div>
+
+                <select id="login-range">
+                    <option value="7">
+                        Last 7 Days
+                    </option>
+
+                    <option value="14">
+                        Last 14 Days
+                    </option>
+
+                    <option value="30">
+                        Last 30 Days
+                    </option>
+                </select>
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table class="users-table">
+
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Login Count</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="login-counts-body">
+
+                        <tr>
+                            <td colspan="2">
+                                Loading login activity...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- User management -->
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>User Management</h2>
+
+                    <p>
+                        Block users and manage sharing permissions
+                    </p>
+                </div>
+
+                <input type="search"
+                       id="user-search"
+                       placeholder="Search by username or email">
+
+            </div>
+
+            <div class="table-wrapper">
+
+                <table class="users-table">
+
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Sharing Permission</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="users-table-body">
+
+                        <tr>
+                            <td colspan="7">
+                                Loading users...
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="../JS/navbar.js"></script>
+
+</body>
+
+</html>

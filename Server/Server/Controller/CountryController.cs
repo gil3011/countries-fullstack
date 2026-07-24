@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Server.BL;
 using System.Diagnostics.Metrics;
 
-namespace Server.Conntroller
+namespace Server.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -29,15 +29,13 @@ namespace Server.Conntroller
         }
 
         [HttpGet("GetByCca3")]
-        public IActionResult Get(string cca3)
+        public IActionResult GetByCca3([FromQuery] string cca3)
         {
             try
             {
                 var country = Country.GetByCca3(cca3);
                 if (country == null)
-                {
                     return NotFound($"Country with code {cca3} not found.");
-                }
                 return Ok(country);
             }
             catch (Exception)
@@ -89,8 +87,7 @@ namespace Server.Conntroller
         }
 
         [HttpDelete("{id}")]
-        public IActionResult UpdateCountry(int id)
-
+        public IActionResult DeleteCountry(int id)
         {
             try
             {
@@ -102,6 +99,25 @@ namespace Server.Conntroller
                 {
                     return BadRequest("Failed to insert the country into the database.");
                 }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
+            }
+        }
+        [HttpGet("langueges")]
+        public IActionResult GetLangueges()
+        {
+            try
+            {
+                List<string> langueges = Language.GetAll();
+
+                if (langueges == null || langueges.Count == 0)
+                {
+                    return NotFound("No countries found.");
+                }
+
+                return Ok(langueges);
             }
             catch (Exception)
             {

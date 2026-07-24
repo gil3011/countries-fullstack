@@ -34,7 +34,8 @@ namespace Server.BL
         // ==========================================
         public int Insert()
         {
-            return DBServiceQuiz.CreateAttempt(this);
+            DBServiceQuiz dbs = new();
+            return dbs.CreateAttempt(this);
         }
 
         // ==========================================
@@ -42,12 +43,14 @@ namespace Server.BL
         // ==========================================
         public static QuizAttempt GetAttempt(int attemptId)
         {
-            return DBServiceQuiz.GetAttempt(attemptId);
+            DBServiceQuiz dbs = new();
+            return dbs.GetAttempt(attemptId);
         }
 
         public static List<QuizAttempt> GetAttemptsByUserId(int userId)
         {
-            return DBServiceQuiz.GetAttemptsByUserId(userId);
+            DBServiceQuiz dbs = new();
+            return dbs.GetAttemptsByUserId(userId);
         }
 
         // ==========================================
@@ -55,7 +58,8 @@ namespace Server.BL
         // ==========================================
         public int DeleteAttempt(int userId)
         {
-            return DBServiceQuiz.DeleteAttempt(this.Id, userId);
+            DBServiceQuiz dbs = new();
+            return dbs.DeleteAttempt(this.Id, userId);
         }
     }
 }

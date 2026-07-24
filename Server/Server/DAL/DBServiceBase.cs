@@ -4,9 +4,10 @@ namespace Server.DAL
 {
     public abstract class DBServiceBase
     {
-        protected static SqlConnection? con;
+
         private const string ConString= "myProjDB";
-        protected static void Connect()
+
+        protected SqlConnection Connect()
         {
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
@@ -18,20 +19,21 @@ namespace Server.DAL
                 throw new InvalidOperationException($"Connection string '{ConString}' not found in configuration.");
             }
 
-            con = new SqlConnection(cStr);
+            var con = new SqlConnection(cStr);
             con.Open();
+            return con;
         }
 
-        protected static SqlCommand CreateCommandWithStoredProcedureGeneral(String spName, Dictionary<string, object> paramDic)
+        protected static SqlCommand CreateCommandWithStoredProcedureGeneral(SqlConnection con, String spName, Dictionary<string, object> paramDic)
         {
 
             SqlCommand cmd = new SqlCommand
             {
                 Connection = con,
                 CommandText = spName,
-                CommandTimeout = 10,
+                CommandTimeout = 30,
                 CommandType = System.Data.CommandType.StoredProcedure
-            }; 
+            };
             if (paramDic != null)
                 foreach (KeyValuePair<string, object> param in paramDic)
                 {
