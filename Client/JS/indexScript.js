@@ -389,6 +389,6 @@ window.onload = () => {
         update();
     } else {
         showLoading(true);
-        ajaxCall("GET", API_ROUTES.countryApi, null, handleSuccess, handleError);
+        ajaxCall("GET", API_ROUTES.countryAPI, null, handleSuccess, handleError);
     }
 };
