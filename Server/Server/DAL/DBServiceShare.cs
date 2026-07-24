@@ -8,20 +8,13 @@ namespace Server.DAL
     {
         public List<Share> GetAllShares()
         {
-            SqlConnection con;
+            SqlConnection con = null;
 
             try
             {
-                con = Connect(); // create the connection
-            }
-            catch (Exception ex)
-            {
-                Server.Logging.AppLogger.LogException(ex);
-                throw;
-            }
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_SP_Shares_ReadAll", null);
-            try
-            {
+                con = Connect();
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_SP_Shares_ReadAll", null);
+
                 List<Share> shares = new();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -41,12 +34,14 @@ namespace Server.DAL
                     }
                     return shares;
                 }
+
             }
             catch (Exception ex)
             {
                 Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
+
             finally
             {
                 if (con != null) con.Close();
@@ -55,24 +50,17 @@ namespace Server.DAL
 
         public List<Share> GetUserShares(int userId)
         {
-            SqlConnection con;
+            SqlConnection con = null;
 
             try
             {
-                con = Connect(); // create the connection
-            }
-            catch (Exception ex)
-            {
-                Server.Logging.AppLogger.LogException(ex);
-                throw;
-            }
-            var param = new Dictionary<string, object>
+                con = Connect();
+                var param = new Dictionary<string, object>
             {
                 { "@UserId", userId }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_SP_Shares_ReadUserShares", param);
-            try
-            {
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_SP_Shares_ReadUserShares", param);
+
                 List<Share> shares = new();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -92,12 +80,14 @@ namespace Server.DAL
                     }
                     return shares;
                 }
+
             }
             catch (Exception ex)
             {
                 Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
+
             finally
             {
                 if (con != null) con.Close();
@@ -106,24 +96,17 @@ namespace Server.DAL
 
         public List<Share> GetCountryShares(string countryName)
         {
-            SqlConnection con;
+            SqlConnection con = null;
 
             try
             {
-                con = Connect(); // create the connection
-            }
-            catch (Exception ex)
-            {
-                Server.Logging.AppLogger.LogException(ex);
-                throw;
-            }
-            var param = new Dictionary<string, object>
+                con = Connect();
+                var param = new Dictionary<string, object>
             {
                 { "@CountryName", countryName }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_SP_Shares_ReadCountryShares", param);
-            try
-            {
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_SP_Shares_ReadCountryShares", param);
+
                 List<Share> shares = new();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -143,12 +126,14 @@ namespace Server.DAL
                     }
                     return shares;
                 }
+
             }
             catch (Exception ex)
             {
                 Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
+
             finally
             {
                 if (con != null) con.Close();
@@ -158,19 +143,13 @@ namespace Server.DAL
 
         public bool CreateShare(Share share)
         {
-            SqlConnection con;
+            SqlConnection con = null;
 
             try
             {
-                con = Connect(); // create the connection
-            }
-            catch (Exception ex)
-            {
-                Server.Logging.AppLogger.LogException(ex);
-                throw;
-            }
+                con = Connect();
 
-            var param = new Dictionary<string, object>
+                var param = new Dictionary<string, object>
             {
                 { "@UserId", share.UserId },
                 { "@Description", share.Description },
@@ -179,29 +158,34 @@ namespace Server.DAL
                 { "@CountryId", share.CountryId }
             };
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
-                con,
-                "FP_SP_Shares_Create",
-                param
-            );
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
+                    con,
+                    "FP_SP_Shares_Create",
+                    param
+                );
 
-            SqlParameter returnParameter = new SqlParameter
-            {
-                ParameterName = "@ReturnValue",
-                SqlDbType = System.Data.SqlDbType.Int,
-                Direction = System.Data.ParameterDirection.ReturnValue
-            };
+                SqlParameter returnParameter = new SqlParameter
+                {
+                    ParameterName = "@ReturnValue",
+                    SqlDbType = System.Data.SqlDbType.Int,
+                    Direction = System.Data.ParameterDirection.ReturnValue
+                };
 
-            cmd.Parameters.Add(returnParameter);
+                cmd.Parameters.Add(returnParameter);
 
-            try
-            {
                 cmd.ExecuteNonQuery();
 
                 int result = Convert.ToInt32(returnParameter.Value);
 
                 return result == 1;
+
             }
+            catch (Exception ex)
+            {
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
+            }
+
             finally
             {
                 if (con != null)
@@ -213,19 +197,13 @@ namespace Server.DAL
 
         public bool UpdateShare(Share share)
         {
-            SqlConnection con;
+            SqlConnection con = null;
 
             try
             {
-                con = Connect(); // create the connection
-            }
-            catch (Exception ex)
-            {
-                Server.Logging.AppLogger.LogException(ex);
-                throw;
-            }
+                con = Connect();
 
-            var param = new Dictionary<string, object>
+                var param = new Dictionary<string, object>
             {
                 { "@Id", share.Id },
                 { "@UserId", share.UserId },
@@ -235,17 +213,22 @@ namespace Server.DAL
                 { "@CountryId", share.CountryId }
             };
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
-                con,
-                "FP_SP_Shares_Update",
-                param
-            );
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
+                    con,
+                    "FP_SP_Shares_Update",
+                    param
+                );
 
-            try
-            {
                 int affectedRows = Convert.ToInt32(cmd.ExecuteScalar());
                 return affectedRows > 0;
+
             }
+            catch (Exception ex)
+            {
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
+            }
+
             finally
             {
                 if (con != null)
@@ -255,11 +238,39 @@ namespace Server.DAL
 
         public bool DeleteShare(int ShareID, int UserID)
         {
-            SqlConnection con;
+            SqlConnection con = null;
 
             try
             {
-                con = Connect(); // create the connection
+                con = Connect();
+
+                var param = new Dictionary<string, object>
+            {
+                { "@Id", ShareID },
+                { "@UserId", UserID }
+            };
+
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
+                    con,
+                    "FP_SP_Shares_Delete",
+                    param
+                );
+
+                SqlParameter returnParameter = new SqlParameter
+                {
+                    ParameterName = "@ReturnValue",
+                    SqlDbType = System.Data.SqlDbType.Int,
+                    Direction = System.Data.ParameterDirection.ReturnValue
+                };
+
+                cmd.Parameters.Add(returnParameter);
+
+                cmd.ExecuteNonQuery();
+
+                int result = Convert.ToInt32(returnParameter.Value);
+
+                return result == 1;
+
             }
             catch (Exception ex)
             {
@@ -267,35 +278,6 @@ namespace Server.DAL
                 throw;
             }
 
-            var param = new Dictionary<string, object>
-            {
-                { "@Id", ShareID },
-                { "@UserId", UserID }
-            };
-
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(
-                con,
-                "FP_SP_Shares_Delete",
-                param
-            );
-
-            SqlParameter returnParameter = new SqlParameter
-            {
-                ParameterName = "@ReturnValue",
-                SqlDbType = System.Data.SqlDbType.Int,
-                Direction = System.Data.ParameterDirection.ReturnValue
-            };
-
-            cmd.Parameters.Add(returnParameter);
-
-            try
-            {
-                cmd.ExecuteNonQuery();
-
-                int result = Convert.ToInt32(returnParameter.Value);
-
-                return result == 1;
-            }
             finally
             {
                 if (con != null)
