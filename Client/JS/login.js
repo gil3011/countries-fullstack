@@ -7,24 +7,22 @@ const LEVEL_NAMES = {
     2: "Advanced"
 };
 
-//wrapper to ensure the code runs only on login.html page
-if (window.location.pathname.toLowerCase().includes("login.html")) {
 
-    const userLoggedIn = localStorage.getItem("loggedInUser");
-    if (userLoggedIn != "" && userLoggedIn !== null && userLoggedIn !== "null") {
-        window.location.href = "index.html";
-    }
-
-    $(document).ready(function () {
-        $(".register-link a").click(toggleForms);
-        $("#login-form .login-btn").click(authenticate);
-
-        $("#add-language-btn").click(addLanguage);
-        $("#final-register-btn").click(registerUser);
-
-        loadLanguages();
-    });
+const userLoggedIn = localStorage.getItem("loggedInUser");
+if (userLoggedIn != "" && userLoggedIn !== null && userLoggedIn !== "null") {
+    window.location.href = "index.html";
 }
+
+$(document).ready(function () {
+    $(".register-link a").click(toggleForms);
+    $("#login-form .login-btn").click(authenticate);
+
+    $("#add-language-btn").click(addLanguage);
+    $("#final-register-btn").click(registerUser);
+
+    loadLanguages();
+});
+
 
 function loadLanguages() {
     // GET list of languages from backend. Expecting e.g. [ "English", "Spanish" ] or [ { name: "English" }, ... ]
@@ -221,28 +219,5 @@ function removeLanguage(language) {
     renderLanguages();
 }
 
-export function getUserLoggedIn() {
-    const userJson = localStorage.getItem("loggedInUser");
 
-    if (!userJson) {
-        return null;
-    }
-
-    try {
-        return JSON.parse(userJson);
-    } catch (error) {
-        console.error("Invalid user data in localStorage:", error);
-        localStorage.removeItem("loggedInUser");
-        return null;
-    }
-}
-
-export function isAdmin() {
-    return getUserLoggedIn()?.isAdmin === "true";
-}
-
-export function logout() {
-    localStorage.removeItem("loggedInUser");
-    window.location.href = "../Pages/login.html";
-}
 

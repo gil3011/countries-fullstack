@@ -1,11 +1,5 @@
 document.addEventListener("DOMContentLoaded", loadNavbar);
 
-import {
-    isAdmin,
-    getUserLoggedIn,
-    logout
-} from './login.js';
-
 async function loadNavbar() {
     try {
         const response = await fetch("../Pages/navbar.html");
@@ -93,4 +87,29 @@ function updateWelcomeMessage() {
     } else {
         welcomeElement.textContent = "Welcome Guest!";
     }
+}
+
+function getUserLoggedIn() {
+    const userJson = localStorage.getItem("loggedInUser");
+
+    if (!userJson) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(userJson);
+    } catch (error) {
+        console.error("Invalid user data in localStorage:", error);
+        localStorage.removeItem("loggedInUser");
+        return null;
+    }
+}
+
+function isAdmin() {
+    return getUserLoggedIn()?.isAdmin === "true";
+}
+
+function logout() {
+    localStorage.removeItem("loggedInUser");
+    window.location.href = "../Pages/login.html";
 }
