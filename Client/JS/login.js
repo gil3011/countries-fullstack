@@ -1,7 +1,4 @@
 ﻿let currentForm = 'login';
-if (localStorage.getItem("loggedInUser") !== null)
-    window.location.href = "index.html";
-
 let addedLanguages = {};
 
 const LEVEL_NAMES = {
@@ -10,6 +7,12 @@ const LEVEL_NAMES = {
     2: "Advanced"
 };
 
+
+const userLoggedIn = localStorage.getItem("loggedInUser");
+if (userLoggedIn != "" && userLoggedIn !== null && userLoggedIn !== "null") {
+    window.location.href = "index.html";
+}
+
 $(document).ready(function () {
     $(".register-link a").click(toggleForms);
     $("#login-form .login-btn").click(authenticate);
@@ -17,13 +20,13 @@ $(document).ready(function () {
     $("#add-language-btn").click(addLanguage);
     $("#final-register-btn").click(registerUser);
 
-    // Load languages to the datalist on page ready
     loadLanguages();
 });
 
+
 function loadLanguages() {
     // GET list of languages from backend. Expecting e.g. [ "English", "Spanish" ] or [ { name: "English" }, ... ]
-    ajaxCall("GET", API_ROUTES.countryApi + "/langueges", null,
+    ajaxCall("GET", API_ROUTES.countryAPI + "/langueges", null,
         function (data) {
             const select = $("#lang-select");
             select.empty();
@@ -81,7 +84,7 @@ function registerUser() {
         preferdContinents: selectedContinents
     };
 
-    ajaxCall("POST", API_ROUTES.usersApi, JSON.stringify(user),
+    ajaxCall("POST", API_ROUTES.userAPI, JSON.stringify(user),
         function (data) {
             console.log(data);
             window.location.href = "login.html";
@@ -118,7 +121,7 @@ function authenticate() {
         password: password
     };
 
-    ajaxCall("POST", API_ROUTES.usersApi + '/login', JSON.stringify(LoginInfo),
+    ajaxCall("POST", API_ROUTES.userAPI + '/login', JSON.stringify(LoginInfo),
         function (user) {
             localStorage.setItem("loggedInUser", JSON.stringify(user));
             window.location.href = "index.html";
@@ -215,4 +218,6 @@ function removeLanguage(language) {
     delete addedLanguages[language];
     renderLanguages();
 }
+
+
 
