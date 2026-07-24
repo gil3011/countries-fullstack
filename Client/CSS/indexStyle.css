@@ -216,18 +216,39 @@ body.is-loading #grid { opacity: 0.4; pointer-events: none; }
 .popup-btn.active-visited { color: #15803d; border-color: #86efac; background: #f0fdf4; }
 .popup-btn.active-wishlist { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
 
-/* Controls area uses card style and wider layout */
+/* Controls area: labeled Search / Filter / Sort groups */
 .controls-section {
     max-width: 1200px;
     margin: 0 auto 24px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 28px;
+    align-items: flex-start;
     background: var(--card);
-    padding: 16px;
+    padding: 16px 20px;
     border-radius: 12px;
     border: 1px solid var(--border);
-    align-items: center;
+}
+
+.control-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-block-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 800;
+    color: var(--accent);
+    min-height: 1em;
+}
+
+.control-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 .controls-section input,
@@ -238,15 +259,23 @@ body.is-loading #grid { opacity: 0.4; pointer-events: none; }
     border: 1px solid var(--border);
     padding: 10px;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     outline: none;
-    width: 100%;
+    min-width: 150px;
     box-sizing: border-box;
     transition: border-color .12s, box-shadow .12s;
 }
 
+.controls-section .search-input { min-width: 240px; }
+
 .controls-section input::placeholder {
     color: var(--muted);
+}
+
+/* Native dropdown popup: readable on the dark theme (was bright-on-bright) */
+.controls-section select option {
+    background: var(--card);
+    color: var(--text);
 }
 
 .controls-section input:focus,
@@ -270,32 +299,86 @@ body.is-loading #grid { opacity: 0.4; pointer-events: none; }
 
 /* Counter */
 .counter-text {
-    grid-column: 1 / -1;
+    flex-basis: 100%;
     font-size: 0.9rem;
     color: var(--muted);
     margin: 0;
 }
 
-/* Grid of country cards - centered and wider */
+/* Grid of country cards - smaller cards, more per row */
 #grid {
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    padding: 32px 0;
+    font-weight: 600;
+}
+
+/* Pagination */
+.pagination {
+    max-width: 1200px;
+    margin: 24px auto 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.page-btn {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, transform .08s;
+}
+
+.page-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(96, 165, 250, 0.1);
+    transform: translateY(-1px);
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-info {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    min-width: 110px;
+    text-align: center;
 }
 
 /* Card styles */
 .country-card {
     background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
+    border-radius: 10px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-shadow: 0 4px 12px rgba(2,6,23,0.35);
-    transition: transform .12s ease, box-shadow .12s ease;
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    cursor: pointer;
+}
+
+.country-card:hover {
+    border-color: rgba(96, 165, 250, 0.4);
 }
 
 .country-card:hover {
@@ -304,25 +387,25 @@ body.is-loading #grid { opacity: 0.4; pointer-events: none; }
 }
 
 .flag-img {
-    height: 160px;
+    height: 96px;
     width: 100%;
     object-fit: cover;
     background-color: rgba(255,255,255,0.03);
-    border-radius: 8px;
-    margin-bottom: 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
     border: 1px solid rgba(255,255,255,0.02);
 }
 
 .country-card h3 {
-    margin: 0 0 8px 0;
-    font-size: 1.15rem;
+    margin: 0 0 6px 0;
+    font-size: 1rem;
     font-weight: 800;
     color: var(--text);
 }
 
 .country-card p {
-    margin: 4px 0;
-    font-size: 0.95rem;
+    margin: 3px 0;
+    font-size: 0.85rem;
     color: var(--muted);
 }
 
@@ -353,7 +436,7 @@ body.is-loading #grid { opacity: 0.4; pointer-events: none; }
     }
 
     .country-card {
-        padding: 18px;
+        padding: 14px;
     }
 }
 
