@@ -1,16 +1,18 @@
 :root {
-    --bg-base: #0f172a;
-    --bg-surface: rgba(30, 41, 59, 0.7);
-    --bg-surface-hover: rgba(51, 65, 85, 0.9);
-    --text-main: #f8fafc;
+    /* Synced with indexStyle.css */
+    --bg-base: #071226;
+    --bg-surface: #0f1724;
+    --bg-surface-hover: rgba(31, 42, 55, 0.9);
+    --text-main: #e6f0fb;
     --text-muted: #94a3b8;
-    --accent-primary: #3b82f6;
-    --accent-secondary: #8b5cf6;
-    --accent-gradient: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    --accent-primary: #60a5fa;
+    --accent-secondary: #2b8df6;
+    --accent-gradient: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
     --danger: #ef4444;
     --success: #10b981;
-    --border-color: rgba(255, 255, 255, 0.1);
-    --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.3);
+    --warning: #f59e0b;
+    --border-color: #1f2a37;
+    --shadow-glow: 0 0 20px rgba(96, 165, 250, 0.2);
 }
 
 * {
@@ -20,14 +22,14 @@
 }
 
 body {
-    font-family: 'Outfit', sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
     background-color: var(--bg-base);
     color: var(--text-main);
     min-height: 100vh;
     overflow-x: hidden;
     background-image: 
-        radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.08), transparent 25%),
-        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+        radial-gradient(circle at 15% 50%, rgba(96, 165, 250, 0.05), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(43, 141, 246, 0.05), transparent 25%);
 }
 
 /* App Layout */
@@ -216,6 +218,9 @@ body {
 
 .btn-success { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
 .btn-success:hover { background: rgba(16, 185, 129, 0.2); transform: translateY(-2px); }
+
+.btn-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+.btn-warning:hover { background: rgba(245, 158, 11, 0.2); transform: translateY(-2px); }
 
 
 /* Cards Grid */

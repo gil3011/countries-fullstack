@@ -9,6 +9,7 @@ namespace Server.BL
         public int UserId { get; set; }
         public int Score { get; set; }
         public DateTime DateTaken { get; set; }
+        public string QuizTitle { get; set; }
         
         // Dictionary maps QuestionId -> User's Answer String
         public Dictionary<int, string> Answers { get; set; }

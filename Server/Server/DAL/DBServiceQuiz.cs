@@ -33,6 +33,14 @@ namespace Server.DAL
                     }
                 }
                 
+                if (newQuizId > 0 && quiz.AssociatedCountryIds != null)
+                {
+                    foreach (var cId in quiz.AssociatedCountryIds)
+                    {
+                        AddQuizCountry(newQuizId, cId);
+                    }
+                }
+                
                 return newQuizId;
             }
             catch (Exception)
@@ -43,6 +51,55 @@ namespace Server.DAL
             {
                 if (con != null) con.Close();
             }
+        }
+
+        private static void AddQuizCountry(int quizId, int countryId)
+        {
+            Connect();
+            var param = new Dictionary<string, object>
+            {
+                { "@QuizId", quizId },
+                { "@CountryId", countryId }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_AddCountry", param);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception) { throw; }
+            finally { if (con != null) con.Close(); }
+        }
+
+        private static void ClearQuizCountries(int quizId)
+        {
+            Connect();
+            var param = new Dictionary<string, object> { { "@QuizId", quizId } };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_ClearCountries", param);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception) { throw; }
+            finally { if (con != null) con.Close(); }
+        }
+
+        private static List<int> GetQuizCountries(int quizId)
+        {
+            Connect();
+            var param = new Dictionary<string, object> { { "@QuizId", quizId } };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetQuizCountries", param);
+            List<int> list = new List<int>();
+            try
+            {
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    list.Add(Convert.ToInt32(dr["CountryId"]));
+                }
+                return list;
+            }
+            catch (Exception) { throw; }
+            finally { if (con != null) con.Close(); }
         }
 
         public static int AddQuestion(int quizId, int userId, Question q)
@@ -168,7 +225,8 @@ namespace Server.DAL
                 
                 if (quiz != null)
                 {
-                    quiz.Questions = GetQuestionsByQuizId(id);
+                    quiz.Questions = GetQuestionsByQuizId(quiz.Id);
+                    quiz.AssociatedCountryIds = GetQuizCountries(quiz.Id);
                 }
                 return quiz;
             }
@@ -236,7 +294,8 @@ namespace Server.DAL
                             Title = dr["Title"].ToString(),
                             CreatorId = Convert.ToInt32(dr["CreatorId"]),
                             IsPublic = Convert.ToBoolean(dr["IsPublic"]),
-                            Likes = Convert.ToInt32(dr["Likes"])
+                            Likes = Convert.ToInt32(dr["Likes"]),
+                            QuestionCount = Convert.ToInt32(dr["QuestionCount"])
                         });
                     }
                 }
@@ -271,7 +330,8 @@ namespace Server.DAL
                             Title = dr["Title"].ToString(),
                             CreatorId = Convert.ToInt32(dr["CreatorId"]),
                             IsPublic = Convert.ToBoolean(dr["IsPublic"]),
-                            Likes = Convert.ToInt32(dr["Likes"])
+                            Likes = Convert.ToInt32(dr["Likes"]),
+                            QuestionCount = Convert.ToInt32(dr["QuestionCount"])
                         });
                     }
                 }
@@ -307,6 +367,7 @@ namespace Server.DAL
                             UserId = Convert.ToInt32(dr["UserId"]),
                             Score = Convert.ToInt32(dr["Score"]),
                             DateTaken = Convert.ToDateTime(dr["DateTaken"]),
+                            QuizTitle = dr["QuizTitle"].ToString(),
                             Answers = new Dictionary<int, string>()
                         };
                     }
@@ -359,6 +420,7 @@ namespace Server.DAL
                             UserId = Convert.ToInt32(dr["UserId"]),
                             Score = Convert.ToInt32(dr["Score"]),
                             DateTaken = Convert.ToDateTime(dr["DateTaken"]),
+                            QuizTitle = dr["QuizTitle"].ToString(),
                             Answers = new Dictionary<int, string>() // empty as requested
                         });
                     }
@@ -380,21 +442,34 @@ namespace Server.DAL
         // ==========================================
 
 
-        public static int UpdateQuiz(int quizId, int userId, string title)
+        public static int UpdateQuiz(Quiz quiz, int userId)
         {
             Connect();
             var param = new Dictionary<string, object>
             {
-                { "@Id", quizId },
+                { "@Id", quiz.Id },
                 { "@UserId", userId },
-                { "@Title", title }
+                { "@Title", quiz.Title }
             };
             
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_UpdateQuiz", param);
             try
             {
                 object result = cmd.ExecuteScalar();
-                return (result != null) ? Convert.ToInt32(result) : 0;
+                int rows = (result != null) ? Convert.ToInt32(result) : 0;
+                
+                if (rows > 0)
+                {
+                    ClearQuizCountries(quiz.Id);
+                    if (quiz.AssociatedCountryIds != null)
+                    {
+                        foreach (var cId in quiz.AssociatedCountryIds)
+                        {
+                            AddQuizCountry(quiz.Id, cId);
+                        }
+                    }
+                }
+                return rows;
             }
             catch (Exception)
             {
@@ -446,6 +521,31 @@ namespace Server.DAL
             };
             
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_PublishQuiz", param);
+            try
+            {
+                object result = cmd.ExecuteScalar();
+                return (result != null) ? Convert.ToInt32(result) : 0;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
+        }
+
+        public static int UnpublishQuiz(int quizId, int userId)
+        {
+            Connect();
+            var param = new Dictionary<string, object>
+            {
+                { "@Id", quizId },
+                { "@UserId", userId }
+            };
+            
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_UnpublishQuiz", param);
             try
             {
                 object result = cmd.ExecuteScalar();

@@ -10,10 +10,13 @@ namespace Server.BL
         public bool IsPublic { get; set; }
         public int Likes { get; set; }
         public List<Question> Questions { get; set; }
+        public int QuestionCount { get; set; }
+        public List<int> AssociatedCountryIds { get; set; }
 
         public Quiz()
         {
             Questions = new List<Question>();
+            AssociatedCountryIds = new List<int>();
             IsPublic = false; // default to private
             Likes = 0;
         }
@@ -62,9 +65,9 @@ namespace Server.BL
         // ==========================================
         // UPDATE
         // ==========================================
-        public int UpdateQuiz(int userId, string newTitle)
+        public int UpdateQuiz(int userId)
         {
-            return DBServiceQuiz.UpdateQuiz(this.Id, userId, newTitle);
+            return DBServiceQuiz.UpdateQuiz(this, userId);
         }
 
         public static int UpdateQuestion(int questionId, int userId, Question q)
@@ -75,6 +78,11 @@ namespace Server.BL
         public int PublishQuiz(int userId)
         {
             return DBServiceQuiz.PublishQuiz(this.Id, userId);
+        }
+
+        public int UnpublishQuiz(int userId)
+        {
+            return DBServiceQuiz.UnpublishQuiz(this.Id, userId);
         }
 
         public int ToggleLike(int userId)

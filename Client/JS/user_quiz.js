@@ -1,6 +1,48 @@
 // Base URL for API (assuming standard backend location)
 const API_BASE_URL = 'https://localhost:7255/api';
 
+let allCountries = [];
+let currentAssociatedCountryIds = [];
+
+function fetchCountries() {
+    ajaxCall("GET", `${API_BASE_URL}/Countries`, "",
+        (data) => {
+            allCountries = data;
+            // Sort alphabetically by common name
+            allCountries.sort((a, b) => (a.commonName || "").localeCompare(b.commonName || ""));
+            const select = $('#editor-quiz-country-select');
+            select.empty();
+            select.append(new Option("Select a country to add...", ""));
+            allCountries.forEach(c => {
+                select.append(new Option(c.commonName, c.id));
+            });
+        },
+        (err) => console.error("Failed to load countries:", err)
+    );
+}
+
+function renderSelectedCountries() {
+    const container = $('#editor-selected-countries-list');
+    container.empty();
+    currentAssociatedCountryIds.forEach(id => {
+        const country = allCountries.find(c => c.id === id);
+        if (country) {
+            container.append(`
+                <span class="country-tag" style="background: rgba(96, 165, 250, 0.2); border: 1px solid var(--accent-primary); padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
+                    ${country.commonName}
+                    <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="removeCountry(${id})"></i>
+                </span>
+            `);
+        }
+    });
+}
+
+function removeCountry(id) {
+    currentAssociatedCountryIds = currentAssociatedCountryIds.filter(cid => cid !== id);
+    renderSelectedCountries();
+    if (currentEditingQuizId) updateQuizData(currentEditingQuizId);
+}
+
 $(document).ready(function () {
     // Navigation
     $('.nav-links li').on('click', function () {
@@ -28,17 +70,40 @@ $(document).ready(function () {
 
     // Initial Load
     fetchPublicQuizzes();
+    fetchCountries();
 
     // Setup Modals
     $('#btn-create-quiz').on('click', () => {
-        $('#modal-quiz-title').text('Create New Quiz');
-        $('#quiz-id-input').val('');
-        $('#quiz-title-input').val('');
-        $('#quiz-desc-input').val('');
-        openModal('quiz-modal');
+        $('#editor-modal-title').text('Create New Quiz');
+        $('#editor-quiz-id').val('');
+        $('#editor-quiz-title').val('');
+        $('#editor-quiz-country-select').val('');
+        currentAssociatedCountryIds = [];
+        renderSelectedCountries();
+        $('#editor-questions-list').html('<p class="text-muted text-sm">No questions added yet. Add your first question on the right.</p>');
+        currentEditingQuizId = null;
+        currentQuestions = [];
+        clearQuestionEditor();
+        openModal('quiz-editor-modal');
     });
 
-    $('#btn-save-quiz').on('click', saveQuiz);
+    $('#editor-quiz-title').on('blur', function () {
+        if (currentEditingQuizId) updateQuizData(currentEditingQuizId);
+    });
+    
+    $('#editor-quiz-country-select').on('change', function () {
+        const val = $(this).val();
+        if (val) {
+            const id = parseInt(val);
+            if (!currentAssociatedCountryIds.includes(id)) {
+                currentAssociatedCountryIds.push(id);
+                renderSelectedCountries();
+                if (currentEditingQuizId) updateQuizData(currentEditingQuizId);
+            }
+            $(this).val('');
+        }
+    });
+
     $('#btn-save-question').on('click', saveQuestion);
 
     // Filter Search
@@ -67,7 +132,7 @@ function initUser() {
 }
 
 // Call initUser on load
-$(document).ready(function() {
+$(document).ready(function () {
     initUser();
 });
 
@@ -165,49 +230,67 @@ function fetchMyQuizzes() {
     );
 }
 
-function saveQuiz() {
-    const title = $('#quiz-title-input').val();
-    if (!title) return showToast("Title is required", "error");
+function updateQuizData(id) {
+    const title = $('#editor-quiz-title').val();
+    if (!title) return;
 
-    const quizId = $('#quiz-id-input').val();
     const quizData = {
+        id: id,
         title: title,
-        description: $('#quiz-desc-input').val() || "",
+        associatedCountryIds: currentAssociatedCountryIds,
         creatorId: getUserId()
     };
 
-    if (quizId) {
-        quizData.id = parseInt(quizId);
-        ajaxCall("PUT", `${API_BASE_URL}/Quiz/${quizId}?userId=${getUserId()}`, JSON.stringify(quizData), 
-            (res) => {
-                showToast("Quiz Updated Successfully!", "success");
-                closeModal('quiz-modal');
-                fetchMyQuizzes();
-            },
-            (err) => {
-                handleError(err, "Error updating quiz.");
-            }
-        );
-    } else {
-        ajaxCall("POST", `${API_BASE_URL}/Quiz`, JSON.stringify(quizData), 
-            (res) => {
-                showToast("Quiz Created Successfully!", "success");
-                closeModal('quiz-modal');
-                fetchMyQuizzes();
-            },
-            (err) => {
-                handleError(err, "Error creating quiz.");
-            }
-        );
-    }
+    ajaxCall("PUT", `${API_BASE_URL}/Quiz/${id}?userId=${getUserId()}`, JSON.stringify(quizData),
+        () => console.log('Quiz data auto-saved'),
+        (err) => console.error('Failed to auto-save quiz data', err)
+    );
 }
 
-function editQuiz(id, title, desc) {
-    $('#modal-quiz-title').text('Edit Quiz Info');
-    $('#quiz-id-input').val(id);
-    $('#quiz-title-input').val(title);
-    $('#quiz-desc-input').val(desc);
-    openModal('quiz-modal');
+function openQuizEditor(quizId) {
+    currentEditingQuizId = quizId;
+    $('#editor-modal-title').text('Edit Quiz');
+    clearQuestionEditor();
+    $('#editor-questions-list').html('<p class="text-muted text-sm">Loading...</p>');
+
+    // Fetch quiz details including questions
+    ajaxCall("GET", `${API_BASE_URL}/Quiz/${quizId}`, "",
+        (quiz) => {
+            $('#editor-quiz-id').val(quiz.id);
+            $('#editor-quiz-title').val(quiz.title);
+            
+            currentAssociatedCountryIds = quiz.associatedCountryIds || [];
+            renderSelectedCountries();
+
+            currentQuestions = quiz.questions || [];
+            renderQuestionsList();
+        },
+        (err) => {
+            handleError(err, "Failed to fetch quiz details.");
+        }
+    );
+
+    openModal('quiz-editor-modal');
+}
+
+function renderQuestionsList() {
+    let html = '';
+    if (currentQuestions.length === 0) {
+        html = '<p class="text-muted text-sm">No questions added yet. Add your first question on the right.</p>';
+    } else {
+        currentQuestions.forEach(q => {
+            html += `
+                <li>
+                    <span>${q.text}</span>
+                    <div>
+                        <button class="btn btn-secondary btn-sm" style="padding: 0.3rem 0.6rem;" onclick="editQuestion(${q.id})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-danger btn-sm" style="padding: 0.3rem 0.6rem;" onclick="deleteQuestion(${q.id})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </li>
+            `;
+        });
+    }
+    $('#editor-questions-list').html(html);
 }
 
 function publishQuiz(quizId) {
@@ -220,6 +303,20 @@ function publishQuiz(quizId) {
         },
         (err) => {
             handleError(err, "Failed to publish quiz.");
+        }
+    );
+}
+
+function unpublishQuiz(quizId) {
+    if (!confirm("Unpublish this quiz? It will become private again.")) return;
+
+    ajaxCall("POST", `${API_BASE_URL}/Quiz/${quizId}/Unpublish?userId=${getUserId()}`, "",
+        (res) => {
+            showToast("Quiz is now Private.", "success");
+            fetchMyQuizzes();
+        },
+        (err) => {
+            handleError(err, "Failed to unpublish quiz.");
         }
     );
 }
@@ -244,50 +341,10 @@ function deleteQuiz(quizId) {
 let currentEditingQuizId = null;
 let currentQuestions = [];
 
-function manageQuestions(quizId, quizTitle) {
-    currentEditingQuizId = quizId;
-    $('#mq-quiz-title').text(`(${quizTitle})`);
-
-    // Reset editor
-    clearQuestionEditor();
-
-    // Fetch existing questions
-    $('#questions-list').html('<p>Loading...</p>');
-
-    ajaxCall("GET", `${API_BASE_URL}/Quiz/${quizId}`, "",
-        (quiz) => {
-            currentQuestions = quiz.questions || [];
-            let html = '';
-            if (currentQuestions.length === 0) {
-                html = '<p class="text-muted">No questions yet.</p>';
-            } else {
-                currentQuestions.forEach(q => {
-                    html += `
-                        <li>
-                            <span>${q.text}</span>
-                            <div>
-                                <button class="btn btn-secondary btn-sm" style="padding: 0.3rem 0.6rem;" onclick="editQuestion(${q.id})"><i class="fa-solid fa-pen"></i></button>
-                                <button class="btn btn-danger btn-sm" style="padding: 0.3rem 0.6rem;" onclick="deleteQuestion(${q.id})"><i class="fa-solid fa-trash"></i></button>
-                            </div>
-                        </li>
-                    `;
-                });
-            }
-            $('#questions-list').html(html);
-        },
-        (err) => {
-            $('#questions-list').html('<p class="text-danger">Failed to load questions.</p>');
-            handleError(err, "Failed to fetch quiz details.");
-        }
-    );
-
-    openModal('questions-modal');
-}
-
 function editQuestion(qId) {
     const q = currentQuestions.find(x => x.id === qId);
-    if(!q) return;
-    
+    if (!q) return;
+
     $('#q-id-input').val(q.id);
     $('#q-text-input').val(q.text);
     $('#q-opt1-input').val(q.optionA || '');
@@ -308,6 +365,9 @@ function clearQuestionEditor() {
 }
 
 function saveQuestion() {
+    const title = $('#editor-quiz-title').val();
+    if (!title) return showToast("Please set a Quiz Title first", "error");
+
     if (!$('#q-text-input').val()) return showToast("Question text required", "error");
     if (!$('#q-opt1-input').val()) return showToast("At least the correct answer is required", "error");
 
@@ -318,15 +378,41 @@ function saveQuestion() {
         optionC: $('#q-opt3-input').val(),
         optionD: $('#q-opt4-input').val()
     };
-    
+
     const qId = $('#q-id-input').val();
+
+    if (currentEditingQuizId) {
+        performSaveQuestion(newQuestion, qId);
+    } else {
+        // Create Quiz First
+        const quizData = {
+            title: title,
+            associatedCountryIds: currentAssociatedCountryIds,
+            creatorId: getUserId()
+        };
+
+        ajaxCall("POST", `${API_BASE_URL}/Quiz`, JSON.stringify(quizData),
+            (res) => {
+                // res should be the new quiz ID
+                currentEditingQuizId = res;
+                $('#editor-quiz-id').val(res);
+                performSaveQuestion(newQuestion, qId);
+            },
+            (err) => {
+                handleError(err, "Failed to create quiz before saving question.");
+            }
+        );
+    }
+}
+
+function performSaveQuestion(newQuestion, qId) {
     if (qId) {
         newQuestion.id = parseInt(qId);
         ajaxCall("PUT", `${API_BASE_URL}/Quiz/Question/${qId}?userId=${getUserId()}`, JSON.stringify(newQuestion),
             (res) => {
-                showToast("Question updated successfully!", "success");
+                showToast("Question updated!", "success");
                 clearQuestionEditor();
-                manageQuestions(currentEditingQuizId, $('#mq-quiz-title').text().replace(/[()]/g, '')); // Reload list
+                refreshQuestionsList();
             },
             (err) => {
                 handleError(err, "Failed to update question.");
@@ -335,9 +421,9 @@ function saveQuestion() {
     } else {
         ajaxCall("POST", `${API_BASE_URL}/Quiz/${currentEditingQuizId}/Question?userId=${getUserId()}`, JSON.stringify(newQuestion),
             (res) => {
-                showToast("Question saved successfully!", "success");
+                showToast("Question saved!", "success");
                 clearQuestionEditor();
-                manageQuestions(currentEditingQuizId, $('#mq-quiz-title').text().replace(/[()]/g, '')); // Reload list
+                refreshQuestionsList();
             },
             (err) => {
                 handleError(err, "Failed to save question.");
@@ -346,13 +432,25 @@ function saveQuestion() {
     }
 }
 
+function refreshQuestionsList() {
+    ajaxCall("GET", `${API_BASE_URL}/Quiz/${currentEditingQuizId}`, "",
+        (quiz) => {
+            currentQuestions = quiz.questions || [];
+            renderQuestionsList();
+        },
+        (err) => {
+            console.error("Failed to refresh questions", err);
+        }
+    );
+}
+
 function deleteQuestion(qId) {
     if (!confirm("Delete question?")) return;
 
     ajaxCall("DELETE", `${API_BASE_URL}/Quiz/Question/${qId}?userId=${getUserId()}`, "",
         (res) => {
             showToast("Question deleted", "success");
-            manageQuestions(currentEditingQuizId, $('#mq-quiz-title').text().replace(/[()]/g, '')); // Reload list
+            refreshQuestionsList();
         },
         (err) => {
             handleError(err, "Failed to delete question.");
@@ -377,12 +475,13 @@ function fetchMyAttempts() {
                     html += `
                         <div class="list-item">
                             <div>
-                                <h3 style="margin-bottom: 0.25rem;">Quiz ID: ${a.quizId}</h3>
-                                <span class="text-muted text-sm"><i class="fa-regular fa-calendar"></i> ${a.dateAttempted ? new Date(a.dateAttempted).toLocaleDateString() : 'Unknown date'}</span>
+                                <h3 style="margin-bottom: 0.25rem;">${a.quizTitle || 'Quiz ' + a.quizId}</h3>
+                                <span class="text-muted text-sm"><i class="fa-regular fa-calendar"></i> ${a.dateTaken ? new Date(a.dateTaken).toLocaleString([], { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Unknown date'}</span>
                             </div>
                             <div style="display: flex; gap: 1rem; align-items: center;">
                                 <div class="score-badge">${a.score}</div>
                                 <button class="btn btn-secondary" onclick="viewAttempt(${a.id})"><i class="fa-solid fa-eye"></i> Details</button>
+                                <button class="btn btn-primary btn-sm" onclick="takeQuiz(${a.quizId})" title="Reattempt"><i class="fa-solid fa-rotate-right"></i></button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteAttempt(${a.id})"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
@@ -401,25 +500,249 @@ function fetchMyAttempts() {
 function viewAttempt(id) {
     ajaxCall("GET", `${API_BASE_URL}/QuizAttempt/${id}`, "",
         (attemptDetails) => {
-            console.log(attemptDetails);
-            showToast(`Loaded details for attempt ${id}. Score: ${attemptDetails.score}`, "success");
-            // Here you'd open a modal in a full implementation to show exactly what answers were chosen.
+            ajaxCall("GET", `${API_BASE_URL}/Quiz/${attemptDetails.quizId}`, "",
+                (quiz) => {
+                    quiz.questions.forEach(q => {
+                        const opts = [q.optionA, q.optionB, q.optionC, q.optionD].filter(o => o && o.trim() !== '');
+                        opts.sort(() => Math.random() - 0.5);
+                        q.shuffledOptions = opts;
+                    });
+
+                    tqCurrentQuiz = quiz;
+                    tqCurrentQuestionIndex = 0;
+                    tqUserAnswers = attemptDetails.answers;
+                    tqMode = 'VIEW';
+                    tqIsCurrentQuestionSubmitted = true;
+
+                    $('#take-quiz-title').text(quiz.title + " (Review)");
+                    $('#btn-tq-next').show();
+                    renderCurrentQuestion();
+                    openModal('take-quiz-modal');
+                },
+                (err) => handleError(err, "Failed to load quiz details.")
+            );
         },
-        (err) => {
-            handleError(err, "Failed to load attempt details.");
-        }
+        (err) => handleError(err, "Failed to load attempt details.")
     );
 }
+
+let tqCurrentQuiz = null;
+let tqCurrentQuestionIndex = 0;
+let tqUserAnswers = {}; // map of questionId -> selectedOptionText
+let tqUserAnswersIndex = {}; // map of questionId -> selectedIndex
+let tqMode = 'TAKE';
+let tqIsCurrentQuestionSubmitted = false;
 
 function takeQuiz(quizId) {
     ajaxCall("GET", `${API_BASE_URL}/Quiz/${quizId}`, "",
         (quiz) => {
-            showToast(`Ready to start quiz: ${quiz.title}. Implement UI to display questions!`, "info");
+            if (!quiz.questions || quiz.questions.length === 0) {
+                return showToast("This quiz has no questions.", "error");
+            }
+
+            // Pre-shuffle options for each question so they don't change on selection
+            quiz.questions.forEach(q => {
+                const opts = [q.optionA, q.optionB, q.optionC, q.optionD].filter(o => o && o.trim() !== '');
+                opts.sort(() => Math.random() - 0.5);
+                q.shuffledOptions = opts;
+            });
+
+            tqCurrentQuiz = quiz;
+            tqCurrentQuestionIndex = 0;
+            tqUserAnswers = {};
+            tqUserAnswersIndex = {};
+            tqMode = 'TAKE';
+            tqIsCurrentQuestionSubmitted = false;
+
+            $('#take-quiz-title').text(quiz.title);
+            $('#btn-tq-next').show();
+            renderCurrentQuestion();
+            openModal('take-quiz-modal');
         },
         (err) => {
             handleError(err, "Failed to load quiz for taking.");
         }
     );
+}
+
+function renderCurrentQuestion() {
+    $('#tq-error-msg').text('');
+    const q = tqCurrentQuiz.questions[tqCurrentQuestionIndex];
+    $('#take-quiz-progress').text(`Question ${tqCurrentQuestionIndex + 1} of ${tqCurrentQuiz.questions.length}`);
+    $('#tq-question-text').text(q.text);
+
+    const options = q.shuffledOptions;
+    const isSubmitted = tqMode === 'VIEW' || tqIsCurrentQuestionSubmitted;
+
+    let html = '';
+    options.forEach((opt, index) => {
+        let style = '';
+        let icon = '';
+
+        if (isSubmitted) {
+            const isSelected = tqUserAnswers[q.id] === opt;
+            const isCorrect = q.optionA === opt;
+
+            if (isCorrect) {
+                style = 'background: rgba(34, 197, 94, 0.2); border-color: var(--success);';
+                icon = '<i class="fa-solid fa-check" style="color: var(--success); margin-left: auto;"></i>';
+            } else if (isSelected && !isCorrect) {
+                style = 'background: rgba(239, 68, 68, 0.2); border-color: var(--danger);';
+                icon = '<i class="fa-solid fa-xmark" style="color: var(--danger); margin-left: auto;"></i>';
+            }
+        } else {
+            if (tqUserAnswersIndex[q.id] === index) {
+                style = 'background: rgba(96, 165, 250, 0.2); border-color: var(--accent-primary);';
+            }
+        }
+
+        const cursor = isSubmitted ? 'default' : 'pointer';
+        const clickHandler = isSubmitted ? '' : `onclick="selectAnswer(${q.id}, ${index}, '${opt.replace(/'/g, "\\'")}')"`;
+
+        html += `
+            <div class="glass-input" style="cursor: ${cursor}; ${style}; display: flex; align-items: center;" ${clickHandler}>
+                ${opt} ${icon}
+            </div>
+        `;
+    });
+
+    $('#tq-options-container').html(html);
+
+    if (tqMode === 'VIEW') {
+        if (tqCurrentQuestionIndex === tqCurrentQuiz.questions.length - 1) {
+            $('#btn-tq-next').html('Finish <i class="fa-solid fa-check"></i>').removeClass('btn-primary').addClass('btn-success');
+        } else {
+            $('#btn-tq-next').html('Next Question <i class="fa-solid fa-arrow-right"></i>').removeClass('btn-success').addClass('btn-primary');
+        }
+    } else {
+        if (!tqIsCurrentQuestionSubmitted) {
+            $('#btn-tq-next').html('Submit Answer <i class="fa-solid fa-paper-plane"></i>').removeClass('btn-success').addClass('btn-primary');
+        } else {
+            if (tqCurrentQuestionIndex === tqCurrentQuiz.questions.length - 1) {
+                $('#btn-tq-next').html('Finish Quiz <i class="fa-solid fa-flag-checkered"></i>').removeClass('btn-primary').addClass('btn-success');
+            } else {
+                $('#btn-tq-next').html('Next Question <i class="fa-solid fa-arrow-right"></i>').removeClass('btn-success').addClass('btn-primary');
+            }
+        }
+    }
+}
+
+function selectAnswer(qId, index, selectedOpt) {
+    if (tqMode === 'VIEW' || tqIsCurrentQuestionSubmitted) return;
+    tqUserAnswersIndex[qId] = index;
+    tqUserAnswers[qId] = selectedOpt;
+    renderCurrentQuestion();
+}
+
+function nextQuestion() {
+    const q = tqCurrentQuiz.questions[tqCurrentQuestionIndex];
+
+    if (tqMode === 'TAKE') {
+        if (!tqUserAnswers[q.id]) {
+            $('#tq-error-msg').text('Please select an answer.');
+            return;
+        }
+
+        if (!tqIsCurrentQuestionSubmitted) {
+            tqIsCurrentQuestionSubmitted = true;
+            renderCurrentQuestion();
+            return;
+        }
+    }
+
+    if (tqCurrentQuestionIndex < tqCurrentQuiz.questions.length - 1) {
+        tqCurrentQuestionIndex++;
+        tqIsCurrentQuestionSubmitted = false;
+        renderCurrentQuestion();
+    } else {
+        if (tqMode === 'TAKE') {
+            submitQuiz();
+        } else {
+            showFinalViewScreen();
+        }
+    }
+}
+
+function showFinalViewScreen() {
+    let score = 0;
+    const total = tqCurrentQuiz.questions.length;
+
+    tqCurrentQuiz.questions.forEach(q => {
+        if (tqUserAnswers[q.id] === q.optionA) {
+            score++;
+        }
+    });
+
+    const percentage = Math.round((score / total) * 100);
+
+    $('#take-quiz-body').html(`
+        <div style="text-align: center; padding: 2rem;">
+            <i class="fa-solid fa-clipboard-check fa-4x" style="color: var(--accent-primary); margin-bottom: 1rem;"></i>
+            <h2>Attempt Review</h2>
+            <p style="font-size: 1.2rem; color: var(--text-muted);">You scored</p>
+            <div class="score-badge" style="font-size: 2rem; padding: 1rem 2rem; display: inline-block; margin-top: 1rem;">${percentage}%</div>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">(${score} out of ${total} correct)</p>
+            <div style="margin-top: 2rem;">
+                <button class="btn btn-primary" onclick="closeTakeQuiz(); setTimeout(() => takeQuiz(${tqCurrentQuiz.id}), 300)"><i class="fa-solid fa-rotate-right"></i> Reattempt Quiz</button>
+            </div>
+        </div>
+    `);
+    $('#tq-error-msg').text('');
+    $('#btn-tq-next').hide();
+}
+
+function submitQuiz() {
+    // Calculate score
+    let score = 0;
+    const total = tqCurrentQuiz.questions.length;
+
+    tqCurrentQuiz.questions.forEach(q => {
+        if (tqUserAnswers[q.id] === q.optionA) {
+            score++;
+        }
+    });
+
+    const percentage = Math.round((score / total) * 100);
+
+    const attemptData = {
+        quizId: tqCurrentQuiz.id,
+        userId: getUserId(),
+        score: percentage,
+        dateTaken: new Date().toISOString(),
+        answers: tqUserAnswers
+    };
+
+    ajaxCall("POST", `${API_BASE_URL}/QuizAttempt`, JSON.stringify(attemptData),
+        (res) => {
+            $('#take-quiz-body').html(`
+                <div style="text-align: center; padding: 2rem;">
+                    <i class="fa-solid fa-trophy fa-4x" style="color: #fbbf24; margin-bottom: 1rem;"></i>
+                    <h2>Quiz Completed!</h2>
+                    <p style="font-size: 1.2rem; color: var(--text-muted);">You scored</p>
+                    <div class="score-badge" style="font-size: 2rem; padding: 1rem 2rem; display: inline-block; margin-top: 1rem;">${percentage}%</div>
+                    <p style="margin-top: 1rem; font-size: 0.9rem;">(${score} out of ${total} correct)</p>
+                </div>
+            `);
+            $('#tq-error-msg').text('');
+            $('#btn-tq-next').hide();
+
+            fetchMyAttempts();
+        },
+        (err) => {
+            handleError(err, "Failed to submit attempt.");
+        }
+    );
+}
+
+function closeTakeQuiz() {
+    closeModal('take-quiz-modal');
+    setTimeout(() => {
+        $('#take-quiz-body').html(`
+            <h3 id="tq-question-text" style="margin-bottom: 1.5rem; font-size: 1.3rem;"></h3>
+            <div id="tq-options-container" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+        `);
+        $('#btn-tq-next').show();
+    }, 300);
 }
 
 function deleteAttempt(id) {
@@ -437,7 +760,7 @@ function deleteAttempt(id) {
 }
 
 function likeQuiz(quizId) {
-    ajaxCall("POST", `${API_BASE_URL}/Quiz/${quizId}/Like`, "",
+    ajaxCall("POST", `${API_BASE_URL}/Quiz/${quizId}/Like?userId=${getUserId()}`, "",
         (res) => {
             showToast("Quiz Liked! ❤️", "success");
             fetchPublicQuizzes();
@@ -464,22 +787,30 @@ function renderQuizzes(quizzes, container, isManageView) {
 
             let actions = '';
             if (isManageView) {
+                const escTitle = q.title ? q.title.replace(/'/g, "\\'") : '';
+                const escDesc = q.description ? q.description.replace(/(\r\n|\n|\r)/gm, " ").replace(/'/g, "\\'") : '';
+
                 if (!q.isPublic) {
-                    const escTitle = q.title ? q.title.replace(/'/g, "\\'") : '';
-                    const escDesc = q.description ? q.description.replace(/(\r\n|\n|\r)/gm, " ").replace(/'/g, "\\'") : '';
                     actions = `
-                        <button class="btn btn-secondary btn-sm" onclick="editQuiz(${q.id}, '${escTitle}', '${escDesc}')"><i class="fa-solid fa-pen"></i> Info</button>
-                        <button class="btn btn-secondary btn-sm" onclick="manageQuestions(${q.id}, '${escTitle}')"><i class="fa-solid fa-list-check"></i> Questions</button>
-                        <button class="btn btn-success btn-sm" onclick="publishQuiz(${q.id})"><i class="fa-solid fa-globe"></i> Publish</button>
-                        <button class="btn btn-danger btn-sm" onclick="deleteQuiz(${q.id})"><i class="fa-solid fa-trash"></i></button>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: nowrap; width: 100%;">
+                            <button class="btn btn-secondary btn-sm" style="flex: 1; white-space: nowrap; padding: 0.25rem 0.5rem;" onclick="openQuizEditor(${q.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button class="btn btn-success btn-sm" style="flex: 1; white-space: nowrap; padding: 0.25rem 0.5rem;" onclick="publishQuiz(${q.id})"><i class="fa-solid fa-globe"></i> Publish</button>
+                            <button class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem;" onclick="deleteQuiz(${q.id})"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     `;
                 } else {
-                    actions = `<span class="text-muted" style="font-size: 0.85rem;"><i class="fa-solid fa-lock"></i> Published & Locked</span>`;
+                    actions = `
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: nowrap; width: 100%;">
+                            <button class="btn btn-secondary btn-sm" style="flex: 1; white-space: nowrap; padding: 0.25rem 0.5rem;" onclick="openQuizEditor(${q.id})"><i class="fa-solid fa-pen"></i> Edit</button>
+                            <button class="btn btn-warning btn-sm" style="flex: 1; white-space: nowrap; padding: 0.25rem 0.5rem;" onclick="unpublishQuiz(${q.id})"><i class="fa-solid fa-globe"></i> Unpublish</button>
+                            <button class="btn btn-danger btn-sm" style="padding: 0.25rem 0.5rem;" onclick="deleteQuiz(${q.id})"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
                 }
             } else {
                 actions = `
                     <button class="btn btn-primary" onclick="takeQuiz(${q.id})"><i class="fa-solid fa-play"></i> Take Quiz</button>
-                    <button class="btn btn-secondary" onclick="likeQuiz(${q.id})"><i class="fa-solid fa-heart"></i> ${q.likes || 0}</button>
+                    <button class="btn btn-secondary" onclick="likeQuiz(${q.id})"><i class="fa-solid fa-heart"></i></button>
                 `;
             }
 
@@ -490,7 +821,7 @@ function renderQuizzes(quizzes, container, isManageView) {
                         ${isManageView ? badge : ''}
                     </div>
                     <div class="quiz-meta">
-                        <span><i class="fa-solid fa-layer-group"></i> ${q.questions ? q.questions.length : (q.questionCount || 0)} Qs</span>
+                        <span><i class="fa-solid fa-layer-group"></i> ${q.questionCount !== undefined ? q.questionCount : (q.questions ? q.questions.length : 0)} Qs</span>
                         ${!isManageView ? `<span><i class="fa-solid fa-heart" style="color:var(--danger)"></i> ${q.likes || 0}</span>` : ''}
                     </div>
                     <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; flex-grow: 1;">

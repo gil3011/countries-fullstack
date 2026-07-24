@@ -132,7 +132,6 @@ namespace Server.Conntroller
             var visited = BL.User.getVisited(userId);
             return Ok(visited);
         }
-<<<<<<< HEAD
 
 
         // --- Admin Endpoints ---
