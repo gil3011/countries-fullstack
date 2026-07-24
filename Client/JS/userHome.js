@@ -163,7 +163,7 @@ function renderCountryList(containerId, list, listType) {
 }
 
 function loadCountries() {
-    const base = `${API_ROUTES.usersApi}/${userId}`;
+    const base = `${API_ROUTES.userAPI}/${userId}`;
     return Promise.all([
         apiRequest("GET", `${base}/visited`, null),
         apiRequest("GET", `${base}/wishlist`, null)
@@ -178,27 +178,27 @@ function loadCountries() {
 /* ===================== Country actions ===================== */
 function removeVisited(countryId) {
     if (!confirm("Remove this country from your visited list?")) return;
-    apiRequest("DELETE", `${API_ROUTES.usersApi}/${userId}/visited/${countryId}`, null)
+    apiRequest("DELETE", `${API_ROUTES.userAPI}/${userId}/visited/${countryId}`, null)
         .then(() => { setStatus("Removed from visited."); return loadCountries(); })
         .catch(() => setStatus("Could not remove country.", true));
 }
 
 function removeWishlist(countryId) {
     if (!confirm("Remove this country from your wishlist?")) return;
-    apiRequest("DELETE", `${API_ROUTES.usersApi}/${userId}/wishlist/${countryId}`, null)
+    apiRequest("DELETE", `${API_ROUTES.userAPI}/${userId}/wishlist/${countryId}`, null)
         .then(() => { setStatus("Removed from wishlist."); return loadCountries(); })
         .catch(() => setStatus("Could not remove country.", true));
 }
 
 function moveToVisited(countryId) {
-    apiRequest("POST", `${API_ROUTES.usersApi}/${userId}/moveToVisited/${countryId}`, null)
+    apiRequest("POST", `${API_ROUTES.userAPI}/${userId}/moveToVisited/${countryId}`, null)
         .then(() => { setStatus("Moved to visited."); return loadCountries(); })
         .catch(() => setStatus("Could not move country.", true));
 }
 
 /* ===================== Preferences: continents ===================== */
 function loadContinents() {
-    return apiRequest("GET", `${API_ROUTES.usersApi}/getContinentPreferences/${userId}`, null)
+    return apiRequest("GET", `${API_ROUTES.userAPI}/getContinentPreferences/${userId}`, null)
         .then(list => {
             originalContinents = list || [];
             document.querySelectorAll("input[name='continent']").forEach(cb => {
@@ -214,7 +214,7 @@ function getCheckedContinents() {
 
 /* ===================== Preferences: languages ===================== */
 function loadLanguages() {
-    return apiRequest("GET", `${API_ROUTES.usersApi}/getUserLanguages/${userId}`, null)
+    return apiRequest("GET", `${API_ROUTES.userAPI}/getUserLanguages/${userId}`, null)
         .then(dict => {
             originalLanguages = dict || {};
             stagedLanguages = Object.assign({}, originalLanguages);
@@ -273,7 +273,7 @@ function addStagedLanguage() {
 function savePreferences() {
     const errEl = document.getElementById("prefs-error");
     errEl.textContent = "";
-    const base = `${API_ROUTES.usersApi}/${userId}`;
+    const base = `${API_ROUTES.userAPI}/${userId}`;
     const calls = [];
 
     // Continents diff
@@ -340,7 +340,7 @@ function changePassword(e) {
 
     const btn = document.getElementById("change-password-btn");
     btn.disabled = true;
-    apiRequest("POST", `${API_ROUTES.usersApi}/changePassword`, {
+    apiRequest("POST", `${API_ROUTES.userAPI}/changePassword`, {
         userId: userId,
         currentPassword: current,
         newPassword: next

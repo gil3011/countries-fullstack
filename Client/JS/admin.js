@@ -21,7 +21,7 @@ $(document).ready(function () {
 function getUsers() {
     ajaxCall(
         "GET",
-        userAPI,
+        API_ROUTES.userAPI,
         null,
         getUsersSuccess,
         requestFailed
@@ -32,7 +32,7 @@ function getUsers() {
 function getAdminStats() {
     ajaxCall(
         "GET",
-        userAPI + "/admin/stats",
+        API_ROUTES.userAPI + "/admin/stats",
         null,
         getAdminStatsSuccess,
         requestFailed
@@ -43,7 +43,7 @@ function getAdminStats() {
 function getDailyLoginCounts() {
     ajaxCall(
         "GET",
-        userAPI + "/admin/GetDailyLoginCounts",
+        API_ROUTES.userAPI + "/admin/GetDailyLoginCounts",
         null,
         getDailyLoginCountsSuccess,
         requestFailed
@@ -432,8 +432,8 @@ function changeUserBlockStatus(userId) {
     }
 
     const endpoint = user.isBlocked
-        ? `${userAPI}/admin/unblockUser/${userId}`
-        : `${userAPI}/admin/blockUser/${userId}`;
+        ? `${API_ROUTES.userAPI}/admin/unblockUser/${userId}`
+        : `${API_ROUTES.userAPI}/admin/blockUser/${userId}`;
 
     const actionText = user.isBlocked
         ? "unblock"
@@ -470,8 +470,8 @@ function changeUserSharingPermission(userId) {
     }
 
     const endpoint = user.isAllowedToShare
-        ? `${userAPI}/admin/preventSharing/${userId}`
-        : `${userAPI}/admin/allowSharing/${userId}`;
+        ? `${API_ROUTES.userAPI}/admin/preventSharing/${userId}`
+        : `${API_ROUTES.userAPI}/admin/allowSharing/${userId}`;
 
     const actionText = user.isAllowedToShare
         ? "disable sharing for"
@@ -508,8 +508,8 @@ function changeUserAdminRole(userId) {
     }
 
     const endpoint = user.isAdmin
-        ? `${userAPI}/admin/demote/${userId}`
-        : `${userAPI}/admin/promote/${userId}`;
+        ? `${API_ROUTES.userAPI}/admin/demote/${userId}`
+        : `${API_ROUTES.userAPI}/admin/promote/${userId}`;
 
     const actionText = user.isAdmin
         ? "demote from admin"

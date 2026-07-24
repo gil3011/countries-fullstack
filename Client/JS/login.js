@@ -26,7 +26,7 @@ $(document).ready(function () {
 
 function loadLanguages() {
     // GET list of languages from backend. Expecting e.g. [ "English", "Spanish" ] or [ { name: "English" }, ... ]
-    ajaxCall("GET", API_ROUTES.countryApi + "/langueges", null,
+    ajaxCall("GET", API_ROUTES.countryAPI + "/langueges", null,
         function (data) {
             const select = $("#lang-select");
             select.empty();
@@ -84,7 +84,7 @@ function registerUser() {
         preferdContinents: selectedContinents
     };
 
-    ajaxCall("POST", API_ROUTES.usersApi, JSON.stringify(user),
+    ajaxCall("POST", API_ROUTES.userAPI, JSON.stringify(user),
         function (data) {
             console.log(data);
             window.location.href = "login.html";
@@ -121,7 +121,7 @@ function authenticate() {
         password: password
     };
 
-    ajaxCall("POST", API_ROUTES.usersApi + '/login', JSON.stringify(LoginInfo),
+    ajaxCall("POST", API_ROUTES.userAPI + '/login', JSON.stringify(LoginInfo),
         function (user) {
             localStorage.setItem("loggedInUser", JSON.stringify(user));
             window.location.href = "index.html";

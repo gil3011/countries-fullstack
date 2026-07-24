@@ -6,12 +6,12 @@ const local_path = "https://localhost:7255"
 const BASE_API = develop_mode ? local_path : ruppin_path;
 
 const API_ROUTES = {
-    countryApi: BASE_API + "/api/Country",
-    usersApi: BASE_API + "/api/User"
+    quizAPI: "https://localhost:7255/api/Quiz",
+    countryAPI: "https://localhost:7255/api/Country",
+    quizAttemptAPI: "https://localhost:7255/api/QuizAttempt",
+    shareAPI: "https://localhost:7255/api/Share",
+    userAPI: "https://localhost:7255/api/User"
 };
 
-const quizAPI = "https://localhost:7255/api/Quiz"
-const countryAPI = "https://localhost:7255/api/Country";
-const quizAttemptAPI = "https://localhost:7255/api/QuizAttempt";
-const shareAPI = "https://localhost:7255/api/Share";
-const userAPI = "https://localhost:7255/api/User";
+//countryApi: BASE_API + "/api/Country",
+//    usersApi: BASE_API + "/api/User"

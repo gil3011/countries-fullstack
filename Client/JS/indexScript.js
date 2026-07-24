@@ -41,9 +41,9 @@ function pinIcon(color) {
 // Load the logged-in user's visited/wishlist membership, then re-render.
 function loadUserLists() {
     if (!userId) return;
-    ajaxCall("GET", `${API_ROUTES.usersApi}/${userId}/visited`, null,
+    ajaxCall("GET", `${API_ROUTES.userAPI}/${userId}/visited`, null,
         data => { visitedIds = new Set((data || []).map(c => c.id)); update(); }, () => { });
-    ajaxCall("GET", `${API_ROUTES.usersApi}/${userId}/wishlist`, null,
+    ajaxCall("GET", `${API_ROUTES.userAPI}/${userId}/wishlist`, null,
         data => { wishlistIds = new Set((data || []).map(c => c.id)); update(); }, () => { });
 }
 
@@ -56,7 +56,7 @@ function apiCall(method, url) {
 // A country can be in at most one list. Setting a target list removes it from the other.
 function setMembership(countryId, target) {
     if (!userId) return;
-    const base = `${API_ROUTES.usersApi}/${userId}`;
+    const base = `${API_ROUTES.userAPI}/${userId}`;
     const inVisited = visitedIds.has(countryId);
     const inWishlist = wishlistIds.has(countryId);
     const ops = [];
@@ -242,5 +242,5 @@ window.onload = () => {
         loadUserLists();
     }
 
-    ajaxCall("GET", API_ROUTES.countryApi, null, handleSuccess, handleError);
+    ajaxCall("GET", API_ROUTES.countryAPI, null, handleSuccess, handleError);
 };
