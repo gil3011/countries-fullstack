@@ -28,16 +28,26 @@ namespace Server.DAL
             {
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
+                    int capOrdinal = dr.GetOrdinal("CapitalName");
+                    int langOrdinal = dr.GetOrdinal("LanguageNames");
+                    int currOrdinal = dr.GetOrdinal("CurrencyNames");
                     while (dr.Read())
                     {
                         Country c = MapCountryFromReader(dr);
+
+                        if (!dr.IsDBNull(capOrdinal))
+                            c.Capitals.Add(new Capital { Name = dr.GetString(capOrdinal) });
+
+                        if (!dr.IsDBNull(langOrdinal))
+                            foreach (var langName in dr.GetString(langOrdinal).Split('|', StringSplitOptions.RemoveEmptyEntries))
+                                c.Languages.Add(new Language { LanguageName = langName });
+
+                        if (!dr.IsDBNull(currOrdinal))
+                            foreach (var currName in dr.GetString(currOrdinal).Split('|', StringSplitOptions.RemoveEmptyEntries))
+                                c.Currencies.Add(new Currency { CurrencyName = currName });
+
                         countries.Add(c);
                     }
-                }
-
-                foreach (var country in countries)
-                {
-                    LoadChildCollections(country.Id, country);
                 }
 
                 return countries;

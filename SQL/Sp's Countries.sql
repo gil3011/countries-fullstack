@@ -8,11 +8,36 @@ CREATE OR ALTER PROCEDURE FP_sp_Countries2026_ReadAll
 AS
 BEGIN
     SET NOCOUNT ON;
+    -- List/summary view for the main countries page.
+    -- Returns one capital name via OUTER APPLY; full child collections
+    -- (languages, currencies, borders, timezones) are intentionally NOT loaded
+    -- here for performance -- use FP_sp_Countries2026_GetByCca3 for full detail.
     SELECT
-        Id, Cca3, CommonName, OfficialName, Region, Subregion,
-        Latitude, Longitude, AreaKm2, IsLandlocked, [Population],
-        FlagUrl, WikipediaUrl
-    FROM FP_Countries2026;
+        c.Id, c.Cca3, c.CommonName, c.OfficialName, c.Region, c.Subregion,
+        c.Latitude, c.Longitude, c.AreaKm2, c.IsLandlocked, c.[Population],
+        c.FlagUrl, c.WikipediaUrl,
+        cap.Name    AS CapitalName,
+        langs.Names AS LanguageNames,
+        curr.Names  AS CurrencyNames
+    FROM FP_Countries2026 c
+    OUTER APPLY (
+        SELECT TOP 1 Name
+        FROM FP_Capitals2026
+        WHERE CountryId = c.Id
+        ORDER BY Id
+    ) cap
+    OUTER APPLY (
+        SELECT STRING_AGG(l.LanguageName, '|') AS Names
+        FROM FP_CountryLanguages2026 cl
+        JOIN FP_Languages2026 l ON cl.LanguageId = l.Id
+        WHERE cl.CountryId = c.Id
+    ) langs
+    OUTER APPLY (
+        SELECT STRING_AGG(cu.CurrencyName, '|') AS Names
+        FROM FP_CountryCurrencies2026 cc
+        JOIN FP_Currencies2026 cu ON cc.CurrencyId = cu.Id
+        WHERE cc.CountryId = c.Id
+    ) curr;
 END
 GO
 
