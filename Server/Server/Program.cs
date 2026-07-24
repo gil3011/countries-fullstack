@@ -13,7 +13,7 @@ namespace Server
 
             // Persist logs to a daily rolling file (Logs/log-yyyyMMdd.log) in addition
             // to the built-in console logger configured via appsettings.json.
-            builder.Logging.AddFileLogger("Logs", LogLevel.Information);
+            builder.Logging.AddFileLogger("Logs", LogLevel.Information, retentionDays: 30);
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
