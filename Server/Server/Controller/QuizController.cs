@@ -48,19 +48,19 @@ namespace Server.Controllers
         }
 
         // PUT: api/Quiz/5
-        // Updates the Quiz title ONLY if IsPublic = 0 AND owned by userId
+        // Updates the Quiz title and associated countries ONLY if owned by userId
         [HttpPut("{id}")]
-        public IActionResult UpdateQuiz(int id, [FromQuery] int userId, [FromBody] string newTitle)
+        public IActionResult UpdateQuiz(int id, [FromQuery] int userId, [FromBody] Quiz updatedQuiz)
         {
-            Quiz quiz = new Quiz { Id = id };
-            int result = quiz.UpdateQuiz(userId, newTitle);
+            updatedQuiz.Id = id; // Ensure the ID matches the route
+            int result = updatedQuiz.UpdateQuiz(userId);
             
             if (result > 0)
             {
                 return Ok(true);
             }
-            // EDIT RULE: Returns 403 Forbidden if it's public or not owned by user!
-            return StatusCode(403, "Cannot update quiz: The quiz is either public, does not exist, or you are not the creator.");
+            // EDIT RULE: Returns 403 Forbidden if not owned by user!
+            return StatusCode(403, "Cannot update quiz: The quiz does not exist, or you are not the creator.");
         }
 
         // POST: api/Quiz/5/Publish
@@ -77,6 +77,21 @@ namespace Server.Controllers
             }
             // PUBLISHING RULE: Cannot publish an already public quiz or unowned quiz
             return StatusCode(403, "Cannot publish quiz: It may already be public, or you are not the creator.");
+        }
+
+        // POST: api/Quiz/5/Unpublish
+        // Sets IsPublic = 0.
+        [HttpPost("{id}/Unpublish")]
+        public IActionResult UnpublishQuiz(int id, [FromQuery] int userId)
+        {
+            Quiz quiz = new Quiz { Id = id };
+            int result = quiz.UnpublishQuiz(userId);
+            
+            if (result > 0)
+            {
+                return Ok(true);
+            }
+            return StatusCode(403, "Cannot unpublish quiz: It may already be private, or you are not the creator.");
         }
 
         // POST: api/Quiz/5/Like
@@ -101,7 +116,7 @@ namespace Server.Controllers
             {
                 return Ok(true);
             }
-            return StatusCode(403, "Cannot delete quiz: The quiz is public or you are not the creator.");
+            return StatusCode(403, "Cannot delete quiz: The quiz does not exist or you are not the creator.");
         }
 
         // ==========================================
@@ -119,8 +134,8 @@ namespace Server.Controllers
             {
                 return Created($"/api/Quiz/Question/{newQId}", newQId);
             }
-            // EDIT RULE: Prevents adding questions to public quizzes
-            return StatusCode(403, "Cannot add question: The quiz is public, does not exist, or you are not the creator.");
+            // EDIT RULE: Prevents adding questions to unowned quizzes
+            return StatusCode(403, "Cannot add question: The quiz does not exist, or you are not the creator.");
         }
 
         // PUT: api/Quiz/Question/5
@@ -132,8 +147,8 @@ namespace Server.Controllers
             {
                 return Ok(true);
             }
-            // EDIT RULE: Prevents editing questions of public quizzes
-            return StatusCode(403, "Cannot update question: The quiz is public, does not exist, or you are not the creator.");
+            // EDIT RULE: Prevents editing questions of unowned quizzes
+            return StatusCode(403, "Cannot update question: The quiz does not exist, or you are not the creator.");
         }
 
         // DELETE: api/Quiz/Question/5
@@ -145,8 +160,8 @@ namespace Server.Controllers
             {
                 return Ok(true);
             }
-            // EDIT RULE: Prevents deleting questions from public quizzes
-            return StatusCode(403, "Cannot delete question: The quiz is public, does not exist, or you are not the creator.");
+            // EDIT RULE: Prevents deleting questions from unowned quizzes
+            return StatusCode(403, "Cannot delete question: The quiz does not exist, or you are not the creator.");
         }
     }
 }
