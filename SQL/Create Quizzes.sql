@@ -22,7 +22,6 @@ CREATE TABLE FP_Questions2026 (
     OptionB NVARCHAR(1000) NULL,
     OptionC NVARCHAR(1000) NULL,
     OptionD NVARCHAR(1000) NULL,
-    CorrectAnswer NVARCHAR(1000) NOT NULL,
     CONSTRAINT FK_Questions_Quizzes FOREIGN KEY (QuizId) REFERENCES FP_Quizzes2026(Id) ON DELETE CASCADE
 );
 
@@ -59,5 +58,14 @@ CREATE TABLE FP_QuizLikes2026 (
     PRIMARY KEY (QuizId, UserId),
     CONSTRAINT FK_QuizLikes_Quizzes FOREIGN KEY (QuizId) REFERENCES FP_Quizzes2026(Id) ON DELETE CASCADE,
     CONSTRAINT FK_QuizLikes_Users FOREIGN KEY (UserId) REFERENCES FP_Users2026(Id) ON DELETE CASCADE
+);
+-- 6. Quiz Countries Table
+-- Junction table to associate quizzes with specific countries
+CREATE TABLE FP_QuizCountries2026 (
+    QuizId INT NOT NULL,
+    CountryId INT NOT NULL,
+    PRIMARY KEY (QuizId, CountryId),
+    CONSTRAINT FK_QuizCountries_Quizzes FOREIGN KEY (QuizId) REFERENCES FP_Quizzes2026(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_QuizCountries_Countries FOREIGN KEY (CountryId) REFERENCES FP_Countries2026(Id) ON DELETE CASCADE
 );
 GO
