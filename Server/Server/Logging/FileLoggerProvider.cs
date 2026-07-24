@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text;
 
 namespace Server.Logging
@@ -12,14 +13,22 @@ namespace Server.Logging
     {
         private readonly string _logDirectory;
         private readonly LogLevel _minLevel;
+        private readonly int _retentionDays;
         private readonly object _writeLock = new();
         private readonly ConcurrentDictionary<string, FileLogger> _loggers = new();
+        private string _currentLogDate;
 
-        public FileLoggerProvider(string logDirectory, LogLevel minLevel)
+        public FileLoggerProvider(string logDirectory, LogLevel minLevel, int retentionDays)
         {
             _logDirectory = logDirectory;
             _minLevel = minLevel;
+            _retentionDays = retentionDays;
             Directory.CreateDirectory(_logDirectory);
+
+            // Purge stale files at startup, then remember today so the first write
+            // of each new day triggers another purge (covers long-running processes).
+            _currentLogDate = DateTime.Now.ToString("yyyyMMdd");
+            CleanupOldLogs();
         }
 
         public ILogger CreateLogger(string categoryName) =>
@@ -38,11 +47,19 @@ namespace Server.Logging
                 sb.AppendLine().Append(exception);
 
             string line = sb.ToString();
-            string path = Path.Combine(_logDirectory, $"log-{DateTime.Now:yyyyMMdd}.log");
+            string today = DateTime.Now.ToString("yyyyMMdd");
+            string path = Path.Combine(_logDirectory, $"log-{today}.log");
 
             // File writes are serialized so concurrent requests don't interleave lines.
             lock (_writeLock)
             {
+                // The day rolled over since the last write: purge files past retention.
+                if (today != _currentLogDate)
+                {
+                    _currentLogDate = today;
+                    CleanupOldLogs();
+                }
+
                 try
                 {
                     File.AppendAllText(path, line + Environment.NewLine, Encoding.UTF8);
@@ -51,6 +68,38 @@ namespace Server.Logging
                 {
                     // Logging must never crash the request pipeline.
                 }
+            }
+        }
+
+        /// <summary>
+        /// Deletes daily log files older than the retention window. The date is parsed
+        /// from the file name (log-yyyyMMdd.log) rather than the file system timestamp.
+        /// </summary>
+        private void CleanupOldLogs()
+        {
+            if (_retentionDays <= 0)
+                return; // Retention disabled: keep everything.
+
+            try
+            {
+                DateTime cutoff = DateTime.Now.Date.AddDays(-_retentionDays);
+
+                foreach (string file in Directory.GetFiles(_logDirectory, "log-*.log"))
+                {
+                    string name = Path.GetFileNameWithoutExtension(file);
+                    string datePart = name.Length >= 8 ? name[^8..] : string.Empty;
+
+                    if (DateTime.TryParseExact(datePart, "yyyyMMdd", CultureInfo.InvariantCulture,
+                            DateTimeStyles.None, out DateTime fileDate)
+                        && fileDate < cutoff)
+                    {
+                        File.Delete(file);
+                    }
+                }
+            }
+            catch
+            {
+                // Cleanup must never crash logging.
             }
         }
 
@@ -92,12 +141,13 @@ namespace Server.Logging
     public static class FileLoggerExtensions
     {
         /// <summary>
-        /// Adds the daily rolling file logger to the logging pipeline.
+        /// Adds the daily rolling file logger to the logging pipeline. Files older than
+        /// <paramref name="retentionDays"/> days are deleted (set to 0 to keep forever).
         /// </summary>
         public static ILoggingBuilder AddFileLogger(this ILoggingBuilder builder,
-            string logDirectory = "Logs", LogLevel minLevel = LogLevel.Information)
+            string logDirectory = "Logs", LogLevel minLevel = LogLevel.Information, int retentionDays = 30)
         {
-            builder.AddProvider(new FileLoggerProvider(logDirectory, minLevel));
+            builder.AddProvider(new FileLoggerProvider(logDirectory, minLevel, retentionDays));
             return builder;
         }
     }
