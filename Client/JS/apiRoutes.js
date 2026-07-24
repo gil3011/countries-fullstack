@@ -10,5 +10,6 @@ const API_ROUTES = {
     countryAPI: BASE_API + "/Country",
     quizAttemptAPI: BASE_API + "/QuizAttempt",
     shareAPI: BASE_API + "/Share",
-    userAPI: BASE_API + "/User"
+    userAPI: BASE_API + "/User",
+    logAPI: BASE_API + "/Log"
 };

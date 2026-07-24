@@ -1,16 +1,21 @@
 let allUsers = [];
 let allLoginCounts = {};
+let currentLog = { date: "", lines: [] };
 
 $(document).ready(function () {
     getUsers();
     getAdminStats();
     getDailyLoginCounts();
+    getLogDates();
 
     $("#user-search").on("input", filterUsers);
 
     $("#login-range").on("change", function () {
         filterAndRenderLoginCounts();
     });
+
+    $("#log-date").on("change", loadSelectedLog);
+    $("#log-download-btn").on("click", downloadCurrentLog);
 });
 
 
@@ -51,6 +56,37 @@ function getDailyLoginCounts() {
 }
 
 
+function getLogDates() {
+    ajaxCall(
+        "GET",
+        API_ROUTES.logAPI + "/dates",
+        null,
+        getLogDatesSuccess,
+        requestFailed
+    );
+}
+
+
+function loadSelectedLog() {
+    const date = $("#log-date").val();
+
+    if (!date) {
+        renderLog({ date: "", lines: [] });
+        return;
+    }
+
+    $("#log-status").text("Loading log for " + date + "...");
+
+    ajaxCall(
+        "GET",
+        API_ROUTES.logAPI + "/" + date,
+        null,
+        renderLog,
+        requestFailed
+    );
+}
+
+
 /* =========================
    Success callbacks
 ========================= */
@@ -75,6 +111,75 @@ function getDailyLoginCountsSuccess(loginCounts) {
     allLoginCounts = loginCounts ?? {};
 
     filterAndRenderLoginCounts();
+}
+
+
+function getLogDatesSuccess(dates) {
+    const select = $("#log-date");
+    select.empty();
+
+    const available = Array.isArray(dates) ? dates : [];
+
+    if (available.length === 0) {
+        select.append(
+            $("<option></option>").val("").text("No logs available")
+        );
+        $("#log-status").text("No log files were found on the server.");
+        return;
+    }
+
+    available.forEach(function (date) {
+        select.append(
+            $("<option></option>").val(date).text(date)
+        );
+    });
+
+    // Auto-select and load the most recent day (first item).
+    select.val(available[0]);
+    loadSelectedLog();
+}
+
+
+/* =========================
+   Render server logs
+========================= */
+
+function renderLog(data) {
+    const date = data?.date ?? "";
+    const lines = Array.isArray(data?.lines) ? data.lines : [];
+
+    currentLog = { date: date, lines: lines };
+
+    $("#log-download-btn").prop("disabled", lines.length === 0);
+
+    if (!date) {
+        $("#log-status").text("Select a date to see its entry count.");
+    } else if (lines.length === 0) {
+        $("#log-status").text("No log entries for " + date + ".");
+    } else {
+        $("#log-status").text(lines.length + " log entries for " + date + ". Use Download to save the file.");
+    }
+}
+
+
+function downloadCurrentLog() {
+    if (!currentLog.date || currentLog.lines.length === 0) {
+        return;
+    }
+
+    const blob = new Blob(
+        [currentLog.lines.join("\n")],
+        { type: "text/plain;charset=utf-8" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "log-" + currentLog.date + ".log";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 
