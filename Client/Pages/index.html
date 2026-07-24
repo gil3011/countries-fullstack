@@ -29,25 +29,56 @@
     </div>
 
     <section class="controls-section">
-        <input type="text" id="search" placeholder="Search...">
 
-        <select id="region">
-            <option value="">All Regions</option>
-            <option value="Asia">Asia</option>
-            <option value="Europe">Europe</option>
-            <option value="Americas">Americas</option>
-            <option value="Africa">Africa</option>
-            <option value="Oceania">Oceania</option>
-            <option value="Antarctic">Antarctic</option>
-        </select>
+        <div class="control-block">
+            <span class="control-block-title">Filter</span>
+            <div class="control-fields">
+                <select id="region">
+                    <option value="">All Regions</option>
+                    <option value="Asia">Asia</option>
+                    <option value="Europe">Europe</option>
+                    <option value="Americas">Americas</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Oceania">Oceania</option>
+                    <option value="Antarctic">Antarctic</option>
+                </select>
 
-        <select id="sort">
-            <option value="name">Country Name</option>
-            <option value="pop">Population</option>
-            <option value="area">Area</option>
-        </select>
+                <input type="text" id="language-filter" list="language-options" placeholder="Any language" autocomplete="off">
+                <datalist id="language-options"></datalist>
 
-        <button id="reset">Reset</button>
+                <input type="text" id="currency-filter" list="currency-options" placeholder="Any currency" autocomplete="off">
+                <datalist id="currency-options"></datalist>
+
+                <select id="list-filter" style="display:none">
+                    <option value="">All Countries</option>
+                    <option value="visited">My Visited</option>
+                    <option value="wishlist">My Wishlist</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="control-block">
+            <span class="control-block-title">Sort by</span>
+            <div class="control-fields">
+                <select id="sort">
+                    <option value="name">Country Name</option>
+                    <option value="pop">Population</option>
+                    <option value="area">Area</option>
+                </select>
+            </div>
+        </div>
+        <div class="control-block">
+            <span class="control-block-title">Search</span>
+            <div class="control-fields">
+                <input type="text" id="search" class="search-input" placeholder="Name, code or capital...">
+            </div>
+        </div>
+        <div class="control-block">
+            <span class="control-block-title">&nbsp;</span>
+            <div class="control-fields">
+                <button id="reset">Reset</button>
+            </div>
+        </div>
 
         <p class="counter-text">Found <span id="count">0</span> countries</p>
     </section>
@@ -58,6 +89,8 @@
     </div>
 
     <main id="grid"></main>
+
+    <div id="pagination" class="pagination"></div>
     <script src="../JS/indexScript.js"></script>
 </body>
 </html>

@@ -176,6 +176,13 @@ input[type="password"]:focus {
     color: var(--text);
 }
 
+/* Native dropdown popup: readable on the dark theme (was bright-on-bright) */
+#lang-select option,
+#lang-level-select option {
+    background: var(--card);
+    color: var(--text);
+}
+
 .btn-small {
     width: auto;
     padding: 8px 12px;
