@@ -5,7 +5,7 @@ let allCountries = [];
 let currentAssociatedCountryIds = [];
 
 function fetchCountries() {
-    ajaxCall("GET", `${API_BASE_URL}/Countries`, "",
+    ajaxCall("GET", `${API_BASE_URL}/Country`, "",
         (data) => {
             allCountries = data;
             // Sort alphabetically by common name
@@ -90,7 +90,7 @@ $(document).ready(function () {
     $('#editor-quiz-title').on('blur', function () {
         if (currentEditingQuizId) updateQuizData(currentEditingQuizId);
     });
-    
+
     $('#editor-quiz-country-select').on('change', function () {
         const val = $(this).val();
         if (val) {
@@ -258,7 +258,7 @@ function openQuizEditor(quizId) {
         (quiz) => {
             $('#editor-quiz-id').val(quiz.id);
             $('#editor-quiz-title').val(quiz.title);
-            
+
             currentAssociatedCountryIds = quiz.associatedCountryIds || [];
             renderSelectedCountries();
 

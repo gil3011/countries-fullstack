@@ -70,10 +70,10 @@ namespace Server.BL
         // ==========================================
         // UPDATE
         // ==========================================
-        public int UpdateQuiz(int userId)
+        public int UpdateQuiz(int userId )
         {
             DBServiceQuiz dbs = new();
-            return dbs.UpdateQuiz(this.Id, userId, newTitle);
+            return dbs.UpdateQuiz(this, userId);
         }
 
         public static int UpdateQuestion(int questionId, int userId, Question q)
@@ -86,6 +86,12 @@ namespace Server.BL
         {
             DBServiceQuiz dbs = new();
             return dbs.PublishQuiz(this.Id, userId);
+        }
+
+        public int UnpublishQuiz(int userId)
+        {
+            DBServiceQuiz dbs = new();
+            return dbs.UnpublishQuiz(this.Id, userId);
         }
 
         public int ToggleLike(int userId)

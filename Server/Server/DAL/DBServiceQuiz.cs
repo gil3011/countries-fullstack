@@ -63,15 +63,24 @@ namespace Server.DAL
             }
         }
 
-        private static void AddQuizCountry(int quizId, int countryId)
+        private void AddQuizCountry(int quizId, int countryId)
         {
-            Connect();
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@QuizId", quizId },
                 { "@CountryId", countryId }
             };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_AddCountry", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_AddCountry", param);
             try
             {
                 cmd.ExecuteNonQuery();
@@ -80,11 +89,20 @@ namespace Server.DAL
             finally { if (con != null) con.Close(); }
         }
 
-        private static void ClearQuizCountries(int quizId)
+        private void ClearQuizCountries(int quizId)
         {
-            Connect();
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object> { { "@QuizId", quizId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_ClearCountries", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_ClearCountries", param);
             try
             {
                 cmd.ExecuteNonQuery();
@@ -93,11 +111,20 @@ namespace Server.DAL
             finally { if (con != null) con.Close(); }
         }
 
-        private static List<int> GetQuizCountries(int quizId)
+        private List<int> GetQuizCountries(int quizId)
         {
-            Connect();
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object> { { "@QuizId", quizId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_GetQuizCountries", param);
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetQuizCountries", param);
             List<int> list = new List<int>();
             try
             {
@@ -556,7 +583,7 @@ namespace Server.DAL
         // ==========================================
 
 
-        public int UpdateQuiz(int quizId, int userId, string title)
+        public int UpdateQuiz(Quiz quiz, int userId)
         {
             SqlConnection con;
 
@@ -681,16 +708,26 @@ namespace Server.DAL
             }
         }
 
-        public static int UnpublishQuiz(int quizId, int userId)
+        public int UnpublishQuiz(int quizId, int userId)
         {
-            Connect();
+            SqlConnection con;
+
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
             var param = new Dictionary<string, object>
             {
                 { "@Id", quizId },
                 { "@UserId", userId }
             };
-            
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral("FP_sp_Quizzes_UnpublishQuiz", param);
+
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_UnpublishQuiz", param);
             try
             {
                 object result = cmd.ExecuteScalar();
