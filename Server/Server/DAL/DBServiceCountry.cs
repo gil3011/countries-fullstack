@@ -1,4 +1,4 @@
-using Server.BL;
+﻿using Server.BL;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -17,8 +17,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Countries2026_ReadAll", null);
@@ -59,8 +59,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object>()
@@ -101,8 +101,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             SqlTransaction tx = con.BeginTransaction();
@@ -265,8 +265,9 @@ namespace Server.DAL
                 tx.Commit();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 try { tx.Rollback(); } catch { }
                 return false;
             }
@@ -285,8 +286,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             SqlTransaction tx = con.BeginTransaction();
@@ -462,8 +463,9 @@ namespace Server.DAL
                 tx.Commit();
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 try { tx.Rollback(); } catch { }
                 return false;
             }
@@ -484,8 +486,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             try
             {
@@ -521,8 +523,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Langueges2026_ReadAll", null);
@@ -578,8 +580,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var childParams = new Dictionary<string, object> { { "@CountryId", countryId } };
 

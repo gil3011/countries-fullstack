@@ -1,4 +1,4 @@
-using Server.BL;
+﻿using Server.BL;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -16,8 +16,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_SP_Shares_ReadAll", null);
             try
@@ -42,8 +42,9 @@ namespace Server.DAL
                     return shares;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -62,8 +63,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -92,8 +93,9 @@ namespace Server.DAL
                     return shares;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -112,8 +114,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -142,8 +144,9 @@ namespace Server.DAL
                     return shares;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -163,8 +166,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object>
@@ -218,8 +221,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object>
@@ -260,8 +263,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object>

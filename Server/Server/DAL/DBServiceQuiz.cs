@@ -1,4 +1,4 @@
-using Server.BL;
+﻿using Server.BL;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics.Contracts;
@@ -20,8 +20,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -45,8 +45,9 @@ namespace Server.DAL
                 
                 return newQuizId;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -65,8 +66,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -87,8 +88,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -109,8 +111,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -135,8 +137,9 @@ namespace Server.DAL
                 
                 return newAttemptId;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -155,8 +158,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -170,8 +173,9 @@ namespace Server.DAL
             {
                 cmd.ExecuteNonQuery();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -194,8 +198,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object> { { "@Id", id } };
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetQuizById", param);
@@ -224,8 +228,9 @@ namespace Server.DAL
                 }
                 return quiz;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -244,8 +249,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object> { { "@QuizId", quizId } };
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetQuestionsByQuizId", param);
@@ -271,8 +276,9 @@ namespace Server.DAL
                 }
                 return questions;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -291,8 +297,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetAllPublicQuizzes", null);
@@ -316,8 +322,9 @@ namespace Server.DAL
                 }
                 return quizzes;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -336,8 +343,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object> { { "@UserId", userId } };
@@ -362,8 +369,9 @@ namespace Server.DAL
                 }
                 return quizzes;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -382,8 +390,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object> { { "@AttemptId", attemptId } };
@@ -419,8 +427,8 @@ namespace Server.DAL
                     }
                     catch (Exception ex)
                     {
-                        // write to log
-                        throw (ex);
+                        Server.Logging.AppLogger.LogException(ex);
+                        throw;
                     }
                     var paramAnswers = new Dictionary<string, object> { { "@AttemptId", attemptId } };
                     SqlCommand cmdAnswers = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetAttemptAnswers", paramAnswers);
@@ -435,8 +443,9 @@ namespace Server.DAL
                 
                 return attempt;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -455,8 +464,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object> { { "@UserId", userId } };
             SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetAttemptsByUserId", param);
@@ -481,8 +490,9 @@ namespace Server.DAL
                 }
                 return attempts;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -506,8 +516,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -522,8 +532,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -542,8 +553,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object>
@@ -564,8 +575,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -584,8 +596,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -599,8 +611,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -623,8 +636,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -638,8 +651,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -658,8 +672,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -673,8 +687,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -693,8 +708,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -708,8 +723,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -727,8 +743,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var param = new Dictionary<string, object>
             {
@@ -742,8 +758,9 @@ namespace Server.DAL
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally

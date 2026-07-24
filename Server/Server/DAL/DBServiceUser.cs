@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Server.BL;
 using System.Data;
 using System.Data.SqlClient;
@@ -21,8 +21,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Users_ReadAll", null);
@@ -50,8 +50,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -70,8 +70,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             var userParam = new Dictionary<string, object>
             {
@@ -116,8 +116,9 @@ namespace Server.DAL
                                 cmdCont.ExecuteNonQuery();
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            Server.Logging.AppLogger.LogException(ex);
                             // do not fail but log
                         }
                     }
@@ -143,8 +144,9 @@ namespace Server.DAL
                                 cmdLang.ExecuteNonQuery();
                             }
                         }
-                        catch
+                        catch (Exception ex)
                         {
+                            Server.Logging.AppLogger.LogException(ex);
                             // do not fail but log
                         }
                     }
@@ -152,11 +154,10 @@ namespace Server.DAL
 
                 return result;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 // log as needed
-                throw;
-                // write to log
                 throw;
             }
             finally
@@ -176,8 +177,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -205,9 +206,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -227,8 +228,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -250,9 +251,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -272,8 +273,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -304,9 +305,9 @@ namespace Server.DAL
                 }
                 return null; // User not found
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -326,8 +327,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -358,9 +359,9 @@ namespace Server.DAL
                 }
                 return null; // User not found
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -380,8 +381,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -404,9 +405,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -427,8 +428,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -450,9 +451,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -472,8 +473,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -495,9 +496,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -517,8 +518,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -540,9 +541,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -562,8 +563,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -585,9 +586,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -608,8 +609,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Get_Admin_Stats", null);
@@ -631,8 +632,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -652,8 +653,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_SP_UserLogins_ReadDailyCounts", new Dictionary<string, object>());
@@ -671,9 +672,9 @@ namespace Server.DAL
                 }
                 return dailyLogins;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -693,8 +694,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             Dictionary<string, object> paramDic = new Dictionary<string, object>();
@@ -708,8 +709,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -727,8 +728,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -752,8 +753,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -771,8 +772,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -794,9 +795,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -818,8 +819,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -842,9 +843,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -864,8 +865,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -890,8 +891,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -910,8 +911,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -935,9 +936,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -957,8 +958,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -981,9 +982,9 @@ namespace Server.DAL
                     return true;
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // write to log
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
@@ -1004,8 +1005,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var ParamDic = new Dictionary<string, object>
@@ -1028,8 +1029,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -1049,8 +1050,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var ParamDic = new Dictionary<string, object>
@@ -1075,8 +1076,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -1096,8 +1097,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -1115,8 +1116,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -1135,8 +1136,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -1154,8 +1155,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -1174,8 +1175,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object>
@@ -1205,8 +1206,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -1226,8 +1227,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -1245,8 +1246,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -1265,8 +1266,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var userParam = new Dictionary<string, object>
@@ -1284,8 +1285,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
@@ -1304,8 +1305,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
 
             var param = new Dictionary<string, object>
@@ -1334,8 +1335,8 @@ namespace Server.DAL
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
             finally
             {
