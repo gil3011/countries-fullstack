@@ -20,6 +20,13 @@ namespace Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            // Open CORS policy for the SPA client. Tighten the origin list before a real
+            // deployment; defined once here as a named policy applied in the pipeline below.
+            const string CorsPolicy = "AllowClient";
+            builder.Services.AddCors(options =>
+                options.AddPolicy(CorsPolicy, policy =>
+                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+
             var app = builder.Build();
 
             // Wire the static logger (used by the BL/DAL layers, which are not created
@@ -36,7 +43,7 @@ namespace Server
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
-            app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()); app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            app.UseCors(CorsPolicy);
             app.UseAuthorization();
 
 
