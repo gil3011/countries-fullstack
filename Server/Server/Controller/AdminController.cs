@@ -28,7 +28,8 @@ namespace Server.Conntroller
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving wishlist.");
+                Server.Logging.AppLogger.LogException(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while blocking the user.");
             }
         }
 
@@ -44,7 +45,8 @@ namespace Server.Conntroller
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving wishlist.");
+                Server.Logging.AppLogger.LogException(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while unblocking the user.");
             }
         }
 
@@ -60,7 +62,8 @@ namespace Server.Conntroller
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving wishlist.");
+                Server.Logging.AppLogger.LogException(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while preventing user sharing.");
             }
         }
 
@@ -76,7 +79,8 @@ namespace Server.Conntroller
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving wishlist.");
+                Server.Logging.AppLogger.LogException(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while allowing user sharing.");
             }
         }
 
@@ -90,7 +94,8 @@ namespace Server.Conntroller
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving wishlist.");
+                Server.Logging.AppLogger.LogException(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving admin stats.");
             }
         }
 
@@ -104,7 +109,8 @@ namespace Server.Conntroller
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message);
+                Server.Logging.AppLogger.LogException(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving daily login counts.");
             }
         }
 
@@ -130,10 +136,10 @@ namespace Server.Conntroller
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                Server.Logging.AppLogger.LogException(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
-                    message = "An error occurred while promoting the user.",
-                    error = ex.Message
+                    message = "An error occurred while promoting the user."
                 });
             }
         }
@@ -160,10 +166,10 @@ namespace Server.Conntroller
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                Server.Logging.AppLogger.LogException(ex);
+                return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
-                    message = "An error occurred while demoting the user.",
-                    error = ex.Message
+                    message = "An error occurred while demoting the user."
                 });
             }
         }
