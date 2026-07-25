@@ -135,7 +135,8 @@ namespace Server.DAL
                             Type = Enum.Parse<ShareType>(dr["Type"].ToString()!, ignoreCase: true),
                             CountryId = Convert.ToInt32(dr["CountryId"]),
                             CreatedAt = Convert.ToDateTime(dr["CreatedAt"]),
-                            Title = Convert.ToString(dr["Title"]) ?? ""
+                            Title = Convert.ToString(dr["Title"]) ?? "",
+                            UserName = Convert.ToString(dr["UserName"]) ?? ""
                         };
                         shares.Add(share);
                     }
