@@ -377,3 +377,309 @@ body {
     .uh-two-col { grid-template-columns: 1fr; }
     .uh-lists { grid-template-columns: 1fr; }
 }
+
+/* ===================== My Shares ===================== */
+
+.uh-shares-panel {
+    margin-top: 24px;
+}
+
+.uh-shares-head {
+    align-items: center;
+}
+
+.uh-panel-subtitle {
+    margin: 6px 0 0;
+    color: var(--muted, #94a3b8);
+    font-size: 0.9rem;
+}
+
+.uh-shares-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.uh-shares-state {
+    grid-column: 1 / -1;
+    padding: 20px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: var(--muted, #94a3b8);
+    text-align: center;
+}
+
+.uh-share-card {
+    display: flex;
+    min-width: 0;
+    min-height: 190px;
+    flex-direction: column;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+    .uh-share-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(96, 165, 250, 0.35);
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+.uh-share-card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+    .uh-share-card-head > div {
+        min-width: 0;
+    }
+
+.uh-share-title {
+    overflow-wrap: anywhere;
+    margin: 0;
+    color: var(--text, #e6f0fb);
+    font-size: 0.95rem;
+    line-height: 1.3;
+}
+
+.uh-share-country {
+    display: inline-block;
+    overflow: hidden;
+    max-width: 100%;
+    margin-top: 4px;
+    color: var(--accent, #60a5fa);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+    .uh-share-country:hover {
+        text-decoration: underline;
+    }
+
+.uh-share-type {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.uh-share-type-recommendation {
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    background: rgba(34, 197, 94, 0.1);
+    color: #4ade80;
+}
+
+.uh-share-type-thought {
+    border: 1px solid rgba(96, 165, 250, 0.25);
+    background: rgba(96, 165, 250, 0.1);
+    color: #60a5fa;
+}
+
+.uh-share-type-review {
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+}
+
+.uh-share-type-unknown {
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(148, 163, 184, 0.1);
+    color: #94a3b8;
+}
+
+.uh-share-description {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 10px 0;
+    color: var(--muted, #94a3b8);
+    font-size: 0.88rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+}
+
+.uh-share-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.uh-share-date {
+    color: var(--muted, #94a3b8);
+    font-size: 0.74rem;
+}
+
+.uh-share-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.uh-share-edit-btn,
+.uh-share-delete-btn {
+    padding: 6px 10px;
+    border-radius: 7px;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.uh-share-edit-btn {
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    background: rgba(96, 165, 250, 0.1);
+    color: #60a5fa;
+}
+
+    .uh-share-edit-btn:hover {
+        background: rgba(96, 165, 250, 0.18);
+    }
+
+.uh-share-delete-btn {
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.08);
+    color: #f87171;
+}
+
+    .uh-share-delete-btn:hover {
+        background: rgba(239, 68, 68, 0.16);
+    }
+
+/* ===================== Edit Share Modal ===================== */
+
+.uh-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+    .uh-modal.hidden {
+        display: none;
+    }
+
+.uh-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.uh-modal-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    background: #0f1724;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+.uh-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+    .uh-modal-header h2 {
+        margin: 0;
+    }
+
+.uh-modal-close {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    color: #94a3b8;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .uh-modal-close:hover {
+        color: #e6f0fb;
+    }
+
+#edit-share-form input,
+#edit-share-form select,
+#edit-share-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    outline: none;
+    background: #0a1321;
+    color: #e6f0fb;
+    font: inherit;
+}
+
+#edit-share-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+    #edit-share-form input:focus,
+    #edit-share-form select:focus,
+    #edit-share-form textarea:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12);
+    }
+
+/* ===================== Responsive ===================== */
+
+@media (min-width: 1200px) {
+    .uh-shares-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 800px) {
+    .uh-shares-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .uh-share-card-head,
+    .uh-share-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .uh-share-actions {
+        width: 100%;
+    }
+
+    .uh-share-edit-btn,
+    .uh-share-delete-btn {
+        flex: 1;
+    }
+}
+
+.hidden {
+    display: none !important;
+}

@@ -113,3 +113,22 @@ function logout() {
     localStorage.removeItem("loggedInUser");
     window.location.href = "../Pages/login.html";
 }
+
+
+// caching countries
+const COUNTRIES_CACHE_KEY = "countriesSummaryV2";
+const COUNTRIES_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+window.getCachedCountries = function () {
+
+    try {
+        const raw = sessionStorage.getItem(COUNTRIES_CACHE_KEY);
+        if (!raw) return null;
+        const cached = JSON.parse(raw);
+        if (!cached || !Array.isArray(cached.data)) return null;
+        if (Date.now() - cached.ts > COUNTRIES_CACHE_TTL) return null;
+        return cached.data;
+    } catch {
+        return null;
+    }
+}
