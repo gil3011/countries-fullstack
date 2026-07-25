@@ -13,19 +13,20 @@ This document provides a quick, easy-to-read overview of all the actions a user 
 ---
 
 ## 🛠️ Quiz Creation & Management *(Creator Only)*
-*Note: Modifying a quiz is only allowed if `IsPublic = false`.*
+*Note: Modifying a quiz and its questions is allowed regardless of visibility.*
 
 | Action | Description | Endpoint |
 | :--- | :--- | :--- |
 | **Create Quiz** | Create a brand new quiz template. | `POST /api/Quiz` |
 | **Update Quiz Title** | Rename a private quiz. | `PUT /api/Quiz/{id}?userId={userId}` |
-| **Delete Quiz** | Completely delete a private quiz. | `DELETE /api/Quiz/{id}?userId={userId}` |
-| **Publish Quiz** | Lock the quiz and make it public for everyone. *(Cannot be undone)* | `POST /api/Quiz/{id}/Publish?userId={userId}` |
+| **Delete Quiz** | Completely delete a quiz (private or public). Deletes all associated attempts. | `DELETE /api/Quiz/{id}?userId={userId}` |
+| **Publish Quiz** | Lock the quiz and make it public for everyone. | `POST /api/Quiz/{id}/Publish?userId={userId}` |
+| **Unpublish Quiz** | Revert a public quiz to private so it's no longer playable by others. | `POST /api/Quiz/{id}/Unpublish?userId={userId}` |
 
 ---
 
 ## 📝 Question Management *(Creator Only)*
-*Note: Modifying questions is only allowed if the parent quiz is private (`IsPublic = false`).*
+*Note: Modifying questions is allowed regardless of quiz visibility.*
 
 | Action | Description | Endpoint |
 | :--- | :--- | :--- |
