@@ -48,26 +48,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpPut("UpdateUser")]
-        public IActionResult updateUser(User user)
-        {
-            try
-            {
-                var hasher = new PasswordHasher<User>();
-                user.Password = hasher.HashPassword(user, user.Password);
-
-                bool result = user.UpdateUser();
-                if (!result)
-                    return BadRequest("User update failed");
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the user.");
-            }
-        }
-
-        [HttpDelete("DeleteUser/{id}")]
+        [HttpDelete("{id}")]
         public IActionResult DeleteUser(int id)
         {
             try
@@ -166,24 +147,6 @@ namespace Server.Conntroller
             }
         }
 
-        // --- Admin Endpoints ---
-
-        [HttpPut("admin/blockUser/{id}")]
-        public IActionResult blockUser(int id)
-        {
-            try
-            {
-                bool result = BL.User.BlockUser(id);
-                if (!result)
-                    return BadRequest("User block failed");
-                return Ok(new { message = "User blocked successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving wishlist.");
-            }
-        }
-
         // --- Visited Endpoints ---
 
         [HttpPost("{userId}/visited/{countryId}")]
@@ -238,9 +201,31 @@ namespace Server.Conntroller
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving visited list.");
-            }   
+            }
         }
-        [HttpGet("getContinentPreferences/{userId}")]
+
+        // Aggregate everything the profile page needs in a single round-trip.
+        [HttpGet("{userId}/profile")]
+        public IActionResult GetProfile(int userId)
+        {
+            try
+            {
+                var profile = new
+                {
+                    visited = BL.User.getVisited(userId),
+                    wishlist = BL.User.getWishlist(userId),
+                    continents = BL.User.GetContinentPrefernces(userId),
+                    languages = BL.User.GetUserLanguages(userId)
+                };
+                return Ok(profile);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving the profile.");
+            }
+        }
+
+        [HttpGet("GetContinentPreferences/{userId}")]
         public IActionResult GetContinentPrefernces(int userId)
         {
             try
@@ -254,7 +239,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpGet("getUserLanguages/{userId}")]
+        [HttpGet("GetUserLanguages/{userId}")]
         public IActionResult GetUserLanguages(int userId)
         {
             try
@@ -370,18 +355,5 @@ namespace Server.Conntroller
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while changing the password.");
             }
         }
-    }
-
-    public class LanguageRequest
-    {
-        public string Language { get; set; } = string.Empty;
-        public string Level { get; set; } = string.Empty;
-    }
-
-    public class ChangePasswordRequest
-    {
-        public int UserId { get; set; }
-        public string CurrentPassword { get; set; } = string.Empty;
-        public string NewPassword { get; set; } = string.Empty;
     }
 }

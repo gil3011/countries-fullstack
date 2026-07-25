@@ -28,8 +28,8 @@ namespace Server.Controller
             }
         }
 
-        [HttpGet("GetByCca3")]
-        public IActionResult GetByCca3([FromQuery] string cca3)
+        [HttpGet("GetByCca3/{cca3}")]
+        public IActionResult GetByCca3(string cca3)
         {
             try
             {
@@ -105,19 +105,19 @@ namespace Server.Controller
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving data.");
             }
         }
-        [HttpGet("langueges")]
-        public IActionResult GetLangueges()
+        [HttpGet("languages")]
+        public IActionResult GetLanguages()
         {
             try
             {
-                List<string> langueges = Language.GetAll();
+                List<string> languages = Language.GetAll();
 
-                if (langueges == null || langueges.Count == 0)
+                if (languages == null || languages.Count == 0)
                 {
                     return NotFound("No countries found.");
                 }
 
-                return Ok(langueges);
+                return Ok(languages);
             }
             catch (Exception)
             {

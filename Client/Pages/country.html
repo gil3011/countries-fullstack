@@ -367,7 +367,7 @@
         $(document).ready(function () {
             const cca3 = new URLSearchParams(window.location.search).get('cca3');
             if (!cca3) { showError("Missing URL Parameter"); return; }
-            ajaxCall("GET", "https://localhost:7255/api/Country/GetByCca3?cca3=" + cca3, null, handleSuccess, handleError);
+            ajaxCall("GET", "https://localhost:7255/api/Country/GetByCca3/" + cca3, null, handleSuccess, handleError);
         });
 
     </script>

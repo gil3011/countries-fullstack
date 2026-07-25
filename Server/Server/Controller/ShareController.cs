@@ -17,7 +17,7 @@ namespace Server.Controller
                 var shares = BL.Share.GetAllShares();
                 return Ok(shares);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving shares.");
             }
@@ -31,7 +31,7 @@ namespace Server.Controller
                 var shares = BL.Share.GetUserShares(userId);
                 return Ok(shares);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving user shares.");
             }
@@ -45,7 +45,7 @@ namespace Server.Controller
                 var shares = BL.Share.GetCountryShares(countryName);
                 return Ok(shares);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while retrieving country shares.");
             }
@@ -66,7 +66,7 @@ namespace Server.Controller
                     return BadRequest("Share was not created");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the share.");
             }
@@ -87,7 +87,7 @@ namespace Server.Controller
                     return NotFound("Share was not found");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while updating the share.");
             }
@@ -109,7 +109,7 @@ namespace Server.Controller
                     return NotFound("Share was not found");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the share.");
             }

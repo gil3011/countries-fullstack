@@ -80,7 +80,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpGet("admin/stats")]
+        [HttpGet("stats")]
         public IActionResult GetStats()
         {
             try
@@ -94,7 +94,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpGet("admin/GetDailyLoginCounts")]
+        [HttpGet("GetDailyLoginCounts")]
         public IActionResult GetDailyLoginCounts()
         {
             try
@@ -108,7 +108,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpPut("admin/promote/{userId}")]
+        [HttpPut("promote/{userId}")]
         public IActionResult PromoteToAdmin(int userId)
         {
             try
@@ -138,7 +138,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpPut("admin/demote/{userId}")]
+        [HttpPut("demote/{userId}")]
         public IActionResult DemoteFromAdmin(int userId)
         {
             try
@@ -170,7 +170,7 @@ namespace Server.Conntroller
         
         // Log's controls
 
-        [HttpGet("dates")]
+        [HttpGet("log/dates")]
         public IActionResult GetAvailableDates()
         {
             try
@@ -202,7 +202,7 @@ namespace Server.Conntroller
             }
         }
 
-        [HttpGet("{date}")]
+        [HttpGet("log/{date}")]
         public IActionResult GetLogByDate(string date)
         {
             try

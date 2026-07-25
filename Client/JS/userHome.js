@@ -162,6 +162,30 @@ function renderCountryList(containerId, list, listType) {
     });
 }
 
+// Full profile load (countries + preferences) in a single request. Used on page load.
+function loadProfile() {
+    return apiRequest("GET", `${API_ROUTES.userAPI}/${userId}/profile`, null)
+        .then(data => {
+            data = data || {};
+
+            visited = data.visited || [];
+            wishlist = data.wishlist || [];
+            renderLists();
+            renderMap();
+
+            originalContinents = data.continents || [];
+            document.querySelectorAll("input[name='continent']").forEach(cb => {
+                cb.checked = originalContinents.includes(cb.value);
+            });
+
+            originalLanguages = data.languages || {};
+            stagedLanguages = Object.assign({}, originalLanguages);
+            renderStagedLanguages();
+        })
+        .catch(() => setStatus("Failed to load your profile.", true));
+}
+
+// Reloads only the country lists (used after add/remove/move actions).
 function loadCountries() {
     const base = `${API_ROUTES.userAPI}/${userId}`;
     return Promise.all([
@@ -197,32 +221,11 @@ function moveToVisited(countryId) {
 }
 
 /* ===================== Preferences: continents ===================== */
-function loadContinents() {
-    return apiRequest("GET", `${API_ROUTES.userAPI}/getContinentPreferences/${userId}`, null)
-        .then(list => {
-            originalContinents = list || [];
-            document.querySelectorAll("input[name='continent']").forEach(cb => {
-                cb.checked = originalContinents.includes(cb.value);
-            });
-        })
-        .catch(() => setStatus("Failed to load continent preferences.", true));
-}
-
 function getCheckedContinents() {
     return Array.from(document.querySelectorAll("input[name='continent']:checked")).map(cb => cb.value);
 }
 
 /* ===================== Preferences: languages ===================== */
-function loadLanguages() {
-    return apiRequest("GET", `${API_ROUTES.userAPI}/getUserLanguages/${userId}`, null)
-        .then(dict => {
-            originalLanguages = dict || {};
-            stagedLanguages = Object.assign({}, originalLanguages);
-            renderStagedLanguages();
-        })
-        .catch(() => setStatus("Failed to load languages.", true));
-}
-
 function renderStagedLanguages() {
     const list = document.getElementById("languages-list");
     list.innerHTML = "";
@@ -305,11 +308,11 @@ function savePreferences() {
     Promise.all(calls)
         .then(() => {
             setStatus("Preferences saved.");
-            return Promise.all([loadContinents(), loadLanguages()]);
+            return loadProfile();
         })
         .catch(() => {
             errEl.textContent = "Some changes could not be saved. Reverting to your saved preferences.";
-            return Promise.all([loadContinents(), loadLanguages()]);
+            return loadProfile();
         })
         .finally(() => { btn.disabled = false; });
 }
@@ -361,9 +364,7 @@ function changePassword(e) {
 document.addEventListener("DOMContentLoaded", () => {
     if (!userId) return;
     initMap();
-    loadCountries();
-    loadContinents();
-    loadLanguages();
+    loadProfile();
 
     document.getElementById("add-language-btn").addEventListener("click", addStagedLanguage);
     document.getElementById("save-prefs-btn").addEventListener("click", savePreferences);

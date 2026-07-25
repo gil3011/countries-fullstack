@@ -128,56 +128,7 @@ namespace Server.BL
             return dbs.getVisited(userId);
         }
 
-        // --- Admin Methods
-
-        public static bool BlockUser(int userId)
-        {
-            DBServiceUser dbs = new();
-            return dbs.BlockUser(userId);
-        }
-
-        public static bool UnblockUser(int userId)
-        {
-            DBServiceUser dbs = new();
-            return dbs.unblockUser(userId);
-        }
-
-        public static bool PreventSharing(int userId)
-        {
-            DBServiceUser dbs = new();
-            return dbs.preventSharing(userId);
-        }
-
-        public static bool AllowSharing(int userId)
-        {
-            DBServiceUser dbs = new();
-            return dbs.allowSharing(userId);
-        }
-
-        public static Dictionary<string, int> GetAdminStats()
-        {
-            DBServiceUser dbs = new();
-            return dbs.GetAdminStats();
-        }
-
-        public static Dictionary<DateTime, int> GetDailyLoginCounts()
-        {
-            DBServiceUser dbs = new();
-            return dbs.GetDailyLoginCounts();
-        }
-
-        public static bool PromoteToAdmin(int userId)
-        {
-            DBServiceUser dbs = new();
-            return dbs.promoteToAdmin(userId);
-        }
-
-        public static bool DemoteFromAdmin(int userId)
-        {
-            DBServiceUser dbs = new();
-            return dbs.demoteFromAdmin(userId);
-        }
-
+        
         // --- User Methods
 
         public static bool AddContinentPreference(int userId, string preference)

@@ -26,7 +26,7 @@ $(document).ready(function () {
 
 function loadLanguages() {
     // GET list of languages from backend. Expecting e.g. [ "English", "Spanish" ] or [ { name: "English" }, ... ]
-    ajaxCall("GET", API_ROUTES.countryAPI + "/langueges", null,
+    ajaxCall("GET", API_ROUTES.countryAPI + "/languages", null,
         function (data) {
             const select = $("#lang-select");
             select.empty();

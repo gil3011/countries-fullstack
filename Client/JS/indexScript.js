@@ -93,8 +93,9 @@ function setMembership(countryId, target) {
     const ops = [];
 
     if (target === 'visited') {
-        if (inWishlist) ops.push(apiCall("DELETE", `${base}/wishlist/${countryId}`));
-        if (!inVisited) ops.push(apiCall("POST", `${base}/visited/${countryId}`));
+        // moveToVisited removes from wishlist and adds to visited atomically in one call.
+        if (inWishlist) ops.push(apiCall("POST", `${base}/moveToVisited/${countryId}`));
+        else if (!inVisited) ops.push(apiCall("POST", `${base}/visited/${countryId}`));
     } else if (target === 'wishlist') {
         if (inVisited) ops.push(apiCall("DELETE", `${base}/visited/${countryId}`));
         if (!inWishlist) ops.push(apiCall("POST", `${base}/wishlist/${countryId}`));
