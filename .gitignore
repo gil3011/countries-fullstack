@@ -74,3 +74,8 @@ Desktop.ini
 .DS_Store
 
 Scratch/
+
+# Environment variables and API keys
+.env
+.env.*
+!.env.example

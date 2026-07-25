@@ -3,19 +3,29 @@ const API_BASE_URL = 'https://localhost:7255/api';
 
 let allCountries = [];
 let currentAssociatedCountryIds = [];
+let currentAssociatedRegions = [];
+window.allQuizzesMap = new Map();
 
-function fetchCountries() {
+function fetchCountries(onLoaded) {
     ajaxCall("GET", `${API_BASE_URL}/Country`, "",
         (data) => {
             allCountries = data;
             // Sort alphabetically by common name
             allCountries.sort((a, b) => (a.commonName || "").localeCompare(b.commonName || ""));
             const select = $('#editor-quiz-country-select');
+            const exploreSelect = $('#explore-country-filter');
             select.empty();
             select.append(new Option("Select a country to add...", ""));
+            
+            // Keep the first option ("All Countries") for exploreSelect and clear the rest
+            exploreSelect.find('option:not(:first)').remove();
+            
             allCountries.forEach(c => {
                 select.append(new Option(c.commonName, c.id));
+                exploreSelect.append(new Option(c.commonName, c.id));
             });
+
+            if (onLoaded) onLoaded();
         },
         (err) => console.error("Failed to load countries:", err)
     );
@@ -43,34 +53,48 @@ function removeCountry(id) {
     if (currentEditingQuizId) updateQuizData(currentEditingQuizId);
 }
 
+function renderSelectedRegions() {
+    const container = $('#editor-selected-regions-list');
+    container.empty();
+    currentAssociatedRegions.forEach(region => {
+        container.append(`
+            <span class="country-tag" style="background: rgba(96, 165, 250, 0.2); border: 1px solid var(--accent-primary); padding: 0.2rem 0.5rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem;">
+                ${region}
+                <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="removeRegion('${region}')"></i>
+            </span>
+        `);
+    });
+}
+
+function removeRegion(region) {
+    currentAssociatedRegions = currentAssociatedRegions.filter(r => r !== region);
+    renderSelectedRegions();
+    if (currentEditingQuizId) updateQuizData(currentEditingQuizId);
+}
+
 $(document).ready(function () {
-    // Navigation
-    $('.nav-links li').on('click', function () {
-        $('.nav-links li').removeClass('active');
-        $(this).addClass('active');
+    // Navigation based on URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const target = urlParams.get('tab') || 'explore-section';
+    
+    $('.tab-section').removeClass('active');
+    $('#' + target).addClass('active');
 
-        const target = $(this).data('target');
-        $('.tab-section').removeClass('active');
-        $('#' + target).addClass('active');
-
-        // Update Title & Context Actions
-        const text = $(this).text().trim();
-        $('#section-title').text(text);
-
+    fetchCountries(() => {
         if (target === 'manage-section') {
+            $('#section-title').text('Manage My Quizzes');
             $('#btn-create-quiz').show();
             fetchMyQuizzes();
-        } else {
+        } else if (target === 'attempts-section') {
+            $('#section-title').text('My Attempts');
             $('#btn-create-quiz').hide();
+            fetchMyAttempts();
+        } else { // default explore
+            $('#section-title').text('Explore Quizzes');
+            $('#btn-create-quiz').hide();
+            fetchPublicQuizzes();
         }
-
-        if (target === 'explore-section') fetchPublicQuizzes();
-        if (target === 'attempts-section') fetchMyAttempts();
     });
-
-    // Initial Load
-    fetchPublicQuizzes();
-    fetchCountries();
 
     // Setup Modals
     $('#btn-create-quiz').on('click', () => {
@@ -78,8 +102,11 @@ $(document).ready(function () {
         $('#editor-quiz-id').val('');
         $('#editor-quiz-title').val('');
         $('#editor-quiz-country-select').val('');
+        $('#editor-quiz-region-select').val('');
         currentAssociatedCountryIds = [];
+        currentAssociatedRegions = [];
         renderSelectedCountries();
+        renderSelectedRegions();
         $('#editor-questions-list').html('<p class="text-muted text-sm">No questions added yet. Add your first question on the right.</p>');
         currentEditingQuizId = null;
         currentQuestions = [];
@@ -98,6 +125,18 @@ $(document).ready(function () {
             if (!currentAssociatedCountryIds.includes(id)) {
                 currentAssociatedCountryIds.push(id);
                 renderSelectedCountries();
+                if (currentEditingQuizId) updateQuizData(currentEditingQuizId);
+            }
+            $(this).val('');
+        }
+    });
+
+    $('#editor-quiz-region-select').on('change', function () {
+        const val = $(this).val();
+        if (val) {
+            if (!currentAssociatedRegions.includes(val)) {
+                currentAssociatedRegions.push(val);
+                renderSelectedRegions();
                 if (currentEditingQuizId) updateQuizData(currentEditingQuizId);
             }
             $(this).val('');
@@ -201,8 +240,34 @@ function handleError(err, defaultMsg) {
 function fetchPublicQuizzes() {
     $('#public-quizzes-grid').html('<p>Loading public quizzes...</p>');
 
-    ajaxCall("GET", `${API_BASE_URL}/Quiz/Public`, "",
+    let url = `${API_BASE_URL}/Quiz/Public`;
+    const params = [];
+    const countryFilterId = $('#explore-country-filter').val();
+    if (countryFilterId) {
+        params.push(`countryId=${countryFilterId}`);
+    }
+    const regionFilter = $('#explore-region-filter').val();
+    if (regionFilter) {
+        params.push(`region=${regionFilter}`);
+    }
+    const userId = getUserId();
+    if (userId) {
+        params.push(`userId=${userId}`);
+    }
+    if (params.length > 0) {
+        url += '?' + params.join('&');
+    }
+
+    ajaxCall("GET", url, "",
         (data) => {
+            const sortVal = $('#explore-sort').val();
+            if (sortVal === 'newest') {
+                data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            } else if (sortVal === 'oldest') {
+                data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            } else if (sortVal === 'likes') {
+                data.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+            }
             renderQuizzes(data, '#public-quizzes-grid', false);
         },
         (err) => {
@@ -234,10 +299,13 @@ function updateQuizData(id) {
     const title = $('#editor-quiz-title').val();
     if (!title) return;
 
+
+
     const quizData = {
         id: id,
         title: title,
         associatedCountryIds: currentAssociatedCountryIds,
+        associatedRegions: currentAssociatedRegions,
         creatorId: getUserId()
     };
 
@@ -260,7 +328,9 @@ function openQuizEditor(quizId) {
             $('#editor-quiz-title').val(quiz.title);
 
             currentAssociatedCountryIds = quiz.associatedCountryIds || [];
+            currentAssociatedRegions = quiz.associatedRegions || [];
             renderSelectedCountries();
+            renderSelectedRegions();
 
             currentQuestions = quiz.questions || [];
             renderQuestionsList();
@@ -335,6 +405,15 @@ function deleteQuiz(quizId) {
     );
 }
 
+function finishQuizEditor() {
+    if (currentEditingQuizId && currentAssociatedCountryIds.length === 0 && currentAssociatedRegions.length === 0) {
+        showToast("You must select at least one country or continent before finishing.", "error");
+        return;
+    }
+    closeModal('quiz-editor-modal');
+    fetchMyQuizzes();
+}
+
 /* ==========================================================================
    QUESTIONS MANAGEMENT
    ========================================================================== */
@@ -368,8 +447,14 @@ function saveQuestion() {
     const title = $('#editor-quiz-title').val();
     if (!title) return showToast("Please set a Quiz Title first", "error");
 
+
+
     if (!$('#q-text-input').val()) return showToast("Question text required", "error");
     if (!$('#q-opt1-input').val()) return showToast("At least the correct answer is required", "error");
+    
+    if (!$('#q-opt2-input').val() && !$('#q-opt3-input').val() && !$('#q-opt4-input').val()) {
+        return showToast("You must provide at least one incorrect answer", "error");
+    }
 
     const newQuestion = {
         text: $('#q-text-input').val(),
@@ -388,6 +473,7 @@ function saveQuestion() {
         const quizData = {
             title: title,
             associatedCountryIds: currentAssociatedCountryIds,
+            associatedRegions: currentAssociatedRegions,
             creatorId: getUserId()
         };
 
@@ -563,6 +649,49 @@ function takeQuiz(quizId) {
             handleError(err, "Failed to load quiz for taking.");
         }
     );
+}
+
+function showQuizDetails(id) {
+    const q = window.allQuizzesMap.get(id);
+    if (!q) {
+        showToast("Quiz details not found.", "error");
+        return;
+    }
+
+    let countriesListHtml = '';
+    const allLocations = [];
+    if (q.associatedRegions && q.associatedRegions.length > 0) {
+        q.associatedRegions.forEach(r => allLocations.push(r));
+    }
+    if (q.associatedCountryIds && q.associatedCountryIds.length > 0) {
+        q.associatedCountryIds.forEach(cid => {
+            const country = allCountries.find(c => c.id === cid);
+            if (country) allLocations.push(country.commonName);
+        });
+    }
+
+    if (allLocations.length > 0) {
+        allLocations.forEach(loc => {
+            countriesListHtml += `<span style="background: rgba(96, 165, 250, 0.15); border: 1px solid var(--accent-primary); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; color: var(--text-main);"><i class="fa-solid fa-globe" style="color: var(--accent-primary);"></i> ${loc}</span>`;
+        });
+    } else {
+        countriesListHtml = '<p class="text-muted text-sm" style="margin:0;">No specific locations associated.</p>';
+    }
+
+    $('#details-quiz-title').text(q.title);
+    $('#details-quiz-creator').text(q.creatorName || `ID: ${q.creatorId}`);
+    $('#details-quiz-questions').text(q.questionCount !== undefined ? q.questionCount : (q.questions ? q.questions.length : 0));
+    $('#details-quiz-likes').text(q.likes || 0);
+    $('#details-quiz-date').text(q.createdAt ? new Date(q.createdAt).toLocaleDateString() : 'N/A');
+    $('#details-quiz-countries').html(countriesListHtml);
+    
+    // Set the take quiz button
+    $('#btn-details-take-quiz').off('click').on('click', function() {
+        closeModal('quiz-details-modal');
+        takeQuiz(id);
+    });
+
+    openModal('quiz-details-modal');
 }
 
 function renderCurrentQuestion() {
@@ -808,11 +937,50 @@ function renderQuizzes(quizzes, container, isManageView) {
                     `;
                 }
             } else {
+                const likeBtnClass = q.isLikedByCurrentUser ? "btn-danger" : "btn-secondary";
+                const heartIconClass = q.isLikedByCurrentUser ? "fa-solid fa-heart" : "fa-regular fa-heart";
+                
                 actions = `
-                    <button class="btn btn-primary" onclick="takeQuiz(${q.id})"><i class="fa-solid fa-play"></i> Take Quiz</button>
-                    <button class="btn btn-secondary" onclick="likeQuiz(${q.id})"><i class="fa-solid fa-heart"></i></button>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: nowrap; width: 100%;">
+                        <button class="btn btn-primary btn-sm" style="flex: 1; white-space: nowrap; padding: 0.25rem 0.5rem;" onclick="showQuizDetails(${q.id})"><i class="fa-solid fa-play"></i> Take Quiz</button>
+                        <button class="btn ${likeBtnClass} btn-sm" style="padding: 0.25rem 0.5rem;" onclick="likeQuiz(${q.id})"><i class="${heartIconClass}"></i></button>
+                    </div>
                 `;
             }
+
+            let countryBadgesHtml = '';
+            const allLocations = [];
+            
+            if (q.associatedRegions && q.associatedRegions.length > 0) {
+                q.associatedRegions.forEach(r => allLocations.push(r));
+            }
+            if (q.associatedCountryIds && q.associatedCountryIds.length > 0) {
+                q.associatedCountryIds.forEach(id => {
+                    const c = allCountries.find(x => x.id === id);
+                    if (c) allLocations.push(c.commonName);
+                });
+            }
+
+            if (allLocations.length > 0) {
+                countryBadgesHtml = '<div style="display: flex; gap: 0.5rem; flex-wrap: nowrap; overflow: hidden; margin-bottom: 0.75rem;">';
+                
+                const displayLimit = 2;
+                const toDisplay = allLocations.slice(0, displayLimit);
+                
+                toDisplay.forEach(loc => {
+                    countryBadgesHtml += `<span style="background: rgba(96, 165, 250, 0.15); border: 1px solid var(--accent-primary); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; color: var(--text-main); white-space: nowrap;"><i class="fa-solid fa-globe" style="color: var(--accent-primary);"></i> ${loc}</span>`;
+                });
+                
+                if (allLocations.length > displayLimit) {
+                    const diff = allLocations.length - displayLimit;
+                    countryBadgesHtml += `<span style="background: rgba(96, 165, 250, 0.1); border: 1px dashed var(--text-muted); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">+${diff}</span>`;
+                }
+                
+                countryBadgesHtml += '</div>';
+            }
+
+            // Store the quiz in the map for easy details lookup
+            window.allQuizzesMap.set(q.id, q);
 
             html += `
                 <div class="quiz-card">
@@ -820,13 +988,12 @@ function renderQuizzes(quizzes, container, isManageView) {
                         <div class="quiz-title">${q.title}</div>
                         ${isManageView ? badge : ''}
                     </div>
-                    <div class="quiz-meta">
+                    ${countryBadgesHtml}
+                    <div class="quiz-meta" style="margin-bottom: 1.5rem; flex-grow: 1; flex-wrap: wrap; gap: 0.75rem;">
+                        ${q.createdAt ? `<span><i class="fa-regular fa-calendar" style="color:var(--text-muted)"></i> ${new Date(q.createdAt).toLocaleDateString()}</span>` : ''}
                         <span><i class="fa-solid fa-layer-group"></i> ${q.questionCount !== undefined ? q.questionCount : (q.questions ? q.questions.length : 0)} Qs</span>
                         ${!isManageView ? `<span><i class="fa-solid fa-heart" style="color:var(--danger)"></i> ${q.likes || 0}</span>` : ''}
                     </div>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem; flex-grow: 1;">
-                        ${q.description || 'Test your knowledge on this topic.'}
-                    </p>
                     <div class="quiz-card-actions">
                         ${actions}
                     </div>
