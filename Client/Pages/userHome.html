@@ -126,6 +126,136 @@
                 </form>
             </section>
 
+
+
+        </div>
+
+        <!-- ===================== My Shares ===================== -->
+        <section class="uh-panel uh-shares-panel">
+            <div class="uh-panel-head uh-shares-head">
+                <div>
+                    <h2>My Shares</h2>
+                    <p class="uh-panel-subtitle">
+                        View, edit or delete the shares you created.
+                    </p>
+                </div>
+
+                <span id="my-shares-count" class="uh-count">
+                    0
+                </span>
+            </div>
+
+            <!-- Loading -->
+            <div id="my-shares-loading" class="uh-shares-state">
+                Loading your shares...
+            </div>
+
+            <!-- Empty state -->
+            <div id="my-shares-empty"
+                 class="uh-shares-state hidden">
+                You have not created any shares yet.
+            </div>
+
+            <!-- Error state -->
+            <div id="my-shares-error"
+                 class="uh-error hidden">
+                Could not load your shares.
+            </div>
+
+            <!-- Shares list -->
+            <div id="my-shares-list"
+                 class="uh-shares-list">
+            </div>
+        </section>
+    </div>
+
+   
+
+    <!--edit share-->
+    <div id="edit-share-modal"
+         class="uh-modal hidden">
+
+        <div class="uh-modal-overlay"></div>
+
+        <div class="uh-modal-content"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="edit-share-modal-title">
+
+            <div class="uh-modal-header">
+                <h2 id="edit-share-modal-title">
+                    Edit Share
+                </h2>
+
+                <button id="close-edit-share-modal-btn"
+                        class="uh-modal-close"
+                        type="button"
+                        aria-label="Close">
+                    ×
+                </button>
+            </div>
+
+            <form id="edit-share-form">
+
+                <input type="hidden"
+                       id="edit-share-id" />
+
+                <div class="uh-field">
+                    <label class="uh-label"
+                           for="edit-share-title">
+                        Title
+                    </label>
+
+                    <input id="edit-share-title"
+                           type="text"
+                           maxlength="150"
+                           required />
+                </div>
+
+                <div class="uh-field">
+                    <label class="uh-label"
+                           for="edit-share-type">
+                        Share Type
+                    </label>
+
+                    <select id="edit-share-type"
+                            required>
+                        <option value="0">Recommendation</option>
+                        <option value="1">Thought</option>
+                        <option value="2">Review</option>
+                    </select>
+                </div>
+
+                <div class="uh-field">
+                    <label class="uh-label"
+                           for="edit-share-description">
+                        Description
+                    </label>
+
+                    <textarea id="edit-share-description"
+                              rows="5"
+                              maxlength="1000"
+                              required></textarea>
+                </div>
+
+                <div id="edit-share-error"
+                     class="uh-error">
+                </div>
+
+                <div class="uh-actions">
+                    <button id="cancel-edit-share-btn"
+                            type="button"
+                            class="uh-btn">
+                        Cancel
+                    </button>
+
+                    <button id="save-edit-share-btn"
+                            type="submit"
+                            class="uh-btn uh-btn-primary">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

@@ -80,11 +80,11 @@ namespace Server.Controller
                 bool result = BL.Share.UpdateShare(share);
                 if (result)
                 {
-                    return Ok("Share updated successfully");
+                    return Ok(new { message = "Share updated successfully" });
                 }
                 else
                 {
-                    return NotFound("Share was not found");
+                    return NotFound(new { message = "Share was not found" });
                 }
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace Server.Controller
                 bool result = BL.Share.DeleteShare(shareID, userID);
                 if (result)
                 {
-                    return Ok("Share deleted successfully");
+                    return Ok(new { message = "Share deleted successfully" });
                 }
                 else
                 {
