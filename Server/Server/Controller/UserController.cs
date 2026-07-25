@@ -84,6 +84,12 @@ namespace Server.Conntroller
                 {
                     return Unauthorized("Invalid username or password");
                 }
+                if (user.IsBlocked)
+                {
+                    // Credentials are valid but the account is blocked: deny access and
+                    // do not record a login. 403 distinguishes this from bad credentials.
+                    return StatusCode(StatusCodes.Status403Forbidden, "Your account has been blocked.");
+                }
                 BL.User.AddLoginLog(user.Id);
                 return Ok(new
                 {
