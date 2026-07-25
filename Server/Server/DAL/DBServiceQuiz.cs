@@ -117,50 +117,50 @@ namespace Server.DAL
 
         private void AddQuizRegion(int quizId, string region)
         {
-            SqlConnection con;
+            SqlConnection con = null;
             try
             {
-                con = Connect(); // create the connection
+                con = Connect();
+                var param = new Dictionary<string, object>
+                {
+                    { "@QuizId", quizId },
+                    { "@Region", region }
+                };
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_AddRegion", param);
+
+                cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
-            var param = new Dictionary<string, object>
+            finally
             {
-                { "@QuizId", quizId },
-                { "@Region", region }
-            };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_AddRegion", param);
-            try
-            {
-                cmd.ExecuteNonQuery();
+                if (con != null) con.Close();
             }
-            catch (Exception) { throw; }
-            finally { if (con != null) con.Close(); }
         }
 
         private void ClearQuizRegions(int quizId)
         {
-            SqlConnection con;
+            SqlConnection con = null;
             try
             {
-                con = Connect(); // create the connection
+                con = Connect();
+                var param = new Dictionary<string, object> { { "@QuizId", quizId } };
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_ClearRegions", param);
+
+                cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
-            var param = new Dictionary<string, object> { { "@QuizId", quizId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_ClearRegions", param);
-            try
+            finally
             {
-                cmd.ExecuteNonQuery();
+                if (con != null) con.Close();
             }
-            catch (Exception) { throw; }
-            finally { if (con != null) con.Close(); }
         }
 
         private List<int> GetQuizCountries(int quizId)
@@ -193,21 +193,14 @@ namespace Server.DAL
 
         private List<string> GetQuizRegions(int quizId)
         {
-            SqlConnection con;
+            SqlConnection con = null;
             try
             {
-                con = Connect(); // create the connection
-            }
-            catch (Exception ex)
-            {
-                // write to log
-                throw (ex);
-            }
-            var param = new Dictionary<string, object> { { "@QuizId", quizId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetQuizRegions", param);
-            List<string> list = new List<string>();
-            try
-            {
+                con = Connect();
+                var param = new Dictionary<string, object> { { "@QuizId", quizId } };
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetQuizRegions", param);
+
+                List<string> list = new List<string>();
                 SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
@@ -215,8 +208,15 @@ namespace Server.DAL
                 }
                 return list;
             }
-            catch (Exception) { throw; }
-            finally { if (con != null) con.Close(); }
+            catch (Exception ex)
+            {
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
         }
 
         public int AddQuestion(int quizId, int userId, Question q)
@@ -251,8 +251,6 @@ namespace Server.DAL
 
             finally
             {
-                // We don't close the connection here if we are looping in CreateQuiz, 
-                // but since DBServiceBase creates a new connection per call, we close it.
                 if (con != null) con.Close();
             }
         }
@@ -432,25 +430,23 @@ namespace Server.DAL
             {
                 con = Connect();
 
-            var param = new Dictionary<string, object>();
-            if (filterCountryId.HasValue)
-            {
-                param.Add("@CountryId", filterCountryId.Value);
-            }
-            if (userId.HasValue)
-            {
-                param.Add("@UserId", userId.Value);
-            }
-            if (!string.IsNullOrEmpty(filterRegion))
-            {
-                param.Add("@Region", filterRegion);
-            }
+                var param = new Dictionary<string, object>();
+                if (filterCountryId.HasValue)
+                {
+                    param.Add("@CountryId", filterCountryId.Value);
+                }
+                if (userId.HasValue)
+                {
+                    param.Add("@UserId", userId.Value);
+                }
+                if (!string.IsNullOrEmpty(filterRegion))
+                {
+                    param.Add("@Region", filterRegion);
+                }
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetAllPublicQuizzes", param);
-            
-            List<Quiz> quizzes = new List<Quiz>();
-            try
-            {
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetAllPublicQuizzes", param);
+
+                List<Quiz> quizzes = new List<Quiz>();
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
                     int associatedCol = dr.GetOrdinal("AssociatedCountryIds");
