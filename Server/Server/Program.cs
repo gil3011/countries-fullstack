@@ -1,3 +1,6 @@
+using Server.Logging;
+using Server.Middleware;
+
 using DotNetEnv;
 using Server.Services;
 
@@ -25,6 +28,10 @@ namespace Server
 
             // Add services to the container.
 
+            // Persist logs to a daily rolling file (Logs/log-yyyyMMdd.log) in addition
+            // to the built-in console logger configured via appsettings.json.
+            builder.Logging.AddFileLogger("Logs", LogLevel.Information, retentionDays: 30);
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -34,7 +41,15 @@ namespace Server
 
             var app = builder.Build();
 
+            // Wire the static logger (used by the BL/DAL layers, which are not created
+            // through dependency injection) into the application logging pipeline.
+            AppLogger.Init(app.Services.GetRequiredService<ILoggerFactory>());
+
             // Configure the HTTP request pipeline.
+
+            // Log every request and catch any unhandled exception. Placed early so it
+            // wraps the entire pipeline and records all incoming calls.
+            app.UseRequestLogging();
 
             app.UseSwagger();
             app.UseSwaggerUI();

@@ -180,6 +180,43 @@
 
         </section>
 
+        <!-- Server logs -->
+
+        <section class="admin-panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>Server Logs</h2>
+
+                    <p>
+                        Download the application log for a specific day
+                    </p>
+                </div>
+
+                <div class="log-controls">
+                    <select id="log-date">
+                        <option value="">
+                            Loading dates...
+                        </option>
+                    </select>
+
+                    <button type="button"
+                            id="log-download-btn"
+                            class="action-btn admin-btn"
+                            disabled>
+                        Download
+                    </button>
+                </div>
+
+            </div>
+
+            <p id="log-status" class="log-status">
+                Select a date to see its entry count.
+            </p>
+
+        </section>
+
         <!-- User management -->
 
         <section class="admin-panel">
