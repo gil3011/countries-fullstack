@@ -10,412 +10,16 @@
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
             crossorigin="anonymous">
     </script>
+    <link href="../CSS/country.css" rel="stylesheet" />
 
     <script src="../JS/ajaxCalls.js"></script>
     <script src="../JS/navbar.js"></script>
     <script src="../JS/apiRoutes.js"></script>
+    <script src="../JS/country.js"></script>
 
     <link href="../CSS/NavBar.css" rel="stylesheet" />
 
-    <style>
-        :root {
-            --bg: #071226;
-            --card: #0f1724;
-            --muted: #94a3b8;
-            --accent: #60a5fa;
-            --border: #16202b;
-            --text: #e6f0fb;
-            --muted-weak: rgba(148, 163, 184, 0.85);
-            --card-contrast: #071226;
-        }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
-            color: var(--text);
-            background: var(--bg);
-        }
-
-        .page {
-            max-width: 1000px;
-            margin: 1.5rem auto;
-            padding: 1rem;
-        }
-
-        /* Loading and states */
-
-        .center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 4px solid rgba(96, 165, 250, 0.08);
-            border-top-color: var(--accent);
-            animation: spin 1s linear infinite;
-            background: transparent;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Country header */
-
-        .badge {
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            border-radius: 999px;
-            background: rgba(96, 165, 250, 0.12);
-            color: var(--accent);
-            text-transform: uppercase;
-            font-weight: 600;
-            font-size: 0.75rem;
-        }
-
-        .hero {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--card);
-            box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
-        }
-
-        .hero-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex: 1;
-            width: 100%;
-        }
-
-        .hero-map {
-            width: 100%;
-            height: 160px;
-            flex-shrink: 0;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: linear-gradient( 180deg, rgba(9, 18, 34, 0.6), rgba(7, 14, 24, 0.9) );
-        }
-
-        .flag {
-            width: 160px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            background: linear-gradient( 180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01) );
-            object-fit: cover;
-        }
-
-        .title {
-            margin: 0.25rem 0;
-            color: var(--text);
-            font-size: 1.4rem;
-            font-weight: 800;
-        }
-
-        .muted {
-            color: var(--muted);
-            font-size: 0.9rem;
-        }
-
-        .muted-weak {
-            color: var(--muted-weak);
-        }
-
-        /* Country information */
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 0.75rem;
-        }
-
-        .card {
-            padding: 0.8rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: linear-gradient( 180deg, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0) );
-            color: var(--text);
-        }
-
-        .large {
-            padding: 1rem;
-        }
-
-        .label {
-            display: block;
-            color: var(--muted);
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-
-        .value {
-            margin-top: 0.4rem;
-            font-weight: 700;
-        }
-
-        .languages {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-top: 0.4rem;
-        }
-
-        .lang {
-            padding: 0.25rem 0.4rem;
-            border: 1px solid rgba(255, 255, 255, 0.02);
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.02);
-            color: var(--text);
-            font-size: 0.8rem;
-        }
-
-        .borders {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            max-height: 240px;
-            overflow: auto;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .border-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.45rem;
-            border: 1px solid rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .wiki {
-            display: inline-block;
-            width: 100%;
-            padding: 0.55rem;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 8px;
-            background: linear-gradient( 180deg, rgba(96, 165, 250, 0.1), rgba(96, 165, 250, 0.06) );
-            color: var(--text);
-            text-align: center;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        /* Country shares */
-
-        .shares-section {
-            margin-top: 1rem;
-            padding: 1rem;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--card);
-            box-shadow: 0 6px 18px rgba(2, 6, 23, 0.45);
-        }
-
-        .shares-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-            .shares-header h2 {
-                margin: 0.25rem 0 0;
-                font-size: 1.15rem;
-            }
-
-        .shares-count {
-            padding: 0.35rem 0.65rem;
-            border: 1px solid rgba(96, 165, 250, 0.2);
-            border-radius: 999px;
-            background: rgba(96, 165, 250, 0.1);
-            color: var(--accent);
-            font-size: 0.8rem;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .shares-list {
-            display: grid;
-            gap: 0.75rem;
-        }
-
-        .share-card {
-            padding: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.02);
-            transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-        }
-
-            .share-card:hover {
-                transform: translateY(-2px);
-                border-color: rgba(96, 165, 250, 0.35);
-                background: rgba(255, 255, 255, 0.03);
-            }
-
-        .share-top {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 1rem;
-        }
-
-        .share-title {
-            margin: 0;
-            color: var(--text);
-            font-size: 1rem;
-        }
-
-        .share-type {
-            padding: 0.25rem 0.55rem;
-            border-radius: 999px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        /* Recommendation type */
-
-        .share-type-recommendation {
-            border: 1px solid rgba(34, 197, 94, 0.25);
-            background: rgba(34, 197, 94, 0.1);
-            color: #4ade80;
-        }
-
-        /* Thought type */
-
-        .share-type-thought {
-            border: 1px solid rgba(96, 165, 250, 0.25);
-            background: rgba(96, 165, 250, 0.1);
-            color: #60a5fa;
-        }
-
-        /* Review type */
-
-        .share-type-review {
-            border: 1px solid rgba(245, 158, 11, 0.25);
-            background: rgba(245, 158, 11, 0.1);
-            color: #fbbf24;
-        }
-
-        /* Unknown type */
-
-        .share-type-unknown {
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            background: rgba(148, 163, 184, 0.1);
-            color: var(--muted);
-        }
-
-        .share-description {
-            margin: 0.75rem 0;
-            color: var(--muted-weak);
-            line-height: 1.6;
-            white-space: pre-line;
-        }
-
-        .share-footer {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            padding-top: 0.65rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            color: var(--muted);
-            font-size: 0.8rem;
-        }
-
-        .shares-message {
-            padding: 1rem;
-            border: 1px dashed rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            color: var(--muted);
-            text-align: center;
-        }
-
-        .shares-error {
-            border-color: rgba(239, 68, 68, 0.2);
-            background: rgba(239, 68, 68, 0.05);
-            color: #fca5a5;
-        }
-
-        @media (min-width: 768px) {
-            .hero {
-                flex-direction: row;
-            }
-
-            .hero-left {
-                width: auto;
-            }
-
-            .grid {
-                grid-template-columns: 2fr 1fr;
-            }
-
-            .hero-map {
-                width: 300px;
-                height: 140px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .hero-left {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .flag {
-                width: 100%;
-                max-height: 220px;
-            }
-
-            .cards {
-                grid-template-columns: 1fr;
-            }
-
-            .shares-header,
-            .share-top,
-            .share-footer {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -613,10 +217,17 @@
                                 <h2>Shares about this country</h2>
                             </div>
 
-                            <span id="shares-count"
-                                  class="shares-count">
-                                0 shares
-                            </span>
+                            <div class="shares-actions">
+                                <span id="shares-count" class="shares-count">
+                                    0 shares
+                                </span>
+
+                                <button id="open-share-form-btn"
+                                        class="add-share-btn"
+                                        type="button">
+                                    + Add Share
+                                </button>
+                            </div>
                         </div>
 
                         <div id="shares-loading"
@@ -673,507 +284,82 @@
         </div>
     </main>
 
-    <script>
-        const ShareType = Object.freeze({
-            Recommendation: 0,
-            Thought: 1,
-            Review: 2
-        });
-
-        function renderCountry(country) {
-            document.getElementById("cca3-badge").textContent =
-                country.cca3 || "";
-
-            const flagElement =
-                document.getElementById("country-flag");
-
-            flagElement.src =
-                country.flagUrl ||
-                "https://via.placeholder.com/150?text=No+Flag";
-
-            flagElement.alt =
-                "Flag of " + (country.commonName || "country");
-
-            document.getElementById("country-name").textContent =
-                country.commonName || "Unknown country";
-
-            document.getElementById("official-name").textContent =
-                country.officialName ||
-                country.commonName ||
-                "Unknown";
-
-            document.getElementById("region").textContent =
-                country.region || "N/A";
-
-            document.getElementById("subregion").textContent =
-                country.subregion || "N/A";
-
-            document.getElementById("population").textContent =
-                country.population != null
-                    ? country.population.toLocaleString()
-                    : "N/A";
-
-            document.getElementById("area").textContent =
-                country.areaKm2 != null
-                    ? country.areaKm2.toLocaleString() + " km²"
-                    : "N/A";
-
-            document.getElementById("capitals").textContent =
-                (country.capitals || [])
-                    .map(capital => capital.name)
-                    .join(", ") || "None";
-
-            document.getElementById("currency").textContent =
-                (country.currencies || [])
-                    .map(currency => {
-                        const symbol =
-                            currency.currencySymbol || "";
-
-                        const code =
-                            currency.currencyCode || "";
-
-                        if (symbol && code) {
-                            return `${symbol} (${code})`;
-                        }
-
-                        return symbol || code;
-                    })
-                    .filter(Boolean)
-                    .join(", ") || "N/A";
-
-            renderLanguages(country.languages || []);
-
-            document.getElementById("landlocked-status").textContent =
-                country.isLandlocked ? "Yes" : "No";
-
-            document.getElementById("coordinates").textContent =
-                country.latitude != null &&
-                    country.longitude != null
-                    ? `${country.latitude}°, ${country.longitude}°`
-                    : "N/A";
-
-            renderCountryMap(country.latitude, country.longitude);
-
-            document.getElementById("timezones").textContent =
-                (country.timezones || []).join(", ") || "N/A";
-
-            document.getElementById("wiki-link").href =
-                country.wikipediaUrl || "#";
-
-            renderBorderingCountries(country.borders || []);
-
-            document
-                .getElementById("loading")
-                .classList.add("hidden");
-
-            document
-                .getElementById("content")
-                .classList.remove("hidden");
-        }
-
-        function renderLanguages(languages) {
-            const languagesContainer =
-                document.getElementById("languages-tags");
-
-            languagesContainer.innerHTML = "";
-
-            if (languages.length === 0) {
-                languagesContainer.innerHTML =
-                    '<span class="muted">No languages available.</span>';
-
-                return;
-            }
-
-            languages.forEach(language => {
-                const languageElement =
-                    document.createElement("span");
-
-                languageElement.className = "lang";
-
-                const languageName =
-                    language.languageName || "Unknown";
-
-                const languageCode =
-                    (language.iso639_1 || "").toUpperCase();
-
-                languageElement.textContent =
-                    languageCode
-                        ? `${languageName} (${languageCode})`
-                        : languageName;
-
-                languagesContainer.appendChild(languageElement);
-            });
-        }
-
-        function renderCountryMap(latitude, longitude) {
-            const mapElement =
-                document.getElementById("country-map");
-
-            if (
-                latitude == null ||
-                longitude == null
-            ) {
-                mapElement.style.display = "none";
-                return;
-            }
-
-            mapElement.style.display = "block";
-
-            const boundingBox =
-                `${longitude - 5},` +
-                `${latitude - 5},` +
-                `${longitude + 5},` +
-                `${latitude + 5}`;
-
-            mapElement.src =
-                "https://www.openstreetmap.org/export/embed.html" +
-                `?bbox=${boundingBox}` +
-                "&layer=mapnik" +
-                `&marker=${latitude},${longitude}`;
-        }
-
-        function renderBorderingCountries(borders) {
-            const bordersList =
-                document.getElementById("borders-list");
-
-            bordersList.innerHTML = "";
-
-            if (borders.length === 0) {
-                bordersList.innerHTML =
-                    '<li class="muted">No shared land borders.</li>';
-
-                return;
-            }
-
-            borders.forEach(border => {
-                const listItem =
-                    document.createElement("li");
-
-                listItem.className = "border-item";
-
-                const countryName =
-                    document.createElement("span");
-
-                countryName.style.fontWeight = "600";
-                countryName.textContent =
-                    border.commonName || "Unknown";
-
-                const countryLink =
-                    document.createElement("a");
-
-                countryLink.href =
-                    "?cca3=" +
-                    encodeURIComponent(border.cca3 || "");
-
-                countryLink.style.textDecoration = "none";
-                countryLink.style.color = "var(--accent)";
-                countryLink.style.fontWeight = "700";
-
-                countryLink.textContent =
-                    border.cca3 || "";
-
-                listItem.appendChild(countryName);
-                listItem.appendChild(countryLink);
-
-                bordersList.appendChild(listItem);
-            });
-        }
-
-        function showError(message) {
-            document
-                .getElementById("loading")
-                .classList.add("hidden");
-
-            const errorElement =
-                document.getElementById("error");
-
-            errorElement.classList.remove("hidden");
-
-            if (message) {
-                document
-                    .getElementById("error-message")
-                    .textContent = message;
-            }
-        }
-
-        function handleCountrySuccess(country) {
-            renderCountry(country);
-            loadCountryShares(country.commonName);
-        }
-
-        function handleCountryError(error) {
-            showError("Internal database error.");
-            console.error("Failed to load country:", error);
-        }
-
-        /* Country shares */
-
-        function loadCountryShares(countryName) {
-            resetSharesSection();
-
-            if (!countryName) {
-                handleSharesError(
-                    new Error("Country name is missing.")
-                );
-
-                return;
-            }
-
-            const url = API_ROUTES.shareAPI + "/GetCountryShares/" + encodeURIComponent(countryName);
-
-            ajaxCall(
-                "GET",
-                url,
-                null,
-                handleSharesSuccess,
-                handleSharesError
-            );
-        }
-
-        function resetSharesSection() {
-            document
-                .getElementById("shares-loading")
-                .classList.remove("hidden");
-
-            document
-                .getElementById("shares-empty")
-                .classList.add("hidden");
-
-            document
-                .getElementById("shares-error")
-                .classList.add("hidden");
-
-            document
-                .getElementById("shares-list")
-                .innerHTML = "";
-
-            updateSharesCount(0);
-        }
-
-        function handleSharesSuccess(shares) {
-
-            console.log("Fetched shares:", shares);
-            const sharesLoading =
-                document.getElementById("shares-loading");
-
-            const sharesEmpty =
-                document.getElementById("shares-empty");
-
-            const sharesError =
-                document.getElementById("shares-error");
-
-            const sharesList =
-                document.getElementById("shares-list");
-
-            sharesLoading.classList.add("hidden");
-            sharesEmpty.classList.add("hidden");
-            sharesError.classList.add("hidden");
-
-            sharesList.innerHTML = "";
-
-            const countryShares =
-                Array.isArray(shares)
-                    ? shares
-                    : [];
-
-            updateSharesCount(countryShares.length);
-
-            if (countryShares.length === 0) {
-                sharesEmpty.classList.remove("hidden");
-                return;
-            }
-
-            countryShares.forEach(share => {
-                sharesList.appendChild(
-                    createShareCard(share)
-                );
-            });
-        }
-
-        function getShareTypeName(type) {
-            switch (type) {
-                case ShareType.Recommendation:
-                    return "Recommendation";
-
-                case ShareType.Thought:
-                    return "Thought";
-
-                case ShareType.Review:
-                    return "Review";
-
-                default:
-                    return "Unknown";
-            }
-        }
-
-        function getShareTypeClass(type) {
-            switch (type) {
-                case ShareType.Recommendation:
-                    return "share-type-recommendation";
-
-                case ShareType.Thought:
-                    return "share-type-thought";
-
-                case ShareType.Review:
-                    return "share-type-review";
-
-                default:
-                    return "share-type-unknown";
-            }
-        }
-
-        function getDefaultShareTitle(type) {
-            switch (type) {
-                case ShareType.Recommendation:
-                    return "Country recommendation";
-
-                case ShareType.Thought:
-                    return "Thought about this country";
-
-                case ShareType.Review:
-                    return "Country review";
-
-                default:
-                    return "Country share";
-            }
-        }
-
-        function createShareCard(share) {
-            const card =
-                document.createElement("article");
-
-            card.className = "share-card";
-
-            const formattedDate =
-                formatShareDate(share.createdAt);
-
-            const username =
-                share.userName ||"Anonymous user";
-
-            const typeName =
-                getShareTypeName(share.type);
-
-            const typeClass =
-                getShareTypeClass(share.type);
-
-            card.innerHTML = `
-                        <div class="share-top">
-                            <h3 class="share-title"></h3>
-                            <span class="share-type"></span>
-                        </div>
-
-                        <p class="share-description"></p>
-
-                        <div class="share-footer">
-                            <span class="share-user"></span>
-                            <span class="share-date"></span>
-                        </div>
-                    `;
-
-            card
-                .querySelector(".share-title")
-                .textContent =
-                share.title ||
-                getDefaultShareTitle(share.type);
-
-            card
-                .querySelector(".share-description")
-                .textContent =
-                share.description ||
-                "No description was provided.";
-
-            const typeElement =
-                card.querySelector(".share-type");
-
-            typeElement.textContent = typeName;
-            typeElement.classList.add(typeClass);
-
-            card
-                .querySelector(".share-user")
-                .textContent =
-                "Shared by " + username;
-
-            card
-                .querySelector(".share-date")
-                .textContent = formattedDate;
-
-            return card;
-        }
-
-        function formatShareDate(createdAt) {
-            if (!createdAt) {
-                return "Unknown date";
-            }
-
-            const date =
-                new Date(createdAt);
-
-            if (Number.isNaN(date.getTime())) {
-                return "Unknown date";
-            }
-
-            return date.toLocaleDateString("en-GB");
-        }
-
-        function updateSharesCount(count) {
-            const countElement =
-                document.getElementById("shares-count");
-
-            countElement.textContent =
-                count === 1
-                    ? "1 share"
-                    : `${count} shares`;
-        }
-
-        function handleSharesError(error) {
-            document
-                .getElementById("shares-loading")
-                .classList.add("hidden");
-
-            document
-                .getElementById("shares-empty")
-                .classList.add("hidden");
-
-            document
-                .getElementById("shares-error")
-                .classList.remove("hidden");
-
-            document
-                .getElementById("shares-list")
-                .innerHTML = "";
-
-            updateSharesCount(0);
-
-            console.error(
-                "Failed to load country shares:",
-                error
-            );
-        }
-
-        $(document).ready(function () {
-            const cca3 =
-                new URLSearchParams(
-                    window.location.search
-                ).get("cca3");
-
-            if (!cca3) {
-                showError("Missing URL parameter.");
-                return;
-            }
-
-            const url =
-                API_ROUTES.countryAPI +
-                "/GetByCca3?cca3=" +
-                encodeURIComponent(cca3);
-
-            ajaxCall(
-                "GET",
-                url,
-                null,
-                handleCountrySuccess,
-                handleCountryError
-            );
-        });
-    </script>
+    <div id="share-modal" class="share-modal hidden">
+        <div class="share-modal-overlay"></div>
+
+        <div class="share-modal-content"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="share-modal-title">
+
+            <div class="share-modal-header">
+                <div>
+                    <span class="label">Community</span>
+                    <h2 id="share-modal-title">Add a Share</h2>
+                </div>
+
+                <button id="close-share-form-btn"
+                        class="share-modal-close"
+                        type="button"
+                        aria-label="Close">
+                    ×
+                </button>
+            </div>
+
+            <form id="share-form">
+                <div class="form-group">
+                    <label for="share-title">Title</label>
+
+                    <input id="share-title"
+                           name="title"
+                           type="text"
+                           maxlength="150"
+                           placeholder="Enter a title"
+                           required />
+                </div>
+
+                <div class="form-group">
+                    <label for="share-type">Share Type</label>
+
+                    <select id="share-type"
+                            name="type"
+                            required>
+
+                        <option value="">Select a share type</option>
+                        <option value="0">Recommendation</option>
+                        <option value="1">Thought</option>
+                        <option value="2">Review</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="share-description">Description</label>
+
+                    <textarea id="share-description"
+                              name="description"
+                              rows="5"
+                              maxlength="1000"
+                              placeholder="Share your experience or thoughts"
+                              required></textarea>
+                </div>
+
+                <div id="share-form-message" class="share-form-message hidden"></div>
+
+                <div class="share-form-actions">
+                    <button id="cancel-share-btn"
+                            class="share-cancel-btn"
+                            type="button">
+                        Cancel
+                    </button>
+
+                    <button id="submit-share-btn"
+                            class="share-submit-btn"
+                            type="submit">
+                        Publish Share
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
