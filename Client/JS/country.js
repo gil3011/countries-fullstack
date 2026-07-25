@@ -648,6 +648,7 @@ function showShareFormMessage(message, type) {
 }
 
 $(document).ready(function () {
+
     const cca3 =
         new URLSearchParams(
             window.location.search

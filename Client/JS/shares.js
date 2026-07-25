@@ -1,5 +1,8 @@
 ﻿let allShares = [];
 let filteredShares = [];
+const countries = getCachedCountries();
+
+console.log("Loaded countries:", countries);
 
 const ShareType = Object.freeze({
     Recommendation: 0,
