@@ -969,3 +969,7 @@ function setProfileStatus(message, type) {
         statusElement.className = "uh-status";
     }, 3000);
 }
+
+window.onShareCreated = function () {
+    loadMyShares();
+};

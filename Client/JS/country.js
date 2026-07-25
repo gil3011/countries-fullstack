@@ -1,11 +1,34 @@
 ﻿let currentCountry = null;
-let user = getUserLoggedIn();
 
 const ShareType = Object.freeze({
     Recommendation: 0,
     Thought: 1,
     Review: 2
 });
+
+/* ===================== Create Share Integration ===================== */
+
+/*
+    createShare.js calls this function when opening the modal.
+    On the country page, the current country is selected automatically.
+*/
+window.getDefaultShareCountryId = function () {
+    return currentCountry?.id || null;
+};
+
+/*
+    createShare.js calls this function after a share
+    is created successfully.
+*/
+window.onShareCreated = function () {
+    if (!currentCountry) {
+        return;
+    }
+
+    loadCountryShares(currentCountry.commonName);
+};
+
+/* ===================== Country Details ===================== */
 
 function renderCountry(country) {
     document.getElementById("cca3-badge").textContent =
@@ -79,7 +102,10 @@ function renderCountry(country) {
             ? `${country.latitude}°, ${country.longitude}°`
             : "N/A";
 
-    renderCountryMap(country.latitude, country.longitude);
+    renderCountryMap(
+        country.latitude,
+        country.longitude
+    );
 
     document.getElementById("timezones").textContent =
         (country.timezones || []).join(", ") || "N/A";
@@ -128,7 +154,9 @@ function renderLanguages(languages) {
                 ? `${languageName} (${languageCode})`
                 : languageName;
 
-        languagesContainer.appendChild(languageElement);
+        languagesContainer.appendChild(
+            languageElement
+        );
     });
 }
 
@@ -226,16 +254,24 @@ function showError(message) {
 function handleCountrySuccess(country) {
     currentCountry = country;
 
+    document
+        .querySelector(".shares-section")
+        .classList.remove("hidden");
+
     renderCountry(country);
     loadCountryShares(country.commonName);
 }
 
 function handleCountryError(error) {
     showError("Internal database error.");
-    console.error("Failed to load country:", error);
+
+    console.error(
+        "Failed to load country:",
+        error
+    );
 }
 
-/* Country shares */
+/* ===================== Country Shares ===================== */
 
 function loadCountryShares(countryName) {
     resetSharesSection();
@@ -248,7 +284,10 @@ function loadCountryShares(countryName) {
         return;
     }
 
-    const url = API_ROUTES.shareAPI + "/GetCountryShares/" + encodeURIComponent(countryName);
+    const url =
+        API_ROUTES.shareAPI +
+        "/GetCountryShares/" +
+        encodeURIComponent(countryName);
 
     ajaxCall(
         "GET",
@@ -318,7 +357,7 @@ function handleSharesSuccess(shares) {
 }
 
 function getShareTypeName(type) {
-    switch (type) {
+    switch (Number(type)) {
         case ShareType.Recommendation:
             return "Recommendation";
 
@@ -334,7 +373,7 @@ function getShareTypeName(type) {
 }
 
 function getShareTypeClass(type) {
-    switch (type) {
+    switch (Number(type)) {
         case ShareType.Recommendation:
             return "share-type-recommendation";
 
@@ -350,7 +389,7 @@ function getShareTypeClass(type) {
 }
 
 function getDefaultShareTitle(type) {
-    switch (type) {
+    switch (Number(type)) {
         case ShareType.Recommendation:
             return "Country recommendation";
 
@@ -375,7 +414,9 @@ function createShareCard(share) {
         formatShareDate(share.createdAt);
 
     const username =
-        share.userName || "Anonymous user";
+        share.userName ||
+        share.username ||
+        "Anonymous user";
 
     const typeName =
         getShareTypeName(share.type);
@@ -384,18 +425,18 @@ function createShareCard(share) {
         getShareTypeClass(share.type);
 
     card.innerHTML = `
-                            <div class="share-top">
-                                <h3 class="share-title"></h3>
-                                <span class="share-type"></span>
-                            </div>
+        <div class="share-top">
+            <h3 class="share-title"></h3>
+            <span class="share-type"></span>
+        </div>
 
-                            <p class="share-description"></p>
+        <p class="share-description"></p>
 
-                            <div class="share-footer">
-                                <span class="share-user"></span>
-                                <span class="share-date"></span>
-                            </div>
-                        `;
+        <div class="share-footer">
+            <span class="share-user"></span>
+            <span class="share-date"></span>
+        </div>
+    `;
 
     card
         .querySelector(".share-title")
@@ -477,178 +518,9 @@ function handleSharesError(error) {
     );
 }
 
-// open a new window to share the country
-function openShareModal() {
-
-    if (!currentCountry) {
-        alert("Country details are not available.");
-        return;
-    }
-
-    resetShareForm();
-
-    document
-        .getElementById("share-modal")
-        .classList.remove("hidden");
-
-    document.body.style.overflow = "hidden";
-
-    document
-        .getElementById("share-title")
-        .focus();
-}
-
-function closeShareModal() {
-    document
-        .getElementById("share-modal")
-        .classList.add("hidden");
-
-    document.body.style.overflow = "";
-}
-
-function resetShareForm() {
-    document
-        .getElementById("share-form")
-        .reset();
-
-    const messageElement =
-        document.getElementById("share-form-message");
-
-    messageElement.className =
-        "share-form-message hidden";
-
-    messageElement.textContent = "";
-
-    const submitButton =
-        document.getElementById("submit-share-btn");
-
-    submitButton.disabled = false;
-    submitButton.textContent = "Publish Share";
-}
-
-// submit the share form
-
-function submitShareForm(event) {
-    event.preventDefault();
-
-    if (!currentCountry) {
-        showShareFormMessage(
-            "Country details are unavailable.",
-            "error"
-        );
-
-        return;
-    }
-
-    const title =
-        document
-            .getElementById("share-title")
-            .value
-            .trim();
-
-    const description =
-        document
-            .getElementById("share-description")
-            .value
-            .trim();
-
-    const typeValue =
-        document
-            .getElementById("share-type")
-            .value;
-
-    if (
-        !title ||
-        !description ||
-        typeValue === ""
-    ) {
-        showShareFormMessage(
-            "Please complete all fields.",
-            "error"
-        );
-
-        return;
-    }
-
-    const userId =
-        user.id ||
-        user.Id ||
-        user.userId;
-
-    if (!userId) {
-        showShareFormMessage(
-            "Could not identify the logged-in user.",
-            "error"
-        );
-
-        return;
-    }
-
-    const share = {
-        userId: Number(userId),
-        id: 0,
-        title: title,
-        description: description,
-        type: Number(typeValue),
-        countryId: currentCountry.id,
-        createdAt: new Date().toISOString()
-    };
-
-    const submitButton =
-        document.getElementById("submit-share-btn");
-
-    submitButton.disabled = true;
-    submitButton.textContent = "Publishing...";
-
-    ajaxCall(
-        "POST",
-        API_ROUTES.shareAPI + "/CreateShare",
-        JSON.stringify(share),
-        handleCreateShareSuccess,
-        handleCreateShareError
-    );
-}
-
-function handleCreateShareSuccess() {
-    showShareFormMessage(
-        "The share was published successfully.",
-        "success"
-    );
-
-    loadCountryShares(currentCountry.commonName);
-
-    setTimeout(function () {
-        closeShareModal();
-    }, 700);
-}
-
-function handleCreateShareError(error) {
-    const submitButton =
-        document.getElementById("submit-share-btn");
-
-    submitButton.disabled = false;
-    submitButton.textContent = "Publish Share";
-
-    showShareFormMessage(
-        "Could not publish the share.",
-        "error"
-    );
-
-    console.error("Failed to create share:", error);
-}
-
-function showShareFormMessage(message, type) {
-    const messageElement =
-        document.getElementById("share-form-message");
-
-    messageElement.className =
-        "share-form-message " + type;
-
-    messageElement.textContent = message;
-}
+/* ===================== Page Initialization ===================== */
 
 $(document).ready(function () {
-
     const cca3 =
         new URLSearchParams(
             window.location.search
@@ -671,30 +543,4 @@ $(document).ready(function () {
         handleCountrySuccess,
         handleCountryError
     );
-
-    document
-        .getElementById("open-share-form-btn")
-        .addEventListener("click", openShareModal);
-
-    document
-        .getElementById("close-share-form-btn")
-        .addEventListener("click", closeShareModal);
-
-    document
-        .getElementById("cancel-share-btn")
-        .addEventListener("click", closeShareModal);
-
-    document
-        .querySelector(".share-modal-overlay")
-        .addEventListener("click", closeShareModal);
-
-    document
-        .getElementById("share-form")
-        .addEventListener("submit", submitShareForm);
-
-    document.addEventListener("keydown", function (event) {
-        if (event.key === "Escape") {
-            closeShareModal();
-        }
-    });
 });

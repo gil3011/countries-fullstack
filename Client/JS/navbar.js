@@ -132,35 +132,3 @@ window.getCachedCountries = function () {
         return null;
     }
 }
-
-
-
-//window.getCachedCountries = function () {
-//    try {
-//        console.log("COUNTRIES_CACHE_KEY:", COUNTRIES_CACHE_KEY);
-//        console.log("COUNTRIES_CACHE_TTL:", COUNTRIES_CACHE_TTL);
-
-//        const raw = sessionStorage.getItem(COUNTRIES_CACHE_KEY);
-//        console.log("Raw value:", raw);
-
-//        if (!raw) return null;
-
-//        const cached = JSON.parse(raw);
-//        console.log("Parsed cache:", cached);
-
-//        if (!cached || !Array.isArray(cached.data)) {
-//            console.warn("Cache structure is invalid:", cached);
-//            return null;
-//        }
-
-//        if (Date.now() - cached.ts > COUNTRIES_CACHE_TTL) {
-//            console.warn("Cache expired");
-//            return null;
-//        }
-
-//        return cached.data;
-//    } catch (error) {
-//        console.error("Error inside getCachedCountries:", error);
-//        return null;
-//    }
-//};

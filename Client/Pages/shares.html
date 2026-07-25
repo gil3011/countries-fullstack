@@ -8,11 +8,9 @@
 
     <title>Community Shares | World Explorer</title>
 
-    <link href="../CSS/NavBar.css"
-          rel="stylesheet" />
-
-    <link href="../CSS/shares.css"
-          rel="stylesheet" />
+    <link href="../CSS/NavBar.css" rel="stylesheet" />
+    <link href="../CSS/shares.css" rel="stylesheet" />
+    <link href="../CSS/createShare.css" rel="stylesheet" />
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
@@ -40,9 +38,17 @@
                 </p>
             </div>
 
-            <div class="shares-summary">
-                <span id="total-shares-count">0</span>
-                <span>Shares</span>
+            <div class="shares-summary-actions">
+                <div class="shares-summary">
+                    <span id="total-shares-count">0</span>
+                    <span>Shares</span>
+                </div>
+
+                <button id="open-share-form-btn"
+                        class="add-share-btn"
+                        type="button">
+                    + Add Share
+                </button>
             </div>
         </section>
 
@@ -150,6 +156,7 @@
     <script src="../JS/ajaxCalls.js"></script>
     <script src="../JS/navbar.js"></script>
     <script src="../JS/apiRoutes.js"></script>
+    <script src="../JS/createShare.js"></script>
     <script src="../JS/shares.js"></script>
 
 </body>

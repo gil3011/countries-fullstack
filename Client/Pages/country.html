@@ -11,10 +11,12 @@
             crossorigin="anonymous">
     </script>
     <link href="../CSS/country.css" rel="stylesheet" />
+    <link href="../CSS/createShare.css" rel="stylesheet" />
 
     <script src="../JS/ajaxCalls.js"></script>
     <script src="../JS/navbar.js"></script>
     <script src="../JS/apiRoutes.js"></script>
+    <script src="../JS/createShare.js"></script>
     <script src="../JS/country.js"></script>
 
     <link href="../CSS/NavBar.css" rel="stylesheet" />
@@ -241,7 +243,7 @@
 
         <!-- Country shares -->
 
-        <section class="shares-section">
+        <section class="shares-section hidden">
 
             <div class="shares-header">
 
@@ -283,83 +285,5 @@
             </div>
         </section>
     </main>
-
-    <div id="share-modal" class="share-modal hidden">
-        <div class="share-modal-overlay"></div>
-
-        <div class="share-modal-content"
-             role="dialog"
-             aria-modal="true"
-             aria-labelledby="share-modal-title">
-
-            <div class="share-modal-header">
-                <div>
-                    <span class="label">Community</span>
-                    <h2 id="share-modal-title">Add a Share</h2>
-                </div>
-
-                <button id="close-share-form-btn"
-                        class="share-modal-close"
-                        type="button"
-                        aria-label="Close">
-                    ×
-                </button>
-            </div>
-
-            <form id="share-form">
-                <div class="form-group">
-                    <label for="share-title">Title</label>
-
-                    <input id="share-title"
-                           name="title"
-                           type="text"
-                           maxlength="150"
-                           placeholder="Enter a title"
-                           required />
-                </div>
-
-                <div class="form-group">
-                    <label for="share-type">Share Type</label>
-
-                    <select id="share-type"
-                            name="type"
-                            required>
-
-                        <option value="">Select a share type</option>
-                        <option value="0">Recommendation</option>
-                        <option value="1">Thought</option>
-                        <option value="2">Review</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="share-description">Description</label>
-
-                    <textarea id="share-description"
-                              name="description"
-                              rows="5"
-                              maxlength="1000"
-                              placeholder="Share your experience or thoughts"
-                              required></textarea>
-                </div>
-
-                <div id="share-form-message" class="share-form-message hidden"></div>
-
-                <div class="share-form-actions">
-                    <button id="cancel-share-btn"
-                            class="share-cancel-btn"
-                            type="button">
-                        Cancel
-                    </button>
-
-                    <button id="submit-share-btn"
-                            class="share-submit-btn"
-                            type="submit">
-                        Publish Share
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 </body>
 </html>

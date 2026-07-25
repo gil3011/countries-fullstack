@@ -17,7 +17,7 @@ html,
 body {
     height: 100%;
     margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--text);
     background: var(--bg);
 }
@@ -28,7 +28,7 @@ body {
     padding: 1rem;
 }
 
-/* Loading and states */
+/* ===================== Loading and States ===================== */
 
 .center {
     display: flex;
@@ -45,11 +45,11 @@ body {
 .spinner {
     width: 48px;
     height: 48px;
-    border-radius: 50%;
     border: 4px solid rgba(96, 165, 250, 0.08);
     border-top-color: var(--accent);
-    animation: spin 1s linear infinite;
+    border-radius: 50%;
     background: transparent;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
@@ -58,7 +58,7 @@ body {
     }
 }
 
-/* Country header */
+/* ===================== Country Header ===================== */
 
 .badge {
     display: inline-block;
@@ -66,9 +66,9 @@ body {
     border-radius: 999px;
     background: rgba(96, 165, 250, 0.12);
     color: var(--accent);
-    text-transform: uppercase;
-    font-weight: 600;
     font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
 .hero {
@@ -126,7 +126,7 @@ body {
     color: var(--muted-weak);
 }
 
-/* Country information */
+/* ===================== Country Information ===================== */
 
 .grid {
     display: grid;
@@ -216,7 +216,7 @@ body {
     font-weight: 600;
 }
 
-/* Country shares */
+/* ===================== Country Shares ===================== */
 
 .shares-section {
     margin-top: 1rem;
@@ -291,15 +291,11 @@ body {
     white-space: nowrap;
 }
 
-/* Recommendation type */
-
 .share-type-recommendation {
     border: 1px solid rgba(34, 197, 94, 0.25);
     background: rgba(34, 197, 94, 0.1);
     color: #4ade80;
 }
-
-/* Thought type */
 
 .share-type-thought {
     border: 1px solid rgba(96, 165, 250, 0.25);
@@ -307,15 +303,11 @@ body {
     color: #60a5fa;
 }
 
-/* Review type */
-
 .share-type-review {
     border: 1px solid rgba(245, 158, 11, 0.25);
     background: rgba(245, 158, 11, 0.1);
     color: #fbbf24;
 }
-
-/* Unknown type */
 
 .share-type-unknown {
     border: 1px solid rgba(148, 163, 184, 0.25);
@@ -354,7 +346,7 @@ body {
     color: #fca5a5;
 }
 
-/* Responsive */
+/* ===================== Responsive ===================== */
 
 @media (min-width: 768px) {
     .hero {
@@ -395,203 +387,5 @@ body {
     .share-footer {
         align-items: flex-start;
         flex-direction: column;
-    }
-}
-
-.shares-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-}
-
-.add-share-btn {
-    padding: 0.45rem 0.75rem;
-    border: 1px solid rgba(96, 165, 250, 0.35);
-    border-radius: 8px;
-    background: rgba(96, 165, 250, 0.14);
-    color: var(--accent);
-    font: inherit;
-    font-size: 0.82rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
-
-    .add-share-btn:hover {
-        transform: translateY(-1px);
-        border-color: var(--accent);
-        background: rgba(96, 165, 250, 0.22);
-    }
-
-/* Modal */
-
-.share-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-}
-
-    .share-modal.hidden {
-        display: none;
-    }
-
-.share-modal-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(2, 6, 23, 0.78);
-    backdrop-filter: blur(4px);
-}
-
-.share-modal-content {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    max-width: 520px;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: var(--card);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
-}
-
-.share-modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-    .share-modal-header h2 {
-        margin: 0.25rem 0 0;
-        font-size: 1.25rem;
-    }
-
-.share-modal-close {
-    width: 36px;
-    height: 36px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.03);
-    color: var(--muted);
-    font-size: 1.5rem;
-    line-height: 1;
-    cursor: pointer;
-}
-
-    .share-modal-close:hover {
-        color: var(--text);
-        border-color: rgba(255, 255, 255, 0.18);
-    }
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-}
-
-    .form-group label {
-        color: var(--text);
-        font-size: 0.88rem;
-        font-weight: 600;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        width: 100%;
-        padding: 0.7rem 0.75rem;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        outline: none;
-        background: #0b1422;
-        color: var(--text);
-        font: inherit;
-    }
-
-    .form-group textarea {
-        resize: vertical;
-        min-height: 120px;
-    }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
-        }
-
-.share-form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.65rem;
-    margin-top: 1.2rem;
-}
-
-.share-cancel-btn,
-.share-submit-btn {
-    padding: 0.65rem 0.9rem;
-    border-radius: 8px;
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.share-cancel-btn {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: transparent;
-    color: var(--muted);
-}
-
-.share-submit-btn {
-    border: 1px solid rgba(96, 165, 250, 0.4);
-    background: var(--accent);
-    color: #071226;
-}
-
-    .share-submit-btn:disabled {
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-
-.share-form-message {
-    padding: 0.7rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-}
-
-    .share-form-message.success {
-        border: 1px solid rgba(34, 197, 94, 0.25);
-        background: rgba(34, 197, 94, 0.08);
-        color: #4ade80;
-    }
-
-    .share-form-message.error {
-        border: 1px solid rgba(239, 68, 68, 0.25);
-        background: rgba(239, 68, 68, 0.08);
-        color: #fca5a5;
-    }
-
-@media (max-width: 600px) {
-    .shares-header,
-    .shares-actions {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
-    .share-form-actions {
-        flex-direction: column-reverse;
-    }
-
-    .share-cancel-btn,
-    .share-submit-btn {
-        width: 100%;
     }
 }

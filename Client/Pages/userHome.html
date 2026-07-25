@@ -10,11 +10,14 @@
 
     <link href="../CSS/NavBar.css" rel="stylesheet" />
     <link href="../CSS/userHomeStyle.css" rel="stylesheet" />
+    <link href="../CSS/createShare.css" rel="stylesheet" />
 
     <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
     <script src="../JS/apiRoutes.js"></script>
     <script src="../JS/ajaxCalls.js"></script>
     <script src="../JS/navbar.js"></script>
+    <script src="../JS/createShare.js"></script>
+
 </head>
 <body>
 
@@ -140,9 +143,18 @@
                     </p>
                 </div>
 
-                <span id="my-shares-count" class="uh-count">
-                    0
-                </span>
+                <div class="uh-shares-actions">
+                    <span id="my-shares-count"
+                          class="uh-count">
+                        0
+                    </span>
+
+                    <button id="open-share-form-btn"
+                            type="button"
+                            class="uh-btn uh-btn-primary">
+                        + Add Share
+                    </button>
+                </div>
             </div>
 
             <!-- Loading -->

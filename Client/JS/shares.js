@@ -1,8 +1,5 @@
 ﻿let allShares = [];
 let filteredShares = [];
-const countries = getCachedCountries();
-
-console.log("Loaded countries:", countries);
 
 const ShareType = Object.freeze({
     Recommendation: 0,
@@ -14,6 +11,14 @@ $(document).ready(function () {
     bindShareEvents();
     loadAllShares();
 });
+
+/*
+    createShare.js calls this function
+    after a new share is created successfully.
+*/
+window.onShareCreated = function () {
+    loadAllShares();
+};
 
 function bindShareEvents() {
     document
@@ -220,10 +225,10 @@ function createShareCard(share) {
         formatShareDate(share.createdAt);
 
     card.innerHTML = `
-        <div class="share-card-header">
+    <div class="share-card-header">
             <h2 class="share-card-title"></h2>
             <span class="share-type"></span>
-        </div>
+        </div >
 
         <a class="share-country"></a>
 
@@ -233,7 +238,7 @@ function createShareCard(share) {
             <span class="share-user"></span>
             <span class="share-date"></span>
         </div>
-    `;
+`;
 
     card
         .querySelector(".share-card-title")
@@ -292,9 +297,12 @@ function setCountryLink(countryLink, share) {
 
     countryLink.href = "#";
 
-    countryLink.addEventListener("click", function (event) {
-        event.preventDefault();
-    });
+    countryLink.addEventListener(
+        "click",
+        function (event) {
+            event.preventDefault();
+        }
+    );
 }
 
 function getShareTypeName(type) {
