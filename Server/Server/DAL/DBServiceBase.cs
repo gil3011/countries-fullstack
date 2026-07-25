@@ -7,7 +7,9 @@ namespace Server.DAL
 
         private const string ConString= "myProjDB";
 
-        protected SqlConnection Connect()
+        // The connection string never changes at runtime, so read appsettings.json once
+        // and cache it instead of rebuilding the configuration on every DB call.
+        private static readonly Lazy<string> _connectionString = new(() =>
         {
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
@@ -18,8 +20,12 @@ namespace Server.DAL
             {
                 throw new InvalidOperationException($"Connection string '{ConString}' not found in configuration.");
             }
+            return cStr;
+        });
 
-            var con = new SqlConnection(cStr);
+        protected SqlConnection Connect()
+        {
+            var con = new SqlConnection(_connectionString.Value);
             con.Open();
             return con;
         }
