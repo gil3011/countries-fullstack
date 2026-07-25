@@ -61,69 +61,62 @@ namespace Server.DAL
 
         private void AddQuizCountry(int quizId, int countryId)
         {
-            SqlConnection con;
+            SqlConnection con = null;
             try
             {
-                con = Connect(); // create the connection
+                con = Connect();
+                var param = new Dictionary<string, object>
+                {
+                    { "@QuizId", quizId },
+                    { "@CountryId", countryId }
+                };
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_AddCountry", param);
+
+                cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
-            var param = new Dictionary<string, object>
+            finally
             {
-                { "@QuizId", quizId },
-                { "@CountryId", countryId }
-            };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_AddCountry", param);
-            try
-            {
-                cmd.ExecuteNonQuery();
+                if (con != null) con.Close();
             }
-            catch (Exception) { throw; }
-            finally { if (con != null) con.Close(); }
         }
 
         private void ClearQuizCountries(int quizId)
         {
-            SqlConnection con;
+            SqlConnection con = null;
             try
             {
-                con = Connect(); // create the connection
+                con = Connect();
+                var param = new Dictionary<string, object> { { "@QuizId", quizId } };
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_ClearCountries", param);
+
+                cmd.ExecuteNonQuery();
             }
             catch (Exception ex)
             {
-                // write to log
-                throw (ex);
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
             }
-            var param = new Dictionary<string, object> { { "@QuizId", quizId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_ClearCountries", param);
-            try
+            finally
             {
-                cmd.ExecuteNonQuery();
+                if (con != null) con.Close();
             }
-            catch (Exception) { throw; }
-            finally { if (con != null) con.Close(); }
         }
 
         private List<int> GetQuizCountries(int quizId)
         {
-            SqlConnection con;
+            SqlConnection con = null;
             try
             {
-                con = Connect(); // create the connection
-            }
-            catch (Exception ex)
-            {
-                // write to log
-                throw (ex);
-            }
-            var param = new Dictionary<string, object> { { "@QuizId", quizId } };
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetQuizCountries", param);
-            List<int> list = new List<int>();
-            try
-            {
+                con = Connect();
+                var param = new Dictionary<string, object> { { "@QuizId", quizId } };
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetQuizCountries", param);
+
+                List<int> list = new List<int>();
                 SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
@@ -131,8 +124,15 @@ namespace Server.DAL
                 }
                 return list;
             }
-            catch (Exception) { throw; }
-            finally { if (con != null) con.Close(); }
+            catch (Exception ex)
+            {
+                Server.Logging.AppLogger.LogException(ex);
+                throw;
+            }
+            finally
+            {
+                if (con != null) con.Close();
+            }
         }
 
         public int AddQuestion(int quizId, int userId, Question q)
@@ -656,31 +656,24 @@ namespace Server.DAL
 
         public int UnpublishQuiz(int quizId, int userId)
         {
-            SqlConnection con;
-
+            SqlConnection con = null;
             try
             {
-                con = Connect(); // create the connection
-            }
-            catch (Exception ex)
-            {
-                // write to log
-                throw (ex);
-            }
-            var param = new Dictionary<string, object>
-            {
-                { "@Id", quizId },
-                { "@UserId", userId }
-            };
+                con = Connect();
+                var param = new Dictionary<string, object>
+                {
+                    { "@Id", quizId },
+                    { "@UserId", userId }
+                };
 
-            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_UnpublishQuiz", param);
-            try
-            {
+                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_UnpublishQuiz", param);
+
                 object result = cmd.ExecuteScalar();
                 return (result != null) ? Convert.ToInt32(result) : 0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Server.Logging.AppLogger.LogException(ex);
                 throw;
             }
             finally
