@@ -357,10 +357,33 @@ function handleCreateShareError(error) {
             "Publish Share";
     }
 
-    showShareFormMessage(
-        "Could not publish the share.",
-        "error"
-    );
+    const status = error?.status;
+
+    const serverMessage =
+        error?.responseJSON?.message;
+
+    let message;
+
+    if (status === 403) {
+        // Sharing privilege revoked or the account is blocked.
+        message =
+            serverMessage ||
+            "You are not allowed to share.";
+    } else if (status === 401) {
+        message =
+            serverMessage ||
+            "You must be logged in to share.";
+    } else if (status === 400) {
+        message =
+            serverMessage ||
+            "The share could not be published. Please check your input.";
+    } else {
+        message =
+            serverMessage ||
+            "Could not publish the share.";
+    }
+
+    showShareFormMessage(message, "error");
 
     console.error(
         "Failed to create share:",

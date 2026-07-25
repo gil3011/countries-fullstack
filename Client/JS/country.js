@@ -533,8 +533,7 @@ $(document).ready(function () {
 
     const url =
         API_ROUTES.countryAPI +
-        "/GetByCca3?cca3=" +
-        encodeURIComponent(cca3);
+        "/GetByCca3/" + cca3;
 
     ajaxCall(
         "GET",

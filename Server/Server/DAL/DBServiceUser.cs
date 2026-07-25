@@ -133,7 +133,6 @@ namespace Server.DAL
                         catch (Exception ex)
                         {
                             Server.Logging.AppLogger.LogException(ex);
-                            // do not fail but log
                         }
                     }
                 }

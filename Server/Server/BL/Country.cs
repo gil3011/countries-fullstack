@@ -5,16 +5,15 @@ namespace Server.BL
     public class Country
     {
         public int Id { get; set; }
-        /// <summary>alpha-3, e.g. "ISR"</summary>
         public string Cca3 { get; set; } = string.Empty;
         public string CommonName { get; set; } = string.Empty;
         public string OfficialName { get; set; } = string.Empty;
         public string Region { get; set; } = string.Empty;
         public string Subregion { get; set; } = string.Empty;
         public double Latitude { get; set; }
-        public double Longitude { get; set; }        public double AreaKm2 { get; set; }
+        public double Longitude { get; set; }        
+        public double AreaKm2 { get; set; }
         public bool IsLandlocked { get; set; }
-
         public int Population { get; set; }
 
         // ── Flag & media ─────────────────────────────────────
