@@ -17,7 +17,8 @@ namespace Server.Conntroller
         {
             try
             {
-                return Ok(Server.BL.User.Read());
+                var users = Server.BL.User.Read().Select(UserDto.FromUser);
+                return Ok(users);
 
             }
             catch (Exception ex)
@@ -40,7 +41,9 @@ namespace Server.Conntroller
                     return Conflict("email already exists");
                 if (result == -2)
                     return Conflict("username already exists");
-                return Ok(user);
+
+                user.Id = result;
+                return Ok(UserDto.FromUser(user));
             }
             catch (Exception ex)
             {
