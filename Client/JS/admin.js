@@ -37,7 +37,7 @@ function getUsers() {
 function getAdminStats() {
     ajaxCall(
         "GET",
-        API_ROUTES.userAPI + "/admin/stats",
+        API_ROUTES.adminAPI + "/stats",
         null,
         getAdminStatsSuccess,
         requestFailed
@@ -48,7 +48,7 @@ function getAdminStats() {
 function getDailyLoginCounts() {
     ajaxCall(
         "GET",
-        API_ROUTES.userAPI + "/admin/GetDailyLoginCounts",
+        API_ROUTES.adminAPI + "/GetDailyLoginCounts",
         null,
         getDailyLoginCountsSuccess,
         requestFailed
@@ -59,7 +59,7 @@ function getDailyLoginCounts() {
 function getLogDates() {
     ajaxCall(
         "GET",
-        API_ROUTES.logAPI + "/dates",
+        API_ROUTES.adminAPI + "/log/dates",
         null,
         getLogDatesSuccess,
         requestFailed
@@ -79,7 +79,7 @@ function loadSelectedLog() {
 
     ajaxCall(
         "GET",
-        API_ROUTES.logAPI + "/" + date,
+        API_ROUTES.adminAPI + "/log/" + date,
         null,
         renderLog,
         requestFailed
@@ -140,10 +140,6 @@ function getLogDatesSuccess(dates) {
 }
 
 
-/* =========================
-   Render server logs
-========================= */
-
 function renderLog(data) {
     const date = data?.date ?? "";
     const lines = Array.isArray(data?.lines) ? data.lines : [];
@@ -182,10 +178,6 @@ function downloadCurrentLog() {
     URL.revokeObjectURL(url);
 }
 
-
-/* =========================
-   Filter daily login counts
-========================= */
 
 function filterAndRenderLoginCounts() {
     const days = Number($("#login-range").val());
@@ -236,10 +228,6 @@ function filterAndRenderLoginCounts() {
 }
 
 
-/* =========================
-   Render admin statistics
-========================= */
-
 function renderAdminStats(stats) {
     if (!stats) {
         console.error(
@@ -282,10 +270,6 @@ function renderAdminStats(stats) {
     );
 }
 
-
-/* =========================
-   Render daily login counts
-========================= */
 
 function renderDailyLoginCounts(loginData) {
     const tableBody = $("#login-counts-body");
@@ -335,10 +319,6 @@ function renderDailyLoginCounts(loginData) {
     });
 }
 
-
-/* =========================
-   Render users
-========================= */
 
 function renderUsers(users) {
     const tableBody = $("#users-table-body");
@@ -398,10 +378,6 @@ function renderUsers(users) {
 }
 
 
-/* =========================
-   User badges
-========================= */
-
 function getRoleBadge(user) {
     if (user.isAdmin) {
         return `
@@ -453,10 +429,6 @@ function getSharingBadge(user) {
 }
 
 
-/* =========================
-   User action buttons
-========================= */
-
 function getUserActionButtons(user) {
     const blockButtonText = user.isBlocked
         ? "Unblock"
@@ -498,9 +470,6 @@ function getUserActionButtons(user) {
     `;
 }
 
-/* =========================
-   User action events
-========================= */
 
 $(document).on("click", ".block-btn", function () {
     const userId = Number($(this).data("user-id"));
@@ -537,8 +506,8 @@ function changeUserBlockStatus(userId) {
     }
 
     const endpoint = user.isBlocked
-        ? `${API_ROUTES.userAPI}/admin/unblockUser/${userId}`
-        : `${API_ROUTES.userAPI}/admin/blockUser/${userId}`;
+        ? `${API_ROUTES.adminAPI}/unblockUser/${userId}`
+        : `${API_ROUTES.adminAPI}/blockUser/${userId}`;
 
     const actionText = user.isBlocked
         ? "unblock"
@@ -575,8 +544,8 @@ function changeUserSharingPermission(userId) {
     }
 
     const endpoint = user.isAllowedToShare
-        ? `${API_ROUTES.userAPI}/admin/preventSharing/${userId}`
-        : `${API_ROUTES.userAPI}/admin/allowSharing/${userId}`;
+        ? `${API_ROUTES.adminAPI}/preventSharing/${userId}`
+        : `${API_ROUTES.adminAPI}/allowSharing/${userId}`;
 
     const actionText = user.isAllowedToShare
         ? "disable sharing for"
@@ -613,8 +582,8 @@ function changeUserAdminRole(userId) {
     }
 
     const endpoint = user.isAdmin
-        ? `${API_ROUTES.userAPI}/admin/demote/${userId}`
-        : `${API_ROUTES.userAPI}/admin/promote/${userId}`;
+        ? `${API_ROUTES.adminAPI}/demote/${userId}`
+        : `${API_ROUTES.adminAPI}/promote/${userId}`;
 
     const actionText = user.isAdmin
         ? "demote from admin"

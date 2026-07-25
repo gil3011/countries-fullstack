@@ -11,5 +11,5 @@ const API_ROUTES = {
     quizAttemptAPI: BASE_API + "/QuizAttempt",
     shareAPI: BASE_API + "/Share",
     userAPI: BASE_API + "/User",
-    logAPI: BASE_API + "/Log"
+    adminAPI: BASE_API + "/Admin"
 };
