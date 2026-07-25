@@ -1,12 +1,29 @@
 using Server.Logging;
 using Server.Middleware;
 
+using DotNetEnv;
+using Server.Services;
+
 namespace Server
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            string envPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                ".env"
+            );
+
+            if (!File.Exists(envPath))
+            {
+                throw new FileNotFoundException(
+                    $"The .env file was not found at: {envPath}"
+                );
+            }
+
+            Env.Load(envPath);
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -20,12 +37,7 @@ namespace Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            // Open CORS policy for the SPA client. Tighten the origin list before a real
-            // deployment; defined once here as a named policy applied in the pipeline below.
-            const string CorsPolicy = "AllowClient";
-            builder.Services.AddCors(options =>
-                options.AddPolicy(CorsPolicy, policy =>
-                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+            builder.Services.AddSingleton<GeminiService>();
 
             var app = builder.Build();
 
@@ -43,8 +55,7 @@ namespace Server
             app.UseSwaggerUI();
 
             app.UseHttpsRedirection();
-            app.UseCors(CorsPolicy);
-            app.UseAuthorization();
+            app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()); app.UseAuthorization();
 
 
             app.MapControllers();

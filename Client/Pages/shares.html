@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>Community Shares | World Explorer</title>
+
+    <link href="../CSS/NavBar.css" rel="stylesheet" />
+    <link href="../CSS/shares.css" rel="stylesheet" />
+    <link href="../CSS/createShare.css" rel="stylesheet" />
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous">
+    </script>
+</head>
+
+<body>
+
+    <div id="navbar-container"></div>
+
+    <main class="shares-page">
+
+        <!-- Page header -->
+
+        <section class="shares-page-header">
+            <div>
+                <span class="page-label">Community</span>
+
+                <h1>Country Shares</h1>
+
+                <p>
+                    Discover recommendations, thoughts and reviews
+                    shared by members of the community.
+                </p>
+            </div>
+
+            <div class="shares-summary-actions">
+                <div class="shares-summary">
+                    <span id="total-shares-count">0</span>
+                    <span>Shares</span>
+                </div>
+
+                <button id="open-share-form-btn"
+                        class="add-share-btn"
+                        type="button">
+                    + Add Share
+                </button>
+            </div>
+        </section>
+
+        <!-- Filters -->
+
+        <section class="shares-filters">
+
+            <div class="filter-group search-group">
+                <label for="share-search">
+                    Search
+                </label>
+
+                <input id="share-search"
+                       type="search"
+                       placeholder="Search by title, country or username..." />
+            </div>
+
+            <div class="filter-group">
+                <label for="share-type-filter">
+                    Share Type
+                </label>
+
+                <select id="share-type-filter">
+                    <option value="all">All Types</option>
+                    <option value="0">Recommendations</option>
+                    <option value="1">Thoughts</option>
+                    <option value="2">Reviews</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="share-sort">
+                    Sort By
+                </label>
+
+                <select id="share-sort">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="country">Country Name</option>
+                </select>
+            </div>
+
+            <button id="clear-share-filters"
+                    class="clear-filters-btn"
+                    type="button">
+                Clear Filters
+            </button>
+        </section>
+
+        <!-- Loading state -->
+
+        <section id="shares-loading"
+                 class="shares-state">
+
+            <div class="spinner"
+                 aria-hidden="true">
+            </div>
+
+            <p>Loading community shares...</p>
+        </section>
+
+        <!-- Error state -->
+
+        <section id="shares-error"
+                 class="shares-state shares-error hidden">
+
+            <div class="state-icon">⚠️</div>
+
+            <h2>Could Not Load Shares</h2>
+
+            <p>
+                An error occurred while loading the community shares.
+            </p>
+
+            <button id="retry-shares-btn"
+                    class="retry-btn"
+                    type="button">
+                Try Again
+            </button>
+        </section>
+
+        <!-- Empty state -->
+
+        <section id="shares-empty"
+                 class="shares-state hidden">
+
+            <div class="state-icon">💬</div>
+
+            <h2>No Shares Found</h2>
+
+            <p>
+                No shares match the selected filters.
+            </p>
+        </section>
+
+        <!-- Shares list -->
+
+        <section id="shares-list"
+                 class="shares-grid"
+                 aria-live="polite">
+        </section>
+
+    </main>
+
+    <script src="../JS/ajaxCalls.js"></script>
+    <script src="../JS/navbar.js"></script>
+    <script src="../JS/apiRoutes.js"></script>
+    <script src="../JS/createShare.js"></script>
+    <script src="../JS/shares.js"></script>
+
+</body>
+</html>

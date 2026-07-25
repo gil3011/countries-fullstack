@@ -370,3 +370,607 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("save-prefs-btn").addEventListener("click", savePreferences);
     document.getElementById("password-form").addEventListener("submit", changePassword);
 });
+
+let currentUserShares = [];
+
+const UserShareType = Object.freeze({
+    Recommendation: 0,
+    Thought: 1,
+    Review: 2
+});
+
+$(document).ready(function () {
+    bindMySharesEvents();
+    loadMyShares();
+});
+
+function bindMySharesEvents() {
+    document
+        .getElementById("edit-share-form")
+        ?.addEventListener("submit", submitEditShareForm);
+
+    document
+        .getElementById("close-edit-share-modal-btn")
+        ?.addEventListener("click", closeEditShareModal);
+
+    document
+        .getElementById("cancel-edit-share-btn")
+        ?.addEventListener("click", closeEditShareModal);
+
+    document
+        .querySelector("#edit-share-modal .uh-modal-overlay")
+        ?.addEventListener("click", closeEditShareModal);
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeEditShareModal();
+        }
+    });
+}
+
+function loadMyShares() {
+    const user = getUserLoggedIn();
+
+    if (!user) {
+        showMySharesError("Could not identify the logged-in user.");
+        return;
+    }
+
+    const userId =
+        user.id ||
+        user.Id ||
+        user.userId;
+
+    if (!userId) {
+        showMySharesError("Could not identify the logged-in user.");
+        return;
+    }
+
+    showMySharesLoading();
+
+    const url =
+        API_ROUTES.shareAPI +
+        "/GetUserShares/" +
+        encodeURIComponent(userId);
+
+    ajaxCall(
+        "GET",
+        url,
+        null,
+        handleMySharesSuccess,
+        handleMySharesError
+    );
+}
+
+function handleMySharesSuccess(shares) {
+    currentUserShares =
+        Array.isArray(shares)
+            ? shares
+            : [];
+
+    renderMyShares();
+}
+
+function handleMySharesError(error) {
+    console.error("Failed to load user shares:", error);
+
+    currentUserShares = [];
+
+    showMySharesError("Could not load your shares.");
+}
+
+function renderMyShares() {
+    const listElement =
+        document.getElementById("my-shares-list");
+
+    const loadingElement =
+        document.getElementById("my-shares-loading");
+
+    const emptyElement =
+        document.getElementById("my-shares-empty");
+
+    const errorElement =
+        document.getElementById("my-shares-error");
+
+    loadingElement?.classList.add("hidden");
+    emptyElement?.classList.add("hidden");
+    errorElement?.classList.add("hidden");
+
+    if (!listElement) {
+        return;
+    }
+
+    listElement.innerHTML = "";
+
+    updateMySharesCount(currentUserShares.length);
+
+    if (currentUserShares.length === 0) {
+        emptyElement?.classList.remove("hidden");
+        return;
+    }
+
+    currentUserShares.forEach(share => {
+        listElement.appendChild(
+            createMyShareCard(share)
+        );
+    });
+}
+
+function createMyShareCard(share) {
+    const card =
+        document.createElement("article");
+
+    card.className = "uh-share-card";
+    card.dataset.shareId = share.id;
+
+    const shareType =
+        Number(share.type);
+
+    const typeName =
+        getUserShareTypeName(shareType);
+
+    const typeClass =
+        getUserShareTypeClass(shareType);
+
+    const countryName =
+        share.countryName ||
+        share.commonName ||
+        "Unknown Country";
+
+    const formattedDate =
+        formatUserShareDate(share.createdAt);
+
+    card.innerHTML = `
+        <div class="uh-share-card-head">
+            <div>
+                <h3 class="uh-share-title"></h3>
+                <a class="uh-share-country"></a>
+            </div>
+
+            <span class="uh-share-type"></span>
+        </div>
+
+        <p class="uh-share-description"></p>
+
+        <div class="uh-share-footer">
+            <span class="uh-share-date"></span>
+
+            <div class="uh-share-actions">
+                <button
+                    type="button"
+                    class="uh-share-edit-btn">
+                    Edit
+                </button>
+
+                <button
+                    type="button"
+                    class="uh-share-delete-btn">
+                    Delete
+                </button>
+            </div>
+        </div>
+    `;
+
+    card
+        .querySelector(".uh-share-title")
+        .textContent =
+        share.title || "Country Share";
+
+    card
+        .querySelector(".uh-share-description")
+        .textContent =
+        share.description || "No description was provided.";
+
+    card
+        .querySelector(".uh-share-date")
+        .textContent = formattedDate;
+
+    const typeElement =
+        card.querySelector(".uh-share-type");
+
+    typeElement.textContent = typeName;
+    typeElement.classList.add(typeClass);
+
+    const countryLink =
+        card.querySelector(".uh-share-country");
+
+    countryLink.textContent = countryName;
+
+    setUserShareCountryLink(
+        countryLink,
+        share
+    );
+
+    card
+        .querySelector(".uh-share-edit-btn")
+        .addEventListener("click", function () {
+            openEditShareModal(share.id);
+        });
+
+    card
+        .querySelector(".uh-share-delete-btn")
+        .addEventListener("click", function () {
+            deleteUserShare(share.id);
+        });
+
+    return card;
+}
+
+function setUserShareCountryLink(countryLink, share) {
+    const cca3 =
+        share.cca3 ||
+        share.countryCca3 ||
+        share.countryCode;
+
+    if (!cca3) {
+        countryLink.href = "#";
+
+        countryLink.addEventListener("click", function (event) {
+            event.preventDefault();
+        });
+
+        return;
+    }
+
+    countryLink.href =
+        "country.html?cca3=" +
+        encodeURIComponent(cca3);
+}
+
+function openEditShareModal(shareId) {
+    const share =
+        currentUserShares.find(item =>
+            Number(item.id) === Number(shareId)
+        );
+
+    if (!share) {
+        return;
+    }
+
+    document
+        .getElementById("edit-share-id")
+        .value = share.id;
+
+    document
+        .getElementById("edit-share-title")
+        .value = share.title || "";
+
+    document
+        .getElementById("edit-share-type")
+        .value = Number(share.type);
+
+    document
+        .getElementById("edit-share-description")
+        .value = share.description || "";
+
+    clearEditShareError();
+
+    document
+        .getElementById("edit-share-modal")
+        .classList.remove("hidden");
+
+    document.body.style.overflow = "hidden";
+
+    document
+        .getElementById("edit-share-title")
+        .focus();
+}
+
+function closeEditShareModal() {
+    const modal =
+        document.getElementById("edit-share-modal");
+
+    if (!modal) {
+        return;
+    }
+
+    modal.classList.add("hidden");
+    document.body.style.overflow = "";
+
+    clearEditShareError();
+}
+
+function submitEditShareForm(event) {
+    event.preventDefault();
+
+    const shareId =
+        Number(
+            document
+                .getElementById("edit-share-id")
+                .value
+        );
+
+    const title =
+        document
+            .getElementById("edit-share-title")
+            .value
+            .trim();
+
+    const description =
+        document
+            .getElementById("edit-share-description")
+            .value
+            .trim();
+
+    const type =
+        Number(
+            document
+                .getElementById("edit-share-type")
+                .value
+        );
+
+    if (!shareId || !title || !description) {
+        showEditShareError("Please complete all fields.");
+        return;
+    }
+
+    const originalShare =
+        currentUserShares.find(item =>
+            Number(item.id) === shareId
+        );
+
+    if (!originalShare) {
+        showEditShareError("Share could not be found.");
+        return;
+    }
+
+    const updatedShare = {
+        id: shareId,
+        userId: originalShare.userId,
+        title: title,
+        description: description,
+        type: type,
+        countryId: originalShare.countryId,
+        createdAt: originalShare.createdAt
+    };
+
+    const saveButton =
+        document.getElementById("save-edit-share-btn");
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+
+    ajaxCall(
+        "PUT",
+        API_ROUTES.shareAPI + "/UpdateShare",
+        JSON.stringify(updatedShare),
+        handleUpdateShareSuccess,
+        handleUpdateShareError
+    );
+}
+
+function handleUpdateShareSuccess() {
+    resetEditShareButton();
+    closeEditShareModal();
+    loadMyShares();
+
+    setProfileStatus(
+        "Share updated successfully.",
+        "success"
+    );
+}
+
+function handleUpdateShareError(error) {
+    console.error("Failed to update share:", error);
+
+    resetEditShareButton();
+
+    showEditShareError(
+        "Could not update the share."
+    );
+}
+
+function deleteUserShare(shareId) {
+    const share =
+        currentUserShares.find(item =>
+            Number(item.id) === Number(shareId)
+        );
+
+    if (!share) {
+        return;
+    }
+
+    const confirmed =
+        confirm(
+            `Are you sure you want to delete "${share.title}"?`
+        );
+
+    if (!confirmed) {
+        return;
+    }
+
+    const url =
+        API_ROUTES.shareAPI +
+        "/DeleteShare?" + "shareID=" + share.id + "&userID=" + share.userId;
+
+    ajaxCall(
+        "DELETE",
+        url,
+        null,
+        function () {
+            handleDeleteShareSuccess(shareId);
+        },
+        handleDeleteShareError
+    );
+}
+
+function handleDeleteShareSuccess(shareId) {
+    currentUserShares =
+        currentUserShares.filter(share =>
+            Number(share.id) !== Number(shareId)
+        );
+
+    renderMyShares();
+
+    setProfileStatus(
+        "Share deleted successfully.",
+        "success"
+    );
+}
+
+function handleDeleteShareError(error) {
+    console.error("Failed to delete share:", error);
+
+    setProfileStatus(
+        "Could not delete the share.",
+        "error"
+    );
+}
+
+function getUserShareTypeName(type) {
+    switch (type) {
+        case UserShareType.Recommendation:
+            return "Recommendation";
+
+        case UserShareType.Thought:
+            return "Thought";
+
+        case UserShareType.Review:
+            return "Review";
+
+        default:
+            return "Unknown";
+    }
+}
+
+function getUserShareTypeClass(type) {
+    switch (type) {
+        case UserShareType.Recommendation:
+            return "uh-share-type-recommendation";
+
+        case UserShareType.Thought:
+            return "uh-share-type-thought";
+
+        case UserShareType.Review:
+            return "uh-share-type-review";
+
+        default:
+            return "uh-share-type-unknown";
+    }
+}
+
+function formatUserShareDate(createdAt) {
+    if (!createdAt) {
+        return "Unknown date";
+    }
+
+    const date =
+        new Date(createdAt);
+
+    if (Number.isNaN(date.getTime())) {
+        return "Unknown date";
+    }
+
+    return date.toLocaleDateString(
+        "en-GB",
+        {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }
+    );
+}
+
+function updateMySharesCount(count) {
+    const countElement =
+        document.getElementById("my-shares-count");
+
+    if (countElement) {
+        countElement.textContent = count;
+    }
+}
+
+function showMySharesLoading() {
+    document
+        .getElementById("my-shares-loading")
+        ?.classList.remove("hidden");
+
+    document
+        .getElementById("my-shares-empty")
+        ?.classList.add("hidden");
+
+    document
+        .getElementById("my-shares-error")
+        ?.classList.add("hidden");
+
+    const listElement =
+        document.getElementById("my-shares-list");
+
+    if (listElement) {
+        listElement.innerHTML = "";
+    }
+
+    updateMySharesCount(0);
+}
+
+function showMySharesError(message) {
+    document
+        .getElementById("my-shares-loading")
+        ?.classList.add("hidden");
+
+    document
+        .getElementById("my-shares-empty")
+        ?.classList.add("hidden");
+
+    const errorElement =
+        document.getElementById("my-shares-error");
+
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.remove("hidden");
+    }
+
+    updateMySharesCount(0);
+}
+
+function showEditShareError(message) {
+    const errorElement =
+        document.getElementById("edit-share-error");
+
+    if (errorElement) {
+        errorElement.textContent = message;
+    }
+}
+
+function clearEditShareError() {
+    const errorElement =
+        document.getElementById("edit-share-error");
+
+    if (errorElement) {
+        errorElement.textContent = "";
+    }
+}
+
+function resetEditShareButton() {
+    const saveButton =
+        document.getElementById("save-edit-share-btn");
+
+    if (!saveButton) {
+        return;
+    }
+
+    saveButton.disabled = false;
+    saveButton.textContent = "Save Changes";
+}
+
+function setProfileStatus(message, type) {
+    const statusElement =
+        document.getElementById("uh-status");
+
+    if (!statusElement) {
+        return;
+    }
+
+    statusElement.textContent = message;
+    statusElement.className =
+        "uh-status " + type;
+
+    setTimeout(function () {
+        statusElement.textContent = "";
+        statusElement.className = "uh-status";
+    }, 3000);
+}
+
+window.onShareCreated = function () {
+    loadMyShares();
+};

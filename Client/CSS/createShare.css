@@ -1,0 +1,278 @@
+/* ===================== Create Share Button ===================== */
+
+.shares-actions,
+.create-share-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.add-share-btn {
+    padding: 0.55rem 0.85rem;
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    border-radius: 8px;
+    background: rgba(96, 165, 250, 0.14);
+    color: var(--accent, #60a5fa);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+    .add-share-btn:hover {
+        transform: translateY(-1px);
+        border-color: var(--accent, #60a5fa);
+        background: rgba(96, 165, 250, 0.22);
+    }
+
+    .add-share-btn:focus-visible {
+        outline: 2px solid var(--accent, #60a5fa);
+        outline-offset: 2px;
+    }
+
+/* ===================== Create Share Modal ===================== */
+
+.share-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+    .share-modal.hidden {
+        display: none;
+    }
+
+.share-modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.78);
+    backdrop-filter: blur(4px);
+}
+
+.share-modal-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.25rem;
+    border: 1px solid var(--border, #16202b);
+    border-radius: 14px;
+    background: var(--card, #0f1724);
+    color: var(--text, #e6f0fb);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+}
+
+/* ===================== Modal Header ===================== */
+
+.share-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+    .share-modal-header h2 {
+        margin: 0.25rem 0 0;
+        color: var(--text, #e6f0fb);
+        font-size: 1.25rem;
+    }
+
+.share-modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--muted, #94a3b8);
+    font-size: 1.35rem;
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+    padding-bottom: 3px;
+}
+
+    .share-modal-close:hover {
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text, #e6f0fb);
+    }
+
+/* ===================== Create Share Form ===================== */
+
+.share-modal .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+
+    .share-modal .form-group label {
+        color: var(--text, #e6f0fb);
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    .share-modal .form-group input,
+    .share-modal .form-group select,
+    .share-modal .form-group textarea {
+        width: 100%;
+        padding: 0.7rem 0.75rem;
+        border: 1px solid var(--border, #16202b);
+        border-radius: 8px;
+        outline: none;
+        background: #0b1422;
+        color: var(--text, #e6f0fb);
+        font: inherit;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+        .share-modal .form-group input::placeholder,
+        .share-modal .form-group textarea::placeholder {
+            color: var(--muted, #94a3b8);
+        }
+
+    .share-modal .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+        .share-modal .form-group input:focus,
+        .share-modal .form-group select:focus,
+        .share-modal .form-group textarea:focus {
+            border-color: var(--accent, #60a5fa);
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+        }
+
+    .share-modal .form-group select option {
+        background: #0b1422;
+        color: var(--text, #e6f0fb);
+    }
+
+/* ===================== Form Actions ===================== */
+
+.share-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.65rem;
+    margin-top: 1.2rem;
+}
+
+.share-cancel-btn,
+.share-submit-btn {
+    padding: 0.65rem 0.9rem;
+    border-radius: 8px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.share-cancel-btn {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: var(--muted, #94a3b8);
+}
+
+    .share-cancel-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text, #e6f0fb);
+    }
+
+.share-submit-btn {
+    border: 1px solid rgba(96, 165, 250, 0.4);
+    background: var(--accent, #60a5fa);
+    color: #071226;
+}
+
+    .share-submit-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        opacity: 0.9;
+    }
+
+    .share-submit-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+/* ===================== Form Messages ===================== */
+
+.share-form-message {
+    padding: 0.7rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+    .share-form-message.hidden {
+        display: none;
+    }
+
+    .share-form-message.success {
+        border: 1px solid rgba(34, 197, 94, 0.25);
+        background: rgba(34, 197, 94, 0.08);
+        color: #4ade80;
+    }
+
+    .share-form-message.error {
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        background: rgba(239, 68, 68, 0.08);
+        color: #fca5a5;
+    }
+
+/* ===================== Responsive ===================== */
+
+@media (max-width: 600px) {
+    .shares-actions,
+    .create-share-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .add-share-btn {
+        width: 100%;
+    }
+
+    .share-modal {
+        align-items: flex-start;
+        padding: 0.75rem;
+    }
+
+    .share-modal-content {
+        max-height: calc(100vh - 1.5rem);
+        padding: 1rem;
+    }
+
+    .share-form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .share-cancel-btn,
+    .share-submit-btn {
+        width: 100%;
+    }
+}
+
+.share-country-display {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(96, 165, 250, 0.3);
+    border-radius: 8px;
+    background: rgba(96, 165, 250, 0.08);
+    color: var(--text, #e6f0fb);
+    font-weight: 700;
+}
+
+.share-modal .form-group.hidden {
+    display: none;
+}

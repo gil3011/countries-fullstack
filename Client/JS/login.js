@@ -94,6 +94,7 @@ function registerUser() {
                 $("#register-error").text(err.responseText).show();
                 return;
             }
+
             const message = "An error occurred";
             $("#register-error").text(message).show();
         }
@@ -126,8 +127,14 @@ function authenticate() {
             localStorage.setItem("loggedInUser", JSON.stringify(user));
             window.location.href = "index.html";
         },
-        function () {
-            $("#login-error").text("Invalid email or password. Please try again.").show();
+        function (err) {
+            if (err.status === 403) {
+                $("#login-error").text(err.responseText).show();
+                return;
+            }
+            else {
+                $("#login-error").text("Invalid email or password. Please try again.").show();
+            }
         }
     );
 }

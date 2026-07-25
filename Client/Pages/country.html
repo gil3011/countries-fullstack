@@ -2,374 +2,288 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Country Profile Viewer</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous">
+    </script>
+    <link href="../CSS/country.css" rel="stylesheet" />
+    <link href="../CSS/createShare.css" rel="stylesheet" />
+
     <script src="../JS/ajaxCalls.js"></script>
     <script src="../JS/navbar.js"></script>
+    <script src="../JS/apiRoutes.js"></script>
+    <script src="../JS/createShare.js"></script>
+    <script src="../JS/country.js"></script>
+
     <link href="../CSS/NavBar.css" rel="stylesheet" />
-    <style>
-        :root {
-            --bg: #071226;
-            --card: #0f1724;
-            --muted: #94a3b8;
-            --accent: #60a5fa;
-            --border: #16202b;
-            --text: #e6f0fb;
-            --muted-weak: rgba(148,163,184,0.85);
-            --card-contrast: #071226;
-        }
 
-        * {
-            box-sizing: border-box;
-        }
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            font-family: system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial;
-            color: var(--text);
-            background: var(--bg);
-        }
-
-        .page {
-            max-width: 1000px;
-            margin: 1.5rem auto;
-            padding: 1rem;
-        }
-        /* spinner / states */
-        .center {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: .75rem;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            border: 4px solid rgba(96,165,250,0.08);
-            border-top-color: var(--accent);
-            animation: spin 1s linear infinite;
-            background: transparent;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        /* header/hero */
-        .badge {
-            display: inline-block;
-            background: rgba(96,165,250,0.12);
-            color: var(--accent);
-            padding: .2rem .5rem;
-            border-radius: 999px;
-            text-transform: uppercase;
-            font-weight: 600;
-            font-size: .75rem;
-        }
-
-        .hero {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1rem;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 6px 18px rgba(2,6,23,.6);
-            flex-direction: column;
-        }
-
-        .hero-left {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex: 1;
-            width: 100%;
-        }
-
-        .hero-map {
-            width: 100%;
-            height: 160px;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            background: linear-gradient(180deg, rgba(9,18,34,0.6), rgba(7,14,24,0.9));
-            flex-shrink: 0;
-        }
-
-        .flag {
-            width: 160px;
-            border-radius: 8px;
-            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-            object-fit: cover;
-            border: 1px solid rgba(255,255,255,0.03);
-        }
-
-        .title {
-            font-weight: 800;
-            font-size: 1.4rem;
-            margin: .25rem 0;
-            color: var(--text);
-        }
-
-        .muted {
-            color: var(--muted);
-            font-size: .9rem;
-        }
-        /* grid */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(2,1fr);
-            gap: .75rem;
-        }
-
-        .card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
-            border: 1px solid var(--border);
-            padding: .8rem;
-            border-radius: 8px;
-            color: var(--text);
-        }
-
-        .label {
-            display: block;
-            font-size: .72rem;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: .06em;
-        }
-
-        .value {
-            font-weight: 700;
-            margin-top: .4rem;
-        }
-
-        .large {
-            padding: 1rem;
-        }
-
-        .languages {
-            display: flex;
-            flex-wrap: wrap;
-            gap: .4rem;
-            margin-top: .4rem;
-        }
-
-        .lang {
-            background: rgba(255,255,255,0.02);
-            padding: .25rem .4rem;
-            border-radius: 6px;
-            font-size: .8rem;
-            color: var(--text);
-            border: 1px solid rgba(255,255,255,0.02);
-        }
-
-        .borders {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            gap: .5rem;
-            max-height: 240px;
-            overflow: auto;
-        }
-
-        .border-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: .45rem;
-            border-radius: 8px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.02);
-        }
-
-        .wiki {
-            display: inline-block;
-            width: 100%;
-            padding: .55rem;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.04);
-            background: linear-gradient(180deg, rgba(96,165,250,0.10), rgba(96,165,250,0.06));
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 600;
-        }
-
-        .muted-weak {
-            color: var(--muted-weak);
-        }
-
-        @media(min-width:768px) {
-            .hero {
-                flex-direction: row;
-            }
-
-            .hero-left {
-                width: auto;
-            }
-
-            .grid {
-                grid-template-columns: 2fr 1fr;
-            }
-
-            .hero-map {
-                width: 300px;
-                height: 140px;
-            }
-        }
-    </style>
 </head>
+
 <body>
 
     <div id="navbar-container"></div>
 
     <main class="page">
 
-        <!-- Loading -->
+        <!-- Country loading -->
+
         <div id="loading" class="center">
             <div class="spinner" aria-hidden="true"></div>
             <p class="muted">Fetching country details...</p>
         </div>
 
-        <!-- Error -->
-        <div id="error" class="card hidden" style="max-width:420px;margin:2rem auto;text-align:center">
-            <div style="font-size:2.5rem;color:#ef4444">⚠️</div>
-            <h2 style="margin:.25rem 0">Country Not Found</h2>
-            <p id="error-message" class="muted">Please provide a valid 'cca3' query parameter.</p>
-            <p class="muted" style="background:rgba(255,255,255,0.02);display:inline-block;padding:.3rem .5rem;border-radius:6px;margin-top:.5rem">Example: ?cca3=ISR</p>
+        <!-- Country error -->
+
+        <div id="error"
+             class="card hidden"
+             style="max-width: 420px; margin: 2rem auto; text-align: center;">
+
+            <div style="font-size: 2.5rem; color: #ef4444;">
+                ⚠️
+            </div>
+
+            <h2 style="margin: 0.25rem 0;">
+                Country Not Found
+            </h2>
+
+            <p id="error-message" class="muted">
+                Please provide a valid 'cca3' query parameter.
+            </p>
+
+            <p class="muted"
+               style="
+                    display: inline-block;
+                    margin-top: 0.5rem;
+                    padding: 0.3rem 0.5rem;
+                    border-radius: 6px;
+                    background: rgba(255, 255, 255, 0.02);
+                ">
+                Example: ?cca3=ISR
+            </p>
         </div>
 
-        <!-- Content -->
+        <!-- Main content -->
+
         <div id="content" class="hidden">
-            <div style="margin-bottom:1rem"><span id="cca3-badge" class="badge"></span></div>
+
+            <div style="margin-bottom: 1rem;">
+                <span id="cca3-badge" class="badge"></span>
+            </div>
 
             <section class="hero">
+
                 <div class="hero-left">
-                    <img id="country-flag" class="flag" src="" alt="Flag" />
+
+                    <img id="country-flag"
+                         class="flag"
+                         src=""
+                         alt="Country flag" />
+
                     <div>
                         <div id="country-name" class="title"></div>
-                        <div id="official-name" class="muted" style="font-style:italic"></div>
-                        <div class="muted" style="margin-top:.5rem">Region: <span id="region" style="font-weight:600; color:var(--text)"></span></div>
-                        <div class="muted">Sub-region: <span id="subregion" style="font-weight:600; color:var(--text)"></span></div>
+
+                        <div id="official-name"
+                             class="muted"
+                             style="font-style: italic;">
+                        </div>
+
+                        <div class="muted" style="margin-top: 0.5rem;">
+                            Region:
+                            <span id="region"
+                                  style="font-weight: 600; color: var(--text);">
+                            </span>
+                        </div>
+
+                        <div class="muted">
+                            Sub-region:
+                            <span id="subregion"
+                                  style="font-weight: 600; color: var(--text);">
+                            </span>
+                        </div>
                     </div>
                 </div>
+
                 <div class="hero-map">
-                    <iframe id="country-map" width="100%" height="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src=""></iframe>
+                    <iframe id="country-map"
+                            width="100%"
+                            height="100%"
+                            frameborder="0"
+                            scrolling="no"
+                            marginheight="0"
+                            marginwidth="0"
+                            src="">
+                    </iframe>
                 </div>
             </section>
 
             <div class="grid">
+
                 <div>
-                    <div class="cards" style="margin-top:1rem">
-                        <div class="card"><span class="label">Population</span><div id="population" class="value"></div></div>
-                        <div class="card"><span class="label">Area</span><div id="area" class="value"></div></div>
-                        <div class="card"><span class="label">Capital(s)</span><div id="capitals" class="value"></div></div>
-                        <div class="card"><span class="label">Currency</span><div id="currency" class="value"></div></div>
+
+                    <div class="cards" style="margin-top: 1rem;">
+
+                        <div class="card">
+                            <span class="label">Population</span>
+                            <div id="population" class="value"></div>
+                        </div>
+
+                        <div class="card">
+                            <span class="label">Area</span>
+                            <div id="area" class="value"></div>
+                        </div>
+
+                        <div class="card">
+                            <span class="label">Capital(s)</span>
+                            <div id="capitals" class="value"></div>
+                        </div>
+
+                        <div class="card">
+                            <span class="label">Currency</span>
+                            <div id="currency" class="value"></div>
+                        </div>
                     </div>
 
-                    <div class="card large" style="margin-top:1rem">
-                        <h3 class="muted" style="text-transform:uppercase;font-size:.85rem;margin:0 0 .6rem 0">Languages &amp; Geography</h3>
+                    <div class="card large" style="margin-top: 1rem;">
+
+                        <h3 class="muted"
+                            style="
+                                margin: 0 0 0.6rem 0;
+                                font-size: 0.85rem;
+                                text-transform: uppercase;
+                            ">
+                            Languages &amp; Geography
+                        </h3>
+
                         <div>
-                            <div class="muted">Official Languages:</div>
-                            <div id="languages-tags" class="languages"></div>
+                            <div class="muted">
+                                Official Languages:
+                            </div>
+
+                            <div id="languages-tags"
+                                 class="languages">
+                            </div>
                         </div>
-                        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.04);margin:.8rem 0">
-                        <div style="display:flex;justify-content:space-between" class="muted"><div>Landlocked:</div><div id="landlocked-status"></div></div>
-                        <div style="display:flex;justify-content:space-between;margin-top:.4rem" class="muted"><div>Coordinates:</div><div id="coordinates"></div></div>
-                        <div style="display:flex;justify-content:space-between;margin-top:.4rem" class="muted"><div>Timezones:</div><div id="timezones"></div></div>
+
+                        <hr style="
+                                margin: 0.8rem 0;
+                                border: none;
+                                border-top: 1px solid rgba(255, 255, 255, 0.04);
+                            ">
+
+                        <div class="muted"
+                             style="
+                                display: flex;
+                                justify-content: space-between;
+                            ">
+
+                            <div>Landlocked:</div>
+                            <div id="landlocked-status"></div>
+                        </div>
+
+                        <div class="muted"
+                             style="
+                                display: flex;
+                                justify-content: space-between;
+                                margin-top: 0.4rem;
+                            ">
+
+                            <div>Coordinates:</div>
+                            <div id="coordinates"></div>
+                        </div>
+
+                        <div class="muted"
+                             style="
+                                display: flex;
+                                justify-content: space-between;
+                                margin-top: 0.4rem;
+                            ">
+
+                            <div>Timezones:</div>
+                            <div id="timezones"></div>
+                        </div>
                     </div>
                 </div>
 
                 <aside>
+
                     <div class="card">
-                        <h3 class="muted" style="text-transform:uppercase;font-size:.85rem;margin:0 0 .6rem 0">Bordering Countries</h3>
-                        <ul id="borders-list" class="borders"></ul>
+
+                        <h3 class="muted"
+                            style="
+                                margin: 0 0 0.6rem 0;
+                                font-size: 0.85rem;
+                                text-transform: uppercase;
+                            ">
+                            Bordering Countries
+                        </h3>
+
+                        <ul id="borders-list"
+                            class="borders">
+                        </ul>
                     </div>
 
-                    <div class="card" style="margin-top:1rem">
-                        <a id="wiki-link" class="wiki" href="#" target="_blank" rel="noopener">View on Wikipedia ↗</a>
+                    <div class="card" style="margin-top: 1rem;">
+
+                        <a id="wiki-link"
+                           class="wiki"
+                           href="#"
+                           target="_blank"
+                           rel="noopener">
+                            View on Wikipedia ↗
+                        </a>
                     </div>
                 </aside>
             </div>
         </div>
+
+        <!-- Country shares -->
+
+        <section class="shares-section hidden">
+
+            <div class="shares-header">
+
+                <div>
+                    <span class="label">Community</span>
+                    <h2>Shares about this country</h2>
+                </div>
+
+                <div class="shares-actions">
+                    <span id="shares-count" class="shares-count">
+                        0 shares
+                    </span>
+
+                    <button id="open-share-form-btn"
+                            class="add-share-btn"
+                            type="button">
+                        + Add Share
+                    </button>
+                </div>
+            </div>
+
+            <div id="shares-loading"
+                 class="shares-message">
+                Loading shares...
+            </div>
+
+            <div id="shares-empty"
+                 class="shares-message hidden">
+                No shares have been published about this country yet.
+            </div>
+
+            <div id="shares-error"
+                 class="shares-message shares-error hidden">
+                Could not load shares.
+            </div>
+
+            <div id="shares-list"
+                 class="shares-list">
+            </div>
+        </section>
     </main>
-
-    <script>
-
-        function renderCountry(country) {
-            document.getElementById('cca3-badge').textContent = country.cca3;
-            document.getElementById('country-flag').src = country.flagUrl || 'https://via.placeholder.com/150?text=No+Flag';
-            document.getElementById('country-flag').alt = 'Flag of ' + country.commonName;
-            document.getElementById('country-name').textContent = country.commonName;
-            document.getElementById('official-name').textContent = country.officialName || country.commonName;
-
-            document.getElementById('region').textContent = country.region || 'N/A';
-            document.getElementById('subregion').textContent = country.subregion || 'N/A';
-            document.getElementById('population').textContent = country.population.toLocaleString();
-            document.getElementById('area').textContent = country.areaKm2.toLocaleString() + ' km²';
-            document.getElementById('capitals').textContent = (country.capitals || []).map(c => c.name).join(', ') || 'None';
-            document.getElementById('currency').textContent = (country.currencies || []).map(c => `${c.currencySymbol} (${c.currencyCode})`).join(', ') || 'N/A';
-            const langs = document.getElementById('languages-tags'); langs.innerHTML = ''; (country.languages || []).forEach(l => { const s = document.createElement('span'); s.className = 'lang'; s.textContent = `${l.languageName} (${(l.iso639_1 || '').toUpperCase()})`; langs.appendChild(s) });
-            document.getElementById('landlocked-status').textContent = country.isLandlocked ? 'Yes' : 'No';
-            document.getElementById('coordinates').textContent = `${country.latitude}°, ${country.longitude}°`;
-
-            // Map logic
-            const lat = country.latitude;
-            const lng = country.longitude;
-            if (lat !== undefined && lng !== undefined) {
-                const bbox = `${lng - 5},${lat - 5},${lng + 5},${lat + 5}`;
-                document.getElementById('country-map').src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
-            } else {
-                document.getElementById('country-map').style.display = 'none';
-            }
-
-            document.getElementById('timezones').textContent = (country.timezones || []).join(', ');
-            document.getElementById('wiki-link').href = country.wikipediaUrl || '#';
-            const bl = document.getElementById('borders-list'); bl.innerHTML = ''; if (country.borders && country.borders.length) {
-                country.borders.forEach(b => { const li = document.createElement('li'); li.className = 'border-item'; li.innerHTML = `<span style="font-weight:600">${b.commonName}</span><a href="?cca3=${b.cca3}" style="text-decoration:none;color:var(--accent);font-weight:700">${b.cca3}</a>`; bl.appendChild(li) });
-            } else bl.innerHTML = '<li class="muted">No shared land borders.</li>';
-            document.getElementById('loading').classList.add('hidden'); document.getElementById('content').classList.remove('hidden');
-        }
-
-        function showError(msg) {
-            document.getElementById('loading').classList.add('hidden');
-            const e = document.getElementById('error'); e.classList.remove('hidden');
-            if (msg) document.getElementById('error-message').textContent = msg;
-        }
-        function handleSuccess(data) {
-            renderCountry(data);
-        }
-        function handleError(error) {
-            showError("Internal database error.");
-            console.error(error);
-        }
-        $(document).ready(function () {
-            const cca3 = new URLSearchParams(window.location.search).get('cca3');
-            if (!cca3) { showError("Missing URL Parameter"); return; }
-            ajaxCall("GET", "https://localhost:7255/api/Country/GetByCca3/" + cca3, null, handleSuccess, handleError);
-        });
-
-    </script>
 </body>
 </html>

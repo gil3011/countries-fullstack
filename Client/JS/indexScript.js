@@ -27,24 +27,6 @@ function showLoading(isLoading) {
     if (el) el.style.display = isLoading ? 'flex' : 'none';
     document.body.classList.toggle('is-loading', isLoading);
 }
-
-// Cache the country summary for the browser session so re-visits render instantly.
-const COUNTRIES_CACHE_KEY = "countriesSummaryV2";
-const COUNTRIES_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
-
-function getCachedCountries() {
-    try {
-        const raw = sessionStorage.getItem(COUNTRIES_CACHE_KEY);
-        if (!raw) return null;
-        const cached = JSON.parse(raw);
-        if (!cached || !Array.isArray(cached.data)) return null;
-        if (Date.now() - cached.ts > COUNTRIES_CACHE_TTL) return null;
-        return cached.data;
-    } catch {
-        return null;
-    }
-}
-
 function cacheCountries(data) {
     try {
         sessionStorage.setItem(COUNTRIES_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
