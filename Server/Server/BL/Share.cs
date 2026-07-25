@@ -17,9 +17,12 @@ namespace Server.BL
         private int countryId;
         private DateTime createdAt;
         private int userId;
+        private string userName;
+        private string countryName;
+        private string cca3;
 
         public Share() { }
-        public Share(int id, string description, string title, ShareType type, int countryId, int userId)
+        public Share(int id, string description, string title, ShareType type, int countryId, int userId, string userName, string countryName, string cca3)
         {
             Id = id;
             Description = description;
@@ -27,6 +30,9 @@ namespace Server.BL
             Type = type;
             CountryId = countryId;
             UserId = userId;
+            UserName = userName;
+            CountryName = countryName;
+            Cca3 = cca3;
         }
 
         public int UserId { get => userId; set => userId = value; }
@@ -36,7 +42,10 @@ namespace Server.BL
         public ShareType Type { get => type; set => type = value; }
         public int CountryId { get => countryId; set => countryId = value; }
         public DateTime CreatedAt { get => createdAt; set => createdAt = value; }
+        public string CountryName { get => countryName; set => countryName = value; }
+        public string UserName { get => userName; set => userName = value; }
 
+        public string Cca3 { get => cca3; set => cca3 = value; }
         public static List<Share> GetAllShares()
         {
             DBServiceShare dbs = new();

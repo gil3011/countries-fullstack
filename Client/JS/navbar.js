@@ -60,19 +60,50 @@ function updateNavbar() {
 }
 
 function markActivePage() {
-    const currentPage = window.location.pathname
-        .split("/")
-        .pop();
+    const currentPage = window.location.pathname.split("/").pop().split("?")[0];
+    const currentSearch = window.location.search;
+    const urlParams = new URLSearchParams(currentSearch);
+    let currentTab = urlParams.get('tab');
+    
+    if (currentPage === "user_quiz.html" && !currentTab) {
+        currentTab = "explore-section";
+    }
 
     const navLinks = document.querySelectorAll(".nav-links a");
 
     navLinks.forEach(link => {
-        const linkPage = link.getAttribute("href")
-            .split("/")
-            .pop();
+        let href = link.getAttribute("href");
+        if (!href) return;
+        
+        const hrefParts = href.split("/");
+        const fullPage = hrefParts.pop();
+        const linkPage = fullPage.split("?")[0];
+        const linkParams = new URLSearchParams(fullPage.split("?")[1] || "");
+        const linkTab = linkParams.get('tab');
 
+        let isActive = false;
+
+        // If it's the exact same page
         if (linkPage === currentPage) {
-            link.classList.add("active");
+            // If the link has a tab parameter, only activate if it matches the current tab
+            if (linkTab) {
+                if (linkTab === currentTab) {
+                    isActive = true;
+                }
+            } else {
+                // If it doesn't have a tab param, it's just a normal page link
+                isActive = true;
+            }
+        }
+
+        if (isActive) {
+            // Also add active to parent dropdown button if it's in a dropdown
+            if (link.closest('.nav-dropdown-content')) {
+                const dropBtn = link.closest('.nav-dropdown').querySelector('.dropbtn');
+                if (dropBtn) dropBtn.classList.add('active');
+            } else {
+                link.classList.add("active");
+            }
         }
     });
 }
@@ -112,4 +143,23 @@ function isAdmin() {
 function logout() {
     localStorage.removeItem("loggedInUser");
     window.location.href = "../Pages/login.html";
+}
+
+
+// caching countries
+const COUNTRIES_CACHE_KEY = "countriesSummaryV2";
+const COUNTRIES_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+window.getCachedCountries = function () {
+
+    try {
+        const raw = sessionStorage.getItem(COUNTRIES_CACHE_KEY);
+        if (!raw) return null;
+        const cached = JSON.parse(raw);
+        if (!cached || !Array.isArray(cached.data)) return null;
+        if (Date.now() - cached.ts > COUNTRIES_CACHE_TTL) return null;
+        return cached.data;
+    } catch {
+        return null;
+    }
 }

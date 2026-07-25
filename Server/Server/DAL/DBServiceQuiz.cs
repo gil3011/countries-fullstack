@@ -44,6 +44,14 @@ namespace Server.DAL
                     }
                 }
                 
+                if (newQuizId > 0 && quiz.AssociatedRegions != null)
+                {
+                    foreach (var region in quiz.AssociatedRegions)
+                    {
+                        AddQuizRegion(newQuizId, region);
+                    }
+                }
+                
                 return newQuizId;
 
             }
@@ -107,6 +115,54 @@ namespace Server.DAL
             }
         }
 
+        private void AddQuizRegion(int quizId, string region)
+        {
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            var param = new Dictionary<string, object>
+            {
+                { "@QuizId", quizId },
+                { "@Region", region }
+            };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_AddRegion", param);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception) { throw; }
+            finally { if (con != null) con.Close(); }
+        }
+
+        private void ClearQuizRegions(int quizId)
+        {
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            var param = new Dictionary<string, object> { { "@QuizId", quizId } };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_ClearRegions", param);
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception) { throw; }
+            finally { if (con != null) con.Close(); }
+        }
+
         private List<int> GetQuizCountries(int quizId)
         {
             SqlConnection con = null;
@@ -133,6 +189,34 @@ namespace Server.DAL
             {
                 if (con != null) con.Close();
             }
+        }
+
+        private List<string> GetQuizRegions(int quizId)
+        {
+            SqlConnection con;
+            try
+            {
+                con = Connect(); // create the connection
+            }
+            catch (Exception ex)
+            {
+                // write to log
+                throw (ex);
+            }
+            var param = new Dictionary<string, object> { { "@QuizId", quizId } };
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetQuizRegions", param);
+            List<string> list = new List<string>();
+            try
+            {
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    list.Add(dr["Region"].ToString());
+                }
+                return list;
+            }
+            catch (Exception) { throw; }
+            finally { if (con != null) con.Close(); }
         }
 
         public int AddQuestion(int quizId, int userId, Question q)
@@ -281,6 +365,7 @@ namespace Server.DAL
                 {
                     quiz.Questions = GetQuestionsByQuizId(quiz.Id);
                     quiz.AssociatedCountryIds = GetQuizCountries(quiz.Id);
+                    quiz.AssociatedRegions = GetQuizRegions(quiz.Id);
                 }
                 return quiz;
 
@@ -339,7 +424,7 @@ namespace Server.DAL
             }
         }
 
-        public List<Quiz> GetAllPublicQuizzes()
+        public List<Quiz> GetAllPublicQuizzes(int? filterCountryId = null, int? userId = null, string filterRegion = null)
         {
             SqlConnection con = null;
 
@@ -347,25 +432,81 @@ namespace Server.DAL
             {
                 con = Connect();
 
-                SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con, "FP_sp_Quizzes_GetAllPublicQuizzes", null);
+            var param = new Dictionary<string, object>();
+            if (filterCountryId.HasValue)
+            {
+                param.Add("@CountryId", filterCountryId.Value);
+            }
+            if (userId.HasValue)
+            {
+                param.Add("@UserId", userId.Value);
+            }
+            if (!string.IsNullOrEmpty(filterRegion))
+            {
+                param.Add("@Region", filterRegion);
+            }
 
-                List<Quiz> quizzes = new List<Quiz>();
-
+            SqlCommand cmd = CreateCommandWithStoredProcedureGeneral(con,"FP_sp_Quizzes_GetAllPublicQuizzes", param);
+            
+            List<Quiz> quizzes = new List<Quiz>();
+            try
+            {
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
+                    int associatedCol = dr.GetOrdinal("AssociatedCountryIds");
+                    int isLikedCol = dr.GetOrdinal("IsLikedByCurrentUser");
+                    int regionsCol = -1;
+                    try { regionsCol = dr.GetOrdinal("AssociatedRegions"); } catch { }
                     while (dr.Read())
                     {
-                        quizzes.Add(new Quiz
+                        var quiz = new Quiz
                         {
                             Id = Convert.ToInt32(dr["Id"]),
                             Title = dr["Title"].ToString(),
                             CreatorId = Convert.ToInt32(dr["CreatorId"]),
+                            CreatorName = dr["CreatorName"] != DBNull.Value ? dr["CreatorName"].ToString() : null,
                             IsPublic = Convert.ToBoolean(dr["IsPublic"]),
                             Likes = Convert.ToInt32(dr["Likes"]),
-                            QuestionCount = Convert.ToInt32(dr["QuestionCount"])
-                        });
+                            CreatedAt = Convert.ToDateTime(dr["CreatedAt"]),
+                            QuestionCount = Convert.ToInt32(dr["QuestionCount"]),
+                            IsLikedByCurrentUser = Convert.ToBoolean(dr[isLikedCol])
+                        };
+                        
+                        if (!dr.IsDBNull(associatedCol))
+                        {
+                            string idsStr = dr.GetString(associatedCol);
+                            if (!string.IsNullOrWhiteSpace(idsStr))
+                            {
+                                quiz.AssociatedCountryIds = idsStr.Split(',')
+                                    .Select(id => int.Parse(id.Trim()))
+                                    .ToList();
+                            }
+                        }
+                        else
+                        {
+                            quiz.AssociatedCountryIds = new List<int>();
+                        }
+                        
+                        if (regionsCol >= 0 && !dr.IsDBNull(regionsCol))
+                        {
+                            string regionsStr = dr.GetString(regionsCol);
+                            if (!string.IsNullOrWhiteSpace(regionsStr))
+                            {
+                                quiz.AssociatedRegions = regionsStr.Split(',')
+                                    .Select(r => r.Trim())
+                                    .Where(r => !string.IsNullOrEmpty(r))
+                                    .ToList();
+                            }
+                        }
+                        else
+                        {
+                            quiz.AssociatedRegions = new List<string>();
+                        }
+                        
+                        quizzes.Add(quiz);
                     }
                 }
+                
                 return quizzes;
 
             }
@@ -396,17 +537,57 @@ namespace Server.DAL
 
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
+                    int associatedCol = dr.GetOrdinal("AssociatedCountryIds");
+                    int isLikedCol = dr.GetOrdinal("IsLikedByCurrentUser");
+                    int regionsCol = -1;
+                    try { regionsCol = dr.GetOrdinal("AssociatedRegions"); } catch { }
                     while (dr.Read())
                     {
-                        quizzes.Add(new Quiz
+                        var quiz = new Quiz
                         {
                             Id = Convert.ToInt32(dr["Id"]),
                             Title = dr["Title"].ToString(),
                             CreatorId = Convert.ToInt32(dr["CreatorId"]),
+                            CreatorName = dr["CreatorName"] != DBNull.Value ? dr["CreatorName"].ToString() : null,
                             IsPublic = Convert.ToBoolean(dr["IsPublic"]),
                             Likes = Convert.ToInt32(dr["Likes"]),
-                            QuestionCount = Convert.ToInt32(dr["QuestionCount"])
-                        });
+                            CreatedAt = Convert.ToDateTime(dr["CreatedAt"]),
+                            QuestionCount = Convert.ToInt32(dr["QuestionCount"]),
+                            IsLikedByCurrentUser = Convert.ToBoolean(dr[isLikedCol])
+                        };
+                        
+                        if (!dr.IsDBNull(associatedCol))
+                        {
+                            string idsStr = dr.GetString(associatedCol);
+                            if (!string.IsNullOrWhiteSpace(idsStr))
+                            {
+                                quiz.AssociatedCountryIds = idsStr.Split(',')
+                                    .Select(id => int.Parse(id.Trim()))
+                                    .ToList();
+                            }
+                        }
+                        else
+                        {
+                            quiz.AssociatedCountryIds = new List<int>();
+                        }
+                        
+                        if (regionsCol >= 0 && !dr.IsDBNull(regionsCol))
+                        {
+                            string regionsStr = dr.GetString(regionsCol);
+                            if (!string.IsNullOrWhiteSpace(regionsStr))
+                            {
+                                quiz.AssociatedRegions = regionsStr.Split(',')
+                                    .Select(r => r.Trim())
+                                    .Where(r => !string.IsNullOrEmpty(r))
+                                    .ToList();
+                            }
+                        }
+                        else
+                        {
+                            quiz.AssociatedRegions = new List<string>();
+                        }
+                        
+                        quizzes.Add(quiz);
                     }
                 }
                 return quizzes;
@@ -569,6 +750,15 @@ namespace Server.DAL
                         foreach (var cId in quiz.AssociatedCountryIds)
                         {
                             AddQuizCountry(quiz.Id, cId);
+                        }
+                    }
+                    
+                    ClearQuizRegions(quiz.Id);
+                    if (quiz.AssociatedRegions != null)
+                    {
+                        foreach (var region in quiz.AssociatedRegions)
+                        {
+                            AddQuizRegion(quiz.Id, region);
                         }
                     }
                 }

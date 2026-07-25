@@ -7,11 +7,15 @@ namespace Server.BL
         public int Id { get; set; }
         public string Title { get; set; }
         public int CreatorId { get; set; }
+        public string CreatorName { get; set; }
         public bool IsPublic { get; set; }
         public int Likes { get; set; }
+        public DateTime CreatedAt { get; set; }
         public List<Question> Questions { get; set; }
         public int QuestionCount { get; set; }
         public List<int> AssociatedCountryIds { get; set; }
+        public List<string> AssociatedRegions { get; set; }
+        public bool IsLikedByCurrentUser { get; set; }
 
         public Quiz()
         {
@@ -55,10 +59,10 @@ namespace Server.BL
             return dbs.GetQuizById(id);
         }
 
-        public static List<Quiz> GetAllPublicQuizzes()
+        public static List<Quiz> GetAllPublicQuizzes(int? filterCountryId = null, int? userId = null, string filterRegion = null)
         {
             DBServiceQuiz dbs = new();
-            return dbs.GetAllPublicQuizzes();
+            return dbs.GetAllPublicQuizzes(filterCountryId, userId, filterRegion);
         }
 
         public static List<Quiz> GetQuizzesByUserId(int userId)

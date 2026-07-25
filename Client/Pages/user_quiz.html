@@ -6,35 +6,15 @@
     <title>Quiz Master - User Actions Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="../CSS/NavBar.css" rel="stylesheet" />
     <link href="../CSS/user_quiz.css?v=2" rel="stylesheet" />
     <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
     <script src="../JS/ajaxCalls.js"></script>
+    <script src="../JS/navbar.js"></script>
 </head>
 <body>
+    <div id="navbar-container"></div>
     <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <nav class="sidebar">
-            <div class="brand">
-                <i class="fa-solid fa-brain"></i>
-                <span>QuizMaster</span>
-            </div>
-            <ul class="nav-links">
-                <li class="active" data-target="explore-section">
-                    <i class="fa-solid fa-compass"></i> Explore Quizzes
-                </li>
-                <li data-target="manage-section">
-                    <i class="fa-solid fa-pen-ruler"></i> Manage My Quizzes
-                </li>
-                <li data-target="attempts-section">
-                    <i class="fa-solid fa-clock-rotate-left"></i> My Attempts
-                </li>
-            </ul>
-            <div class="user-profile" style="margin-top: auto; padding: 1rem; color: var(--text-muted); font-size: 0.9rem;">
-                <i class="fa-solid fa-user"></i> <span id="logged-user-name">Not logged in</span>
-                <button class="btn btn-secondary btn-sm" onclick="logout()" style="margin-top: 10px; width: 100%;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
-            </div>
-        </nav>
-
         <!-- Main Content Area -->
         <main class="main-content">
             <header class="top-header">
@@ -52,6 +32,23 @@
                 <section id="explore-section" class="tab-section active">
                     <div class="controls-bar">
                         <input type="text" id="search-quiz" placeholder="Search public quizzes..." class="glass-input">
+                        <select id="explore-country-filter" class="glass-input" style="width: auto; min-width: 200px;" onchange="fetchPublicQuizzes()">
+                            <option value="">All Countries</option>
+                        </select>
+                        <select id="explore-region-filter" class="glass-input" style="width: auto; min-width: 150px;" onchange="fetchPublicQuizzes()">
+                            <option value="">All Continents</option>
+                            <option value="Africa">Africa</option>
+                            <option value="Americas">Americas</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Oceania">Oceania</option>
+                        </select>
+
+                        <select id="explore-sort" class="glass-input" style="width: auto;" onchange="fetchPublicQuizzes()">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="likes">Most Likes</option>
+                        </select>
                         <button class="btn btn-secondary" onclick="fetchPublicQuizzes()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
                     </div>
                     <div id="public-quizzes-grid" class="cards-grid">
@@ -91,7 +88,7 @@
         <div class="modal-content glass-panel large-modal" style="max-width: 1000px;">
             <div class="modal-header">
                 <h2 id="editor-modal-title">Create/Edit Quiz</h2>
-                <button class="btn-close" onclick="closeModal('quiz-editor-modal'); fetchMyQuizzes();"><i class="fa-solid fa-xmark"></i></button>
+                <button class="btn-close" onclick="finishQuizEditor()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body flex-row">
                 <!-- Left Pane: Quiz Settings & Added Questions -->
@@ -108,6 +105,19 @@
                             <option value="">Select a country to add...</option>
                         </select>
                         <div id="editor-selected-countries-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editor-quiz-region-select">Associated Continents</label>
+                        <select id="editor-quiz-region-select" class="glass-input">
+                            <option value="">Select a continent to add...</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Americas">Americas</option>
+                            <option value="Africa">Africa</option>
+                            <option value="Oceania">Oceania</option>
+                            <option value="Antarctic">Antarctic</option>
+                        </select>
+                        <div id="editor-selected-regions-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem;"></div>
                     </div>
                     
                     <h3 style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
@@ -147,7 +157,35 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="closeModal('quiz-editor-modal'); fetchMyQuizzes();">Done</button>
+                <button class="btn btn-primary" onclick="finishQuizEditor()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Details Modal -->
+    <div id="quiz-details-modal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 id="details-quiz-title" style="margin: 0; font-size: 1.5rem;">Quiz Title</h2>
+                <button class="btn-close" onclick="closeModal('quiz-details-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; color: var(--text-muted);">
+                    <span><i class="fa-solid fa-user"></i> Creator: <span id="details-quiz-creator"></span></span>
+                    <span><i class="fa-regular fa-calendar"></i> <span id="details-quiz-date"></span></span>
+                    <span><i class="fa-solid fa-layer-group"></i> <span id="details-quiz-questions"></span> Qs</span>
+                    <span><i class="fa-solid fa-heart" style="color:var(--danger)"></i> <span id="details-quiz-likes"></span></span>
+                </div>
+                
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Associated Locations</h3>
+                <div id="details-quiz-countries" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <!-- Countries badges -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="btn-details-take-quiz" style="width: 100%; font-size: 1.1rem; padding: 0.75rem;">
+                    <i class="fa-solid fa-play"></i> Start Quiz
+                </button>
             </div>
         </div>
     </div>

@@ -1,12 +1,29 @@
 using Server.Logging;
 using Server.Middleware;
 
+using DotNetEnv;
+using Server.Services;
+
 namespace Server
 {
     public class Program
     {
         public static void Main(string[] args)
         {
+            string envPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                ".env"
+            );
+
+            if (!File.Exists(envPath))
+            {
+                throw new FileNotFoundException(
+                    $"The .env file was not found at: {envPath}"
+                );
+            }
+
+            Env.Load(envPath);
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
@@ -19,6 +36,8 @@ namespace Server
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddSingleton<GeminiService>();
 
             var app = builder.Build();
 
