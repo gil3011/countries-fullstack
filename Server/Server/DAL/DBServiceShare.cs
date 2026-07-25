@@ -35,7 +35,10 @@ namespace Server.DAL
                             Type = Enum.Parse<ShareType>(dr["Type"].ToString()!, ignoreCase: true),
                             CountryId = Convert.ToInt32(dr["CountryId"]),
                             CreatedAt = Convert.ToDateTime(dr["CreatedAt"]),
-                            Title = Convert.ToString(dr["Title"]) ?? ""
+                            Title = Convert.ToString(dr["Title"]) ?? "",
+                            UserName = Convert.ToString(dr["UserName"]) ?? "",
+                            CountryName = Convert.ToString(dr["CountryName"]) ?? "",
+                            Cca3 = Convert.ToString(dr["cca3"]) ?? ""
                         };
                         shares.Add(share);
                     }
@@ -85,7 +88,9 @@ namespace Server.DAL
                             Type = Enum.Parse<ShareType>(dr["Type"].ToString()!, ignoreCase: true),
                             CountryId = Convert.ToInt32(dr["CountryId"]),
                             CreatedAt = Convert.ToDateTime(dr["CreatedAt"]),
-                            Title = Convert.ToString(dr["Title"]) ?? ""
+                            Title = Convert.ToString(dr["Title"]) ?? "",
+                            CountryName = Convert.ToString(dr["CountryName"]) ?? "",
+                            Cca3 = Convert.ToString(dr["cca3"]) ?? ""
                         };
                         shares.Add(share);
                     }
@@ -135,7 +140,10 @@ namespace Server.DAL
                             Type = Enum.Parse<ShareType>(dr["Type"].ToString()!, ignoreCase: true),
                             CountryId = Convert.ToInt32(dr["CountryId"]),
                             CreatedAt = Convert.ToDateTime(dr["CreatedAt"]),
-                            Title = Convert.ToString(dr["Title"]) ?? ""
+                            Title = Convert.ToString(dr["Title"]) ?? "",
+                            UserName = Convert.ToString(dr["UserName"]) ?? "",
+                            CountryName = Convert.ToString(dr["CountryName"]) ?? "",
+                            Cca3 = Convert.ToString(dr["Cca3"]) ?? "",
                         };
                         shares.Add(share);
                     }

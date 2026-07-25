@@ -59,16 +59,16 @@ namespace Server.Controller
                 bool result = BL.Share.CreateShare(share);
                 if (result)
                 {
-                    return Ok("Share created successfully");
+                    return Ok(new { message = "Share created successfully" });
                 }
                 else
                 {
-                    return BadRequest("Share was not created");
+                    return BadRequest(new { message = "Share was not created" });
                 }
             }
             catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the share.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while creating the share." });
             }
         }
 
@@ -80,11 +80,11 @@ namespace Server.Controller
                 bool result = BL.Share.UpdateShare(share);
                 if (result)
                 {
-                    return Ok("Share updated successfully");
+                    return Ok(new { message = "Share updated successfully" });
                 }
                 else
                 {
-                    return NotFound("Share was not found");
+                    return NotFound(new { message = "Share was not found" });
                 }
             }
             catch (Exception ex)
@@ -102,7 +102,7 @@ namespace Server.Controller
                 bool result = BL.Share.DeleteShare(shareID, userID);
                 if (result)
                 {
-                    return Ok("Share deleted successfully");
+                    return Ok(new { message = "Share deleted successfully" });
                 }
                 else
                 {
