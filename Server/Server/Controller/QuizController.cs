@@ -7,11 +7,18 @@ namespace Server.Controllers
     [ApiController]
     public class QuizController : ControllerBase
     {
+        // GET: api/Quiz
+        [HttpGet]
+        public IEnumerable<Quiz> Get([FromQuery] int? countryId = null, [FromQuery] int? userId = null, [FromQuery] string region = null)
+        {
+            return Quiz.GetAllPublicQuizzes(countryId, userId, region);
+        }
+
         // GET: api/Quiz/Public
         [HttpGet("Public")]
-        public IActionResult GetAllPublicQuizzes()
+        public IActionResult GetAllPublicQuizzes([FromQuery] int? countryId = null, [FromQuery] int? userId = null, [FromQuery] string region = null)
         {
-            var quizzes = Quiz.GetAllPublicQuizzes();
+            var quizzes = Quiz.GetAllPublicQuizzes(countryId, userId, region);
             return Ok(quizzes);
         }
 

@@ -9,6 +9,7 @@ CREATE TABLE FP_Quizzes2026 (
     CreatorId INT NOT NULL,
     IsPublic BIT NOT NULL DEFAULT 0,
     Likes INT NOT NULL DEFAULT 0,
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
     CONSTRAINT FK_Quizzes_Creator FOREIGN KEY (CreatorId) REFERENCES FP_Users2026(Id)
 );
 
@@ -59,6 +60,7 @@ CREATE TABLE FP_QuizLikes2026 (
     CONSTRAINT FK_QuizLikes_Quizzes FOREIGN KEY (QuizId) REFERENCES FP_Quizzes2026(Id) ON DELETE CASCADE,
     CONSTRAINT FK_QuizLikes_Users FOREIGN KEY (UserId) REFERENCES FP_Users2026(Id) ON DELETE CASCADE
 );
+
 -- 6. Quiz Countries Table
 -- Junction table to associate quizzes with specific countries
 CREATE TABLE FP_QuizCountries2026 (
@@ -67,5 +69,13 @@ CREATE TABLE FP_QuizCountries2026 (
     PRIMARY KEY (QuizId, CountryId),
     CONSTRAINT FK_QuizCountries_Quizzes FOREIGN KEY (QuizId) REFERENCES FP_Quizzes2026(Id) ON DELETE CASCADE,
     CONSTRAINT FK_QuizCountries_Countries FOREIGN KEY (CountryId) REFERENCES FP_Countries2026(Id) ON DELETE CASCADE
+);
+
+-- 7. Quiz Regions Table
+CREATE TABLE FP_QuizRegions2026 (
+    QuizId INT NOT NULL,
+    Region NVARCHAR(100) NOT NULL,
+    PRIMARY KEY (QuizId, Region),
+    CONSTRAINT FK_QuizRegions_Quizzes FOREIGN KEY (QuizId) REFERENCES FP_Quizzes2026(Id) ON DELETE CASCADE
 );
 GO

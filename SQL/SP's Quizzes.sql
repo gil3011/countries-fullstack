@@ -137,27 +137,75 @@ GO
 
 -- 9. (Added) Get All Public Quizzes
 CREATE OR ALTER PROCEDURE FP_sp_Quizzes_GetAllPublicQuizzes
+    @CountryId INT = NULL,
+    @UserId INT = NULL,
+    @Region VARCHAR(100) = NULL
 AS
 BEGIN
     SET NOCOUNT ON;
     SELECT 
-        q.Id, q.Title, q.CreatorId, q.IsPublic, q.Likes,
-        (SELECT COUNT(*) FROM FP_Questions2026 WHERE QuizId = q.Id) AS QuestionCount
+        q.Id, q.Title, q.CreatorId, q.IsPublic, q.Likes, q.CreatedAt,
+        u.Username AS CreatorName,
+        (SELECT COUNT(*) FROM FP_Questions2026 WHERE QuizId = q.Id) AS QuestionCount,
+        (
+            STUFF((
+                SELECT ',' + CAST(qc.CountryId AS VARCHAR(10)) 
+                FROM FP_QuizCountries2026 qc 
+                WHERE qc.QuizId = q.Id
+                FOR XML PATH('')
+            ), 1, 1, '')
+        ) AS AssociatedCountryIds,
+        (
+            STUFF((
+                SELECT ',' + qr.Region
+                FROM FP_QuizRegions2026 qr 
+                WHERE qr.QuizId = q.Id
+                FOR XML PATH('')
+            ), 1, 1, '')
+        ) AS AssociatedRegions,
+        CAST(CASE WHEN @UserId IS NOT NULL AND EXISTS(SELECT 1 FROM FP_QuizLikes2026 l WHERE l.QuizId = q.Id AND l.UserId = @UserId) THEN 1 ELSE 0 END AS BIT) AS IsLikedByCurrentUser
     FROM FP_Quizzes2026 q
-    WHERE q.IsPublic = 1;
+    LEFT JOIN FP_Users2026 u ON q.CreatorId = u.Id
+    WHERE q.IsPublic = 1
+      AND (@CountryId IS NULL OR EXISTS (
+          SELECT 1 FROM FP_QuizCountries2026 qc 
+          WHERE qc.QuizId = q.Id AND qc.CountryId = @CountryId
+      ))
+      AND (@Region IS NULL OR EXISTS (
+          SELECT 1 FROM FP_QuizRegions2026 qr 
+          WHERE qr.QuizId = q.Id AND qr.Region = @Region
+      ));
 END
 GO
 
--- 10. (Added) Get Quizzes by Creator
 CREATE OR ALTER PROCEDURE FP_sp_Quizzes_GetQuizzesByUserId
     @UserId INT
 AS
 BEGIN
     SET NOCOUNT ON;
     SELECT 
-        q.Id, q.Title, q.CreatorId, q.IsPublic, q.Likes,
-        (SELECT COUNT(*) FROM FP_Questions2026 WHERE QuizId = q.Id) AS QuestionCount
+        q.Id, q.Title, q.CreatorId, q.IsPublic, q.Likes, q.CreatedAt,
+        u.Username AS CreatorName,
+        (SELECT COUNT(*) FROM FP_Questions2026 WHERE QuizId = q.Id) AS QuestionCount,
+        (
+            STUFF((
+                SELECT ',' + CAST(qc.CountryId AS VARCHAR(10)) 
+                FROM FP_QuizCountries2026 qc 
+                WHERE qc.QuizId = q.Id
+                FOR XML PATH('')
+            ), 1, 1, '')
+        ) AS AssociatedCountryIds,
+        (
+            STUFF((
+                SELECT ',' + qr.Region
+                FROM FP_QuizRegions2026 qr 
+                WHERE qr.QuizId = q.Id
+                FOR XML PATH('')
+            ), 1, 1, '')
+        ) AS AssociatedRegions,
+        CAST(CASE WHEN EXISTS(SELECT 1 FROM FP_QuizLikes2026 l WHERE l.QuizId = q.Id AND l.UserId = @UserId) THEN 1 ELSE 0 END AS BIT) AS IsLikedByCurrentUser
     FROM FP_Quizzes2026 q
+    LEFT JOIN FP_Users2026 u ON q.CreatorId = u.Id
     WHERE q.CreatorId = @UserId;
 END
 GO
@@ -598,5 +646,35 @@ AS
 BEGIN
     SET NOCOUNT ON;
     SELECT CountryId FROM FP_QuizCountries2026 WHERE QuizId = @QuizId;
+END
+GO
+CREATE OR ALTER PROCEDURE FP_sp_Quizzes_AddRegion
+    @QuizId INT,
+    @Region NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    IF NOT EXISTS (SELECT 1 FROM FP_QuizRegions2026 WHERE QuizId = @QuizId AND Region = @Region)
+    BEGIN
+        INSERT INTO FP_QuizRegions2026 (QuizId, Region)
+        VALUES (@QuizId, @Region);
+    END
+END
+GO
+
+CREATE OR ALTER PROCEDURE FP_sp_Quizzes_ClearRegions
+    @QuizId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM FP_QuizRegions2026 WHERE QuizId = @QuizId;
+END
+GO
+CREATE OR ALTER PROCEDURE FP_sp_Quizzes_GetQuizRegions
+    @QuizId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT Region FROM FP_QuizRegions2026 WHERE QuizId = @QuizId;
 END
 GO
