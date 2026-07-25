@@ -56,6 +56,12 @@ namespace Server.Controller
         {
             try
             {
+                IActionResult permissionError = CheckCanShare(share.UserId);
+                if (permissionError != null)
+                {
+                    return permissionError;
+                }
+
                 bool result = BL.Share.CreateShare(share);
                 if (result)
                 {
@@ -77,6 +83,12 @@ namespace Server.Controller
         {
             try
             {
+                IActionResult permissionError = CheckCanShare(share.UserId);
+                if (permissionError != null)
+                {
+                    return permissionError;
+                }
+
                 bool result = BL.Share.UpdateShare(share);
                 if (result)
                 {
@@ -113,6 +125,25 @@ namespace Server.Controller
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while deleting the share.");
             }
+        }
+
+        // Server-side authorization for publishing shares. A user whose sharing
+        // privilege has been revoked (IsAllowedToShare == false), or who is
+        // blocked, must not be able to create or update shares - the same rule
+        // enforced for blocked users at login. Returns null when the user may
+        // share, otherwise the error result to return to the caller.
+        private IActionResult CheckCanShare(int userId)
+        {
+            BL.User user = BL.User.GetUserById(userId);
+            if (user == null)
+            {
+                return Unauthorized(new { message = "User not found." });
+            }
+            if (user.IsBlocked || !user.IsAllowedToShare)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = "You are not allowed to share." });
+            }
+            return null;
         }
     }
 }

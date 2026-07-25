@@ -755,9 +755,33 @@ function handleUpdateShareError(error) {
 
     resetEditShareButton();
 
-    showEditShareError(
-        "Could not update the share."
-    );
+    const status = error?.status;
+
+    const serverMessage =
+        error?.responseJSON?.message;
+
+    let message;
+
+    if (status === 403) {
+        // Sharing privilege revoked or the account is blocked.
+        message =
+            serverMessage ||
+            "You are not allowed to share.";
+    } else if (status === 401) {
+        message =
+            serverMessage ||
+            "You must be logged in to update a share.";
+    } else if (status === 404) {
+        message =
+            serverMessage ||
+            "Share could not be found.";
+    } else {
+        message =
+            serverMessage ||
+            "Could not update the share.";
+    }
+
+    showEditShareError(message);
 }
 
 function deleteUserShare(shareId) {
