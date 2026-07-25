@@ -45,4 +45,43 @@ namespace Server.DTO
         public string CurrentPassword { get; set; } = string.Empty;
         public string NewPassword { get; set; } = string.Empty;
     }
+
+    public sealed class GenerateCountryQuizRequest
+    {
+        public string Cca3 { get; set; } = string.Empty;
+
+        public int QuestionCount { get; set; } = 5;
+
+        public string Difficulty { get; set; } = "Medium";
+    }
+
+    public sealed class GenerateRegionQuizRequest
+    {
+        public string Region { get; set; } = string.Empty;
+
+        public int QuestionCount { get; set; } = 5;
+
+        public string Difficulty { get; set; } = "Medium";
+    }
+
+    public sealed class GeneratedQuizDto
+    {
+        public string Title { get; set; } = string.Empty;
+
+        public List<GeneratedQuestionDto> Questions { get; set; } = new();
+    }
+
+    public sealed class GeneratedQuestionDto
+    {
+        public string Text { get; set; } = string.Empty;
+
+        // OptionA is always the correct answer.
+        public string OptionA { get; set; } = string.Empty;
+
+        public string OptionB { get; set; } = string.Empty;
+
+        public string OptionC { get; set; } = string.Empty;
+
+        public string OptionD { get; set; } = string.Empty;
+    }
 }
