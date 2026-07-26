@@ -21,15 +21,6 @@ async function loadNavbar() {
 }
 function initializeNavbar() {
     const logoutButton = document.getElementById("logout-btn");
-    const usernameElement = document.getElementById("nav-username");
-
-    const loggedInUser = JSON.parse(
-        localStorage.getItem("loggedInUser")
-    );
-
-    if (loggedInUser && usernameElement) {
-        usernameElement.textContent = loggedInUser.username;
-    }
 
     if (logoutButton) {
         logoutButton.addEventListener("click", logout);

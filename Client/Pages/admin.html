@@ -9,6 +9,19 @@
 
     <title>Admin Dashboard</title>
 
+    <script src="../JS/authGuard.js"></script>
+    <script>
+        // Admin-only page: logged-in non-admins are bounced to the dashboard.
+        (function () {
+            try {
+                var u = JSON.parse(localStorage.getItem("loggedInUser"));
+                if (u && !(u.isAdmin === true || u.isAdmin === "true")) {
+                    window.location.replace("index.html");
+                }
+            } catch (e) { /* authGuard already handles the logged-out case */ }
+        })();
+    </script>
+
     <link rel="stylesheet"
           href="../CSS/admin.css">
 
