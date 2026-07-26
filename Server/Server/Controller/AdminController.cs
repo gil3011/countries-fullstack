@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Server.BL;
 using Server.DTO;
+using Server.Middleware;
 using System.Globalization;
 
 namespace Server.Conntroller
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AdminOnly] // Every action on this controller requires an admin caller.
     public class AdminController : ControllerBase
     {
         private const string LogDirectory = "Logs";
