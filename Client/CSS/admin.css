@@ -206,30 +206,24 @@ body {
 
 .users-table {
     width: 100%;
-    min-width: 950px;
+    min-width: 1000px;
     border-collapse: collapse;
     background: rgba(255, 255, 255, 0.01);
 }
 
     .users-table th,
     .users-table td {
-        padding: 14px 16px;
+        padding: 11px 12px;
         text-align: left;
         border-bottom: 1px solid var(--border);
     }
 
     .users-table th {
-        background: rgba(255, 255, 255, 0.025);
-        font-size: 0.85rem;
-        font-weight: 800;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
+        font-size: 0.78rem;
     }
 
     .users-table td {
-        font-size: 0.95rem;
-        color: var(--text);
+        font-size: 0.88rem;
     }
 
     .users-table tbody tr {
@@ -286,19 +280,23 @@ body {
 /* Action buttons */
 
 .action-buttons {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
     align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 5px;
 }
 
 .action-btn {
-    padding: 8px 11px;
-    border-radius: 7px;
-    font-size: 0.82rem;
+    width: auto;
+    min-width: 72px;
+    min-height: 28px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 0.68rem;
     font-weight: 700;
-    cursor: pointer;
-    transition: transform 0.12s, background 0.12s, border-color 0.12s, color 0.12s;
+    line-height: 1;
+    white-space: nowrap;
 }
 
     .action-btn:hover {
@@ -378,6 +376,19 @@ body {
         border-color: rgba(245, 158, 11, 0.38);
     }
 
+.delete-btn {
+    color: #fecaca;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+    .delete-btn:hover {
+        color: #ffffff;
+        background: rgba(239, 68, 68, 0.24);
+        border-color: rgba(239, 68, 68, 0.6);
+    }
+
+
 /* Empty state */
 
 .empty-state {
@@ -405,6 +416,10 @@ body {
 @media (max-width: 1100px) {
     .stats-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .action-buttons {
+        grid-template-columns: repeat(2, minmax(130px, 1fr));
     }
 }
 
@@ -441,6 +456,12 @@ body {
 
     .admin-panel {
         padding: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .action-buttons {
+        grid-template-columns: 1fr;
     }
 }
 
