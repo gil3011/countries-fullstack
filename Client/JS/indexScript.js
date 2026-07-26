@@ -64,48 +64,39 @@ function pinIcon(color) {
 }
 
 // Load the logged-in user's visited/wishlist membership, then re-render.
+// Uses the shared helpers in userLists.js.
 function loadUserLists() {
     if (!userId) return;
-    ajaxCall("GET", `${API_ROUTES.userAPI}/${userId}/visited`, null,
-        data => { visitedIds = new Set((data || []).map(c => c.id)); update(); }, () => { });
-    ajaxCall("GET", `${API_ROUTES.userAPI}/${userId}/wishlist`, null,
-        data => { wishlistIds = new Set((data || []).map(c => c.id)); update(); }, () => { });
-}
-
-function apiCall(method, url) {
-    return new Promise((resolve, reject) => {
-        ajaxCall(method, url, null, resolve, reject);
-    });
+    fetchVisitedCountries(userId)
+        .then(data => { visitedIds = new Set((data || []).map(c => c.id)); update(); })
+        .catch(() => { });
+    fetchWishlistCountries(userId)
+        .then(data => { wishlistIds = new Set((data || []).map(c => c.id)); update(); })
+        .catch(() => { });
 }
 
 // A country can be in at most one list. Setting a target list removes it from the other.
 function setMembership(countryId, target) {
     if (!userId) return;
-    const base = `${API_ROUTES.userAPI}/${userId}`;
     const inVisited = visitedIds.has(countryId);
     const inWishlist = wishlistIds.has(countryId);
-    const ops = [];
 
-    if (target === 'visited') {
-        // moveToVisited removes from wishlist and adds to visited atomically in one call.
-        if (inWishlist) ops.push(apiCall("POST", `${base}/moveToVisited/${countryId}`));
-        else if (!inVisited) ops.push(apiCall("POST", `${base}/visited/${countryId}`));
-    } else if (target === 'wishlist') {
-        if (inVisited) ops.push(apiCall("DELETE", `${base}/visited/${countryId}`));
-        if (!inWishlist) ops.push(apiCall("POST", `${base}/wishlist/${countryId}`));
-    } else { // 'none'
-        if (inVisited) ops.push(apiCall("DELETE", `${base}/visited/${countryId}`));
-        if (inWishlist) ops.push(apiCall("DELETE", `${base}/wishlist/${countryId}`));
+    // Nothing to do if the country is already in the desired state.
+    if ((target === 'visited' && inVisited) ||
+        (target === 'wishlist' && inWishlist) ||
+        (target === 'none' && !inVisited && !inWishlist)) {
+        return;
     }
 
-    if (!ops.length) return;
-    Promise.all(ops).then(() => {
-        visitedIds.delete(countryId);
-        wishlistIds.delete(countryId);
-        if (target === 'visited') visitedIds.add(countryId);
-        else if (target === 'wishlist') wishlistIds.add(countryId);
-        update();
-    }).catch(() => alert("Could not update your lists. Please try again."));
+    persistCountryMembership(userId, countryId, target, inVisited, inWishlist)
+        .then(() => {
+            visitedIds.delete(countryId);
+            wishlistIds.delete(countryId);
+            if (target === 'visited') visitedIds.add(countryId);
+            else if (target === 'wishlist') wishlistIds.add(countryId);
+            update();
+        })
+        .catch(() => alert("Could not update your lists. Please try again."));
 }
 
 // Clicking a list button toggles that list off, or moves the country into it.
