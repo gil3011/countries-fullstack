@@ -238,6 +238,7 @@ function getServerLanguages() {
                 option.textContent = lang;
                 select.appendChild(option);
             });
+
         },
         function () { console.log("Failed to load languages from server."); }
     );
