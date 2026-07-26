@@ -76,22 +76,47 @@ $(document).ready(function () {
     // Navigation based on URL params
     const urlParams = new URLSearchParams(window.location.search);
     const target = urlParams.get('tab') || 'explore-section';
+    const countryIdFromUrl = urlParams.get('countryId');
     
     $('.tab-section').removeClass('active');
     $('#' + target).addClass('active');
+
+    //fetchCountries(() => {
+    //    if (target === 'manage-section') {
+    //        $('#section-title').text('Manage My Quizzes');
+    //        $('#btn-create-quiz').show();
+    //        fetchMyQuizzes();
+    //    } else if (target === 'attempts-section') {
+    //        $('#section-title').text('My Attempts');
+    //        $('#btn-create-quiz').hide();
+    //        fetchMyAttempts();
+    //    } else { // default explore
+    //        $('#section-title').text('Explore Quizzes');
+    //        $('#btn-create-quiz').hide();
+    //        fetchPublicQuizzes();
+    //    }
+    //});
 
     fetchCountries(() => {
         if (target === 'manage-section') {
             $('#section-title').text('Manage My Quizzes');
             $('#btn-create-quiz').show();
             fetchMyQuizzes();
+
         } else if (target === 'attempts-section') {
             $('#section-title').text('My Attempts');
             $('#btn-create-quiz').hide();
             fetchMyAttempts();
-        } else { // default explore
+
+        } else {
             $('#section-title').text('Explore Quizzes');
             $('#btn-create-quiz').hide();
+
+            if (countryIdFromUrl) {
+                $('#explore-country-filter')
+                    .val(countryIdFromUrl);
+            }
+
             fetchPublicQuizzes();
         }
     });
