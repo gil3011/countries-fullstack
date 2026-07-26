@@ -81,22 +81,6 @@ $(document).ready(function () {
     $('.tab-section').removeClass('active');
     $('#' + target).addClass('active');
 
-    //fetchCountries(() => {
-    //    if (target === 'manage-section') {
-    //        $('#section-title').text('Manage My Quizzes');
-    //        $('#btn-create-quiz').show();
-    //        fetchMyQuizzes();
-    //    } else if (target === 'attempts-section') {
-    //        $('#section-title').text('My Attempts');
-    //        $('#btn-create-quiz').hide();
-    //        fetchMyAttempts();
-    //    } else { // default explore
-    //        $('#section-title').text('Explore Quizzes');
-    //        $('#btn-create-quiz').hide();
-    //        fetchPublicQuizzes();
-    //    }
-    //});
-
     fetchCountries(() => {
         if (target === 'manage-section') {
             $('#section-title').text('Manage My Quizzes');

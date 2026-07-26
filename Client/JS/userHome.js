@@ -226,6 +226,22 @@ function getCheckedContinents() {
 }
 
 /* ===================== Preferences: languages ===================== */
+function getServerLanguages() {
+    ajaxCall("GET", `${API_ROUTES.countryAPI}/languages`, null,
+        function (data) {
+            const languagesFromServer = data || [];
+            const select = document.getElementById("lang-select");
+            select.innerHTML = "";
+            languagesFromServer.forEach(lang => {
+                const option = document.createElement("option");
+                option.value = lang;
+                option.textContent = lang;
+                select.appendChild(option);
+            });
+        },
+        function () { console.log("Failed to load languages from server."); }
+    );
+}
 function renderStagedLanguages() {
     const list = document.getElementById("languages-list");
     list.innerHTML = "";
@@ -365,6 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!userId) return;
     initMap();
     loadProfile();
+    getServerLanguages();
 
     document.getElementById("add-language-btn").addEventListener("click", addStagedLanguage);
     document.getElementById("save-prefs-btn").addEventListener("click", savePreferences);
