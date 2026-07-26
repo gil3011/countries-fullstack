@@ -51,7 +51,7 @@ function registerUser() {
     const password = $("#reg-password").val();
 
     if (!isValidName(name)) {
-        $("#register-error").text("Username must contain least 2 characters and include only English letters and numbers").show();
+        $("#register-error").text("Username must contain at least 2 characters and include only English letters and numbers").show();
         return
     }
     else if (!isValidEmail(email)) {
@@ -84,12 +84,15 @@ function registerUser() {
         preferdContinents: selectedContinents
     };
 
+    const registerBtn = $("#final-register-btn");
+    registerBtn.prop("disabled", true);
+
     ajaxCall("POST", API_ROUTES.userAPI, JSON.stringify(user),
         function (data) {
-            console.log(data);
-            window.location.href = "login.html";
+            handleRegisterSuccess(email);
         },
         function (err) {
+            registerBtn.prop("disabled", false);
             if (err.status === 409) {
                 $("#register-error").text(err.responseText).show();
                 return;
@@ -101,26 +104,56 @@ function registerUser() {
     );
 }
 
+// After a successful registration, reset the register form and move the user
+// to the sign-in form with their email pre-filled and a success message.
+function handleRegisterSuccess(email) {
+    $("#final-register-btn").prop("disabled", false);
+    $("#reg-name, #reg-email, #reg-password").val("");
+    addedLanguages = {};
+    renderLanguages();
+    $("input[name='continent']").prop("checked", false);
+    $("#register-error").hide().text("");
+
+    showLoginForm();
+
+    $("#email").val(email);
+    $("#password").val("").focus();
+    $("#login-error").hide().text("");
+    $("#login-success").text("Account created! Please sign in.").removeClass("hidden");
+}
+
+function showLoginForm() {
+    document.getElementById("register-section").classList.add("hidden");
+    document.getElementById("login-section").classList.remove("hidden");
+    currentForm = "login";
+}
+
 function authenticate() {
     const email = $("#email").val();
     const password = $("#password").val();
 
+    // Login only validates that the fields are filled in and the email is
+    // well-formed. The password policy is a *registration* rule -- enforcing
+    // it here would block valid accounts and leak the policy, so we let the
+    // server decide whether the credentials are correct.
     if (!isValidEmail(email)) {
         $("#login-error").text("Email format is incorrect!").show();
-        return
+        return;
     }
-    else if (!isValidPassword(password)) {
-        $("#login-error").text("Password must be at least 8 characters, include 1 uppercase letter and 1 number!").show();
-        return
+    if (!password) {
+        $("#login-error").text("Please enter your password.").show();
+        return;
     }
-    else {
-        $("#login-error").hide();
-    }
+    $("#login-error").hide();
+    $("#login-success").addClass("hidden");
 
     const LoginInfo = {
         email: email,
         password: password
     };
+
+    const loginBtn = $("#login-form .login-btn");
+    loginBtn.prop("disabled", true);
 
     ajaxCall("POST", API_ROUTES.userAPI + '/login', JSON.stringify(LoginInfo),
         function (user) {
@@ -128,6 +161,7 @@ function authenticate() {
             window.location.href = "index.html";
         },
         function (err) {
+            loginBtn.prop("disabled", false);
             if (err.status === 403) {
                 $("#login-error").text(err.responseText).show();
                 return;
@@ -141,6 +175,12 @@ function authenticate() {
 
 function toggleForms(event) {
     event.preventDefault();
+
+    // Clear any stale messages so they don't carry over to the other form.
+    $("#login-error").hide().text("");
+    $("#register-error").hide().text("");
+    $("#login-success").addClass("hidden").text("");
+
     const loginSection = document.getElementById('login-section');
     const registerSection = document.getElementById('register-section');
 

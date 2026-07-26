@@ -31,9 +31,6 @@ window.onShareCreated = function () {
 /* ===================== Country Details ===================== */
 
 function renderCountry(country) {
-    document.getElementById("cca3-badge").textContent =
-        country.cca3 || "";
-
     const flagElement =
         document.getElementById("country-flag");
 
@@ -110,10 +107,16 @@ function renderCountry(country) {
     document.getElementById("timezones").textContent =
         (country.timezones || []).join(", ") || "N/A";
 
-    document.getElementById("wiki-link").href =
-        country.wikipediaUrl || "#";
+    const wikiLink = document.getElementById("wiki-link");
+    const wikiCard = wikiLink.closest(".card");
+    if (country.wikipediaUrl) {
+        wikiLink.href = country.wikipediaUrl;
+        if (wikiCard) wikiCard.classList.remove("hidden");
+    } else if (wikiCard) {
+        wikiCard.classList.add("hidden");
+    }
 
-    
+
     document.getElementById("country-quizzes-link").href = 
         `user_quiz.html?tab=explore-section&countryId=${currentCountry?.id}`;
 
@@ -126,6 +129,12 @@ function renderCountry(country) {
     document
         .getElementById("content")
         .classList.remove("hidden");
+
+    // The map was built while #content was hidden (zero size); recalculate
+    // now that it's visible so the tiles lay out correctly.
+    if (countryMap) {
+        countryMap.invalidateSize();
+    }
 }
 
 function renderLanguages(languages) {
@@ -164,9 +173,15 @@ function renderLanguages(languages) {
     });
 }
 
+let countryMap = null;
+
 function renderCountryMap(latitude, longitude) {
     const mapElement =
         document.getElementById("country-map");
+
+    if (!mapElement) {
+        return;
+    }
 
     if (
         latitude == null ||
@@ -178,17 +193,24 @@ function renderCountryMap(latitude, longitude) {
 
     mapElement.style.display = "block";
 
-    const boundingBox =
-        `${longitude - 5},` +
-        `${latitude - 5},` +
-        `${longitude + 5},` +
-        `${latitude + 5}`;
+    // Same dark CartoDB tiles as the dashboard map (index.html).
+    if (!countryMap) {
+        countryMap = L.map("country-map").setView([latitude, longitude], 5);
+        L.tileLayer(
+            "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        ).addTo(countryMap);
+    } else {
+        countryMap.setView([latitude, longitude], 5);
+    }
 
-    mapElement.src =
-        "https://www.openstreetmap.org/export/embed.html" +
-        `?bbox=${boundingBox}` +
-        "&layer=mapnik" +
-        `&marker=${latitude},${longitude}`;
+    // Pure-SVG marker so no external pin image is needed.
+    L.circleMarker([latitude, longitude], {
+        radius: 7,
+        color: "#60a5fa",
+        weight: 2,
+        fillColor: "#60a5fa",
+        fillOpacity: 0.9
+    }).addTo(countryMap);
 }
 
 function renderBorderingCountries(borders) {
@@ -210,29 +232,34 @@ function renderBorderingCountries(borders) {
 
         listItem.className = "border-item";
 
-        const countryName =
+        const name = border.commonName || "Unknown";
+        const cca3 = border.cca3 || "";
+
+        const nameSpan =
             document.createElement("span");
+        nameSpan.style.fontWeight = "600";
+        nameSpan.textContent = name;
 
-        countryName.style.fontWeight = "600";
-        countryName.textContent =
-            border.commonName || "Unknown";
+        const codeSpan =
+            document.createElement("span");
+        codeSpan.className = "border-code";
+        codeSpan.textContent = cca3;
 
-        const countryLink =
-            document.createElement("a");
+        if (cca3) {
+            // Whole row is the link to that country's page.
+            const rowLink =
+                document.createElement("a");
+            rowLink.className = "border-link";
+            rowLink.href =
+                "?cca3=" + encodeURIComponent(cca3);
 
-        countryLink.href =
-            "?cca3=" +
-            encodeURIComponent(border.cca3 || "");
-
-        countryLink.style.textDecoration = "none";
-        countryLink.style.color = "var(--accent)";
-        countryLink.style.fontWeight = "700";
-
-        countryLink.textContent =
-            border.cca3 || "";
-
-        listItem.appendChild(countryName);
-        listItem.appendChild(countryLink);
+            rowLink.appendChild(nameSpan);
+            rowLink.appendChild(codeSpan);
+            listItem.appendChild(rowLink);
+        } else {
+            // No code -> nowhere to link, so render as plain text.
+            listItem.appendChild(nameSpan);
+        }
 
         bordersList.appendChild(listItem);
     });
@@ -263,11 +290,131 @@ function handleCountrySuccess(country) {
         .classList.remove("hidden");
 
     renderCountry(country);
+    setupUserFeatures();
     loadCountryShares(country.commonName);
 }
 
+// The country page is public. Logged-in users get the list buttons, quizzes
+// link, and Add Share button; guests get a single "log in for more" prompt
+// and can still read the country details and community shares.
+function setupUserFeatures() {
+    const userId = getCurrentUserId();
+
+    const quizzesCard =
+        document.getElementById("country-quizzes-link")?.closest(".card");
+    const shareBtn = document.getElementById("open-share-form-btn");
+    const guestPrompt = document.getElementById("guest-prompt");
+    const listActions = document.getElementById("list-actions");
+
+    if (!userId) {
+        listActions?.classList.add("hidden");
+        quizzesCard?.classList.add("hidden");
+        shareBtn?.classList.add("hidden");
+        guestPrompt?.classList.remove("hidden");
+        return;
+    }
+
+    guestPrompt?.classList.add("hidden");
+    quizzesCard?.classList.remove("hidden");
+    // Don't force-enable: createShare.js still governs whether this specific
+    // user is allowed to share. We only make the button visible again.
+    shareBtn?.classList.remove("hidden");
+    initCountryListActions();
+}
+
+/* ===================== Visited / Wishlist ===================== */
+
+// Membership of the current country in the logged-in user's lists.
+let listState = { inVisited: false, inWishlist: false };
+
+function getCurrentUserId() {
+    const user = getUserLoggedIn();
+    return user ? (user.id || user.Id || user.userId || null) : null;
+}
+
+// Show the Visited/Wishlist buttons for logged-in users, load current
+// membership, and wire up the toggles. Guests simply don't see the buttons.
+function initCountryListActions() {
+    const userId = getCurrentUserId();
+    if (!userId || !currentCountry) {
+        return;
+    }
+
+    const container = document.getElementById("list-actions");
+    if (container) {
+        container.classList.remove("hidden");
+    }
+
+    const visitedBtn = document.getElementById("btn-visited");
+    const wishlistBtn = document.getElementById("btn-wishlist");
+
+    visitedBtn?.addEventListener("click", () => toggleCountryList("visited"));
+    wishlistBtn?.addEventListener("click", () => toggleCountryList("wishlist"));
+
+    // Show default labels right away; membership fills in when it loads.
+    renderListButtons();
+
+    Promise.all([
+        fetchVisitedCountries(userId),
+        fetchWishlistCountries(userId)
+    ]).then(([visited, wishlist]) => {
+        const id = currentCountry.id;
+        listState.inVisited = (visited || []).some(c => c.id === id);
+        listState.inWishlist = (wishlist || []).some(c => c.id === id);
+        renderListButtons();
+    }).catch(() => {
+        // Membership unknown -- still show the buttons in their default state.
+        renderListButtons();
+    });
+}
+
+function renderListButtons() {
+    const visitedBtn = document.getElementById("btn-visited");
+    const wishlistBtn = document.getElementById("btn-wishlist");
+
+    if (visitedBtn) {
+        visitedBtn.textContent =
+            listState.inVisited ? "✓ Visited" : "+ Mark as Visited";
+        visitedBtn.classList.toggle("active-visited", listState.inVisited);
+    }
+
+    if (wishlistBtn) {
+        wishlistBtn.textContent =
+            listState.inWishlist ? "★ In Wishlist" : "+ Add to Wishlist";
+        wishlistBtn.classList.toggle("active-wishlist", listState.inWishlist);
+    }
+}
+
+// Clicking an active list removes the country from it; otherwise it moves the
+// country into that list (which clears the other -- a country is in one list).
+function toggleCountryList(target) {
+    const userId = getCurrentUserId();
+    if (!userId || !currentCountry) {
+        return;
+    }
+
+    const id = currentCountry.id;
+    const desired = target === "visited"
+        ? (listState.inVisited ? "none" : "visited")
+        : (listState.inWishlist ? "none" : "wishlist");
+
+    persistCountryMembership(
+        userId, id, desired, listState.inVisited, listState.inWishlist
+    ).then(() => {
+        listState.inVisited = desired === "visited";
+        listState.inWishlist = desired === "wishlist";
+        renderListButtons();
+    }).catch(() => {
+        alert("Could not update your lists. Please try again.");
+    });
+}
+
 function handleCountryError(error) {
-    showError("Internal database error.");
+    if (error?.status === 404) {
+        showError("We couldn't find a country with that code.");
+    } else {
+        showError("Something went wrong loading this country. Please try again later.");
+    }
 
     console.error(
         "Failed to load country:",

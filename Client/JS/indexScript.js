@@ -12,6 +12,7 @@ let filteredCountries = [];
 let currentPage = 1;
 const PAGE_SIZE = 24;
 let activeListFilter = ''; // '', 'visited', or 'wishlist' (logged-in only)
+let sortAsc = true;         // sort direction; defaults per field via onSortFieldChange
 
 function initMap() {
     map = L.map('map').setView([20, 0], 2);
@@ -20,6 +21,17 @@ function initMap() {
 
 function cssVar(name, fallback) {
     return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
+}
+
+// Escape text before injecting into innerHTML so a name with <, >, & or quotes
+// can't break the markup (defensive -- country data is admin-controlled).
+function escapeHtml(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 function showLoading(isLoading) {
@@ -52,48 +64,39 @@ function pinIcon(color) {
 }
 
 // Load the logged-in user's visited/wishlist membership, then re-render.
+// Uses the shared helpers in userLists.js.
 function loadUserLists() {
     if (!userId) return;
-    ajaxCall("GET", `${API_ROUTES.userAPI}/${userId}/visited`, null,
-        data => { visitedIds = new Set((data || []).map(c => c.id)); update(); }, () => { });
-    ajaxCall("GET", `${API_ROUTES.userAPI}/${userId}/wishlist`, null,
-        data => { wishlistIds = new Set((data || []).map(c => c.id)); update(); }, () => { });
-}
-
-function apiCall(method, url) {
-    return new Promise((resolve, reject) => {
-        ajaxCall(method, url, null, resolve, reject);
-    });
+    fetchVisitedCountries(userId)
+        .then(data => { visitedIds = new Set((data || []).map(c => c.id)); update(); })
+        .catch(() => { });
+    fetchWishlistCountries(userId)
+        .then(data => { wishlistIds = new Set((data || []).map(c => c.id)); update(); })
+        .catch(() => { });
 }
 
 // A country can be in at most one list. Setting a target list removes it from the other.
 function setMembership(countryId, target) {
     if (!userId) return;
-    const base = `${API_ROUTES.userAPI}/${userId}`;
     const inVisited = visitedIds.has(countryId);
     const inWishlist = wishlistIds.has(countryId);
-    const ops = [];
 
-    if (target === 'visited') {
-        // moveToVisited removes from wishlist and adds to visited atomically in one call.
-        if (inWishlist) ops.push(apiCall("POST", `${base}/moveToVisited/${countryId}`));
-        else if (!inVisited) ops.push(apiCall("POST", `${base}/visited/${countryId}`));
-    } else if (target === 'wishlist') {
-        if (inVisited) ops.push(apiCall("DELETE", `${base}/visited/${countryId}`));
-        if (!inWishlist) ops.push(apiCall("POST", `${base}/wishlist/${countryId}`));
-    } else { // 'none'
-        if (inVisited) ops.push(apiCall("DELETE", `${base}/visited/${countryId}`));
-        if (inWishlist) ops.push(apiCall("DELETE", `${base}/wishlist/${countryId}`));
+    // Nothing to do if the country is already in the desired state.
+    if ((target === 'visited' && inVisited) ||
+        (target === 'wishlist' && inWishlist) ||
+        (target === 'none' && !inVisited && !inWishlist)) {
+        return;
     }
 
-    if (!ops.length) return;
-    Promise.all(ops).then(() => {
-        visitedIds.delete(countryId);
-        wishlistIds.delete(countryId);
-        if (target === 'visited') visitedIds.add(countryId);
-        else if (target === 'wishlist') wishlistIds.add(countryId);
-        update();
-    }).catch(() => alert("Could not update your lists. Please try again."));
+    persistCountryMembership(userId, countryId, target, inVisited, inWishlist)
+        .then(() => {
+            visitedIds.delete(countryId);
+            wishlistIds.delete(countryId);
+            if (target === 'visited') visitedIds.add(countryId);
+            else if (target === 'wishlist') wishlistIds.add(countryId);
+            update();
+        })
+        .catch(() => alert("Could not update your lists. Please try again."));
 }
 
 // Clicking a list button toggles that list off, or moves the country into it.
@@ -159,16 +162,19 @@ function computeFiltered() {
         return true;
     });
 
+    const dir = sortAsc ? 1 : -1;
     filtered.sort((a, b) => {
+        let cmp;
         if (order === 'name') {
             const nameA = a.commonName || a.CommonName || "";
             const nameB = b.commonName || b.CommonName || "";
-            return nameA.localeCompare(nameB);
+            cmp = nameA.localeCompare(nameB);
+        } else {
+            const valA = order === 'pop' ? (a.population || a.Population || 0) : (a.areaKm2 || a.AreaKm2 || 0);
+            const valB = order === 'pop' ? (b.population || b.Population || 0) : (b.areaKm2 || b.AreaKm2 || 0);
+            cmp = valA - valB;
         }
-
-        const valA = order === 'pop' ? (a.population || a.Population || 0) : (a.areaKm2 || a.AreaKm2 || 0);
-        const valB = order === 'pop' ? (b.population || b.Population || 0) : (b.areaKm2 || b.AreaKm2 || 0);
-        return valB - valA;
+        return cmp * dir;
     });
 
     return filtered;
@@ -195,17 +201,24 @@ function update() {
 
 function renderCards() {
     const grid = document.getElementById('grid');
-    grid.innerHTML = '';
 
     const start = (currentPage - 1) * PAGE_SIZE;
     const pageItems = filteredCountries.slice(start, start + PAGE_SIZE);
 
-    pageItems.forEach(c => {
+    if (!pageItems.length) {
+        grid.innerHTML = `<p class="no-results">No countries match your filters.</p>`;
+        renderPagination();
+        return;
+    }
+
+    // Build the whole page of cards once, then assign innerHTML a single time
+    // (assigning inside the loop forces a reflow per card).
+    grid.innerHTML = pageItems.map(c => {
         const id = c.id;
-        const name = c.commonName || 'Unknown';
-        const code = c.cca3 || '—';
+        const name = escapeHtml(c.commonName || 'Unknown');
+        const code = escapeHtml(c.cca3 || '—');
         const cca3 = c.cca3 || '';
-        const capital = (c.capitals && c.capitals[0]?.name) || 'None';
+        const capital = escapeHtml((c.capitals && c.capitals[0]?.name) || 'None');
         const pop = c.population || 0;
         const area = c.areaKm2 || 0;
         const flag = c.flagUrl || '';
@@ -218,7 +231,10 @@ function renderCards() {
         <button onclick="event.stopPropagation(); toggleWishlist(${id})" title="${wishlistIds.has(id) ? 'Remove from wishlist' : 'Add to wishlist'}" class="card-action-btn ${wishlistIds.has(id) ? 'active-wishlist' : ''}">${wishlistIds.has(id) ? '★ Wishlist' : '+ Wishlist'}</button>
     </div>` : '';
 
-        grid.innerHTML += `
+        const detailsLink = cca3 ? `
+    <a href="country.html?cca3=${encodeURIComponent(cca3)}" class="card-details-link" onclick="event.stopPropagation()">View details →</a>` : '';
+
+        return `
 <div class="country-card" onclick="focusCountry(${id}, ${lat}, ${lng}, '${cca3}')" title="Show on map">
     <div>
         <img src="${flag}" class="flag-img" alt="${name} flag">
@@ -227,14 +243,11 @@ function renderCards() {
             <p>Population: ${pop.toLocaleString()}</p>
             <p>Area: ${area.toLocaleString()} km²</p>
     </div>
+    ${detailsLink}
     ${userActions}
 </div>
 `;
-    });
-
-    if (!pageItems.length) {
-        grid.innerHTML = `<p class="no-results">No countries match your filters.</p>`;
-    }
+    }).join('');
 
     renderPagination();
 }
@@ -308,11 +321,48 @@ function onFilterChange() {
     update();
 }
 
-document.getElementById('search').addEventListener('input', onFilterChange);
+// Debounce the text inputs so typing doesn't trigger a full grid + map redraw
+// on every keystroke. Dropdowns fire once, so they call onFilterChange directly.
+function debounce(fn, wait) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), wait);
+    };
+}
+const debouncedFilterChange = debounce(onFilterChange, 200);
+
+// Reflect the current direction on the toggle button.
+function updateSortDirButton() {
+    const btn = document.getElementById('sort-dir');
+    if (!btn) return;
+    btn.textContent = sortAsc ? '↑' : '↓';
+    btn.title = sortAsc ? 'Ascending (click for descending)' : 'Descending (click for ascending)';
+    btn.setAttribute('aria-label', btn.title);
+}
+
+// Changing the field picks a sensible default direction: names A→Z,
+// population/area largest-first. The toggle can still flip it.
+function onSortFieldChange() {
+    sortAsc = document.getElementById('sort').value === 'name';
+    updateSortDirButton();
+    onFilterChange();
+}
+
+document.getElementById('search').addEventListener('input', debouncedFilterChange);
 document.getElementById('region').addEventListener('change', onFilterChange);
-document.getElementById('language-filter').addEventListener('input', onFilterChange);
-document.getElementById('currency-filter').addEventListener('input', onFilterChange);
-document.getElementById('sort').addEventListener('change', onFilterChange);
+document.getElementById('language-filter').addEventListener('input', debouncedFilterChange);
+document.getElementById('currency-filter').addEventListener('input', debouncedFilterChange);
+document.getElementById('sort').addEventListener('change', onSortFieldChange);
+
+const sortDirBtn = document.getElementById('sort-dir');
+if (sortDirBtn) {
+    sortDirBtn.addEventListener('click', () => {
+        sortAsc = !sortAsc;
+        updateSortDirButton();
+        onFilterChange();
+    });
+}
 
 const listFilterEl = document.getElementById('list-filter');
 if (listFilterEl) {
@@ -328,6 +378,8 @@ document.getElementById('reset').addEventListener('click', () => {
     document.getElementById('language-filter').value = '';
     document.getElementById('currency-filter').value = '';
     document.getElementById('sort').value = 'name';
+    sortAsc = true;
+    updateSortDirButton();
     if (listFilterEl) listFilterEl.value = '';
     activeListFilter = '';
     currentPage = 1;
@@ -336,7 +388,6 @@ document.getElementById('reset').addEventListener('click', () => {
 });
 
 function handleSuccess(data) {
-    console.log("Data received from server:", data);
     countries = data;
     cacheCountries(data);
     populateFilterOptions();
