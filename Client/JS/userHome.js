@@ -1,10 +1,8 @@
 /* ===================== My Profile page ===================== */
 
-// --- Auth guard ---
+// authGuard.js (loaded in the page head) already redirects guests to login,
+// so we only need to read the current user here.
 const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-if (!loggedInUser || !loggedInUser.id) {
-    window.location.href = "login.html";
-}
 const userId = loggedInUser ? loggedInUser.id : null;
 
 // --- State ---
@@ -18,13 +16,22 @@ let originalContinents = [];   // string[]
 let originalLanguages = {};    // { language: level }
 let stagedLanguages = {};      // { language: level } (edited locally)
 
-const LEVELS = ["Beginner", "Intermediate", "Advanced"];
-
 // --- Promise wrapper around the project's global ajaxCall ---
 function apiRequest(method, url, data) {
     return new Promise((resolve, reject) => {
         ajaxCall(method, url, data ? JSON.stringify(data) : null, resolve, reject);
     });
+}
+
+// Escape text before injecting into innerHTML (quiz attempt cards use template
+// strings). Mirrors the helper on the dashboard.
+function escapeHtml(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
 // --- Status helper ---
