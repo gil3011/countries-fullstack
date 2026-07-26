@@ -1,3 +1,30 @@
+// --- Admin guard ---
+// Redirect anyone who is not a logged-in admin away from this page.
+// NOTE: this is a UX guard only. It does NOT secure the admin API, which
+// must be enforced on the server (see AdminController.cs).
+(function guardAdminPage() {
+    let user = null;
+    try {
+        user = JSON.parse(localStorage.getItem("loggedInUser"));
+    } catch (e) {
+        user = null;
+    }
+
+    const admin = user && (user.isAdmin === true || user.isAdmin === "true");
+
+    if (!admin) {
+        window.location.href = "login.html";
+        return;
+    }
+
+    // Send the admin's id on every request made from this page, so the server
+    // can authorize the admin-only endpoints (see AdminOnlyAttribute.cs). This
+    // is scoped to the admin page and leaves the shared ajaxCall helper alone.
+    $.ajaxSetup({
+        headers: { "X-User-Id": String(user.id) }
+    });
+})();
+
 let allUsers = [];
 let allLoginCounts = {};
 let currentLog = { date: "", lines: [] };
