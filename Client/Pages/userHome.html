@@ -179,9 +179,46 @@
                  class="uh-shares-list">
             </div>
         </section>
+
+        <!-- ===================== My Quiz Attempts ===================== -->
+        <section class="uh-panel uh-attempts-panel">
+            <div class="uh-panel-head">
+                <div>
+                    <h2>My Quiz Attempts</h2>
+                    <p class="uh-panel-subtitle">
+                        View your latest quiz results.
+                    </p>
+                </div>
+
+                <a href="../Pages/user_quiz.html"
+                   class="uh-btn uh-btn-primary">
+                    Quiz Center
+                </a>
+            </div>
+
+            <div id="my-attempts-loading"
+                 class="uh-shares-state">
+                Loading your quiz attempts...
+            </div>
+
+            <div id="my-attempts-empty"
+                 class="uh-shares-state hidden">
+                You have not completed any quizzes yet.
+            </div>
+
+            <div id="my-attempts-error"
+                 class="uh-error hidden">
+                Could not load your quiz attempts.
+            </div>
+
+            <div id="my-attempts-list"
+                 class="uh-attempts-list">
+            </div>
+        </section>
     </div>
 
-   
+    
+
 
     <!--edit share-->
     <div id="edit-share-modal"
