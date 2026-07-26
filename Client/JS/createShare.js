@@ -1,4 +1,44 @@
-﻿
+﻿function updateShareButtonPermission() {
+    const shareButton = document.getElementById("open-share-form-btn");
+
+    if (!shareButton) {
+        return;
+    }
+
+    const loggedInUser = getUserLoggedIn();
+
+    if (!loggedInUser) {
+        disableShareButton(
+            shareButton,
+            "You must be logged in to add a share"
+        );
+
+        return;
+    }
+
+    const isAllowedToShare =
+        loggedInUser.isAllowedToShare === true ||
+        loggedInUser.isAllowedToShare === 1;
+
+    shareButton.disabled = !isAllowedToShare;
+
+    if (isAllowedToShare) {
+        shareButton.title = "";
+        shareButton.textContent = "Add Share";
+    } else {
+        disableShareButton(
+            shareButton,
+            "Your sharing permission has been disabled"
+        );
+    }
+}
+
+function disableShareButton(button, message) {
+    button.disabled = true;
+    button.title = message;
+    button.textContent = "Sharing is disabled";
+}
+
 function getCreateShareElements() {
     return {
         modal: document.getElementById("share-modal"),
@@ -461,6 +501,7 @@ window.initializeCreateShare =
     initializeCreateShare;
 
 $(document).ready(function () {
+    updateShareButtonPermission();
     createShareModalHtml();
     initializeCreateShare();
 });
