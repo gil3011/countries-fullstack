@@ -223,34 +223,47 @@ body {
 }
 
 /* Forms / fields */
-.uh-field { margin-bottom: 16px; }
+.uh-field {
+    margin-bottom: 16px;
+}
 
 .uh-label {
     display: block;
-    font-size: 0.9rem;
-    color: var(--muted);
-    font-weight: 600;
     margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 600;
 }
 
 .uh-form input[type="password"],
 .uh-lang-control select {
-    background: transparent;
-    color: var(--text);
-    border: 1px solid var(--border);
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 1rem;
-    outline: none;
     width: 100%;
-    transition: border-color .12s, box-shadow .12s;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    background-color: #0a1321;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: border-color 0.12s, box-shadow 0.12s;
+    color-scheme: dark;
 }
 
-.uh-form input[type="password"]:focus,
-.uh-lang-control select:focus {
-    border-color: rgba(96, 165, 250, 0.45);
-    box-shadow: 0 4px 12px rgba(96, 165, 250, 0.08);
+.uh-lang-control select {
+    cursor: pointer;
 }
+
+    .uh-lang-control select option {
+        background-color: #0f1724;
+        color: var(--text);
+    }
+
+    .uh-form input[type="password"]:focus,
+    .uh-lang-control select:focus {
+        border-color: rgba(96, 165, 250, 0.65);
+        box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12);
+    }
 
 /* Continents grid */
 .uh-continents {

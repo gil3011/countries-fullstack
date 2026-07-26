@@ -226,6 +226,23 @@ function getCheckedContinents() {
 }
 
 /* ===================== Preferences: languages ===================== */
+function getServerLanguages() {
+    ajaxCall("GET", `${API_ROUTES.countryAPI}/languages`, null,
+        function (data) {
+            const languagesFromServer = data || [];
+            const select = document.getElementById("lang-select");
+            select.innerHTML = "";
+            languagesFromServer.forEach(lang => {
+                const option = document.createElement("option");
+                option.value = lang;
+                option.textContent = lang;
+                select.appendChild(option);
+            });
+
+        },
+        function () { console.log("Failed to load languages from server."); }
+    );
+}
 function renderStagedLanguages() {
     const list = document.getElementById("languages-list");
     list.innerHTML = "";
@@ -365,6 +382,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!userId) return;
     initMap();
     loadProfile();
+    getServerLanguages();
 
     document.getElementById("add-language-btn").addEventListener("click", addStagedLanguage);
     document.getElementById("save-prefs-btn").addEventListener("click", savePreferences);
@@ -382,6 +400,7 @@ const UserShareType = Object.freeze({
 $(document).ready(function () {
     bindMySharesEvents();
     loadMyShares();
+    loadUserQuizAttempts();
 });
 
 function bindMySharesEvents() {
@@ -998,3 +1017,127 @@ function setProfileStatus(message, type) {
 window.onShareCreated = function () {
     loadMyShares();
 };
+
+// Quizzez
+function loadUserQuizAttempts() {
+    const loggedInUserJson =
+        localStorage.getItem("loggedInUser") ||
+        sessionStorage.getItem("loggedInUser");
+
+    const loadingElement = $("#my-attempts-loading");
+    const emptyElement = $("#my-attempts-empty");
+    const errorElement = $("#my-attempts-error");
+    const attemptsList = $("#my-attempts-list");
+
+    loadingElement.removeClass("hidden");
+    emptyElement.addClass("hidden");
+    errorElement.addClass("hidden");
+    attemptsList.empty();
+
+    if (!loggedInUserJson) {
+        loadingElement.addClass("hidden");
+        errorElement
+            .text("No logged-in user was found.")
+            .removeClass("hidden");
+
+        return;
+    }
+
+    let loggedInUser;
+
+    try {
+        loggedInUser = JSON.parse(loggedInUserJson);
+    } catch (error) {
+        console.error("Invalid logged-in user data:", error);
+
+        loadingElement.addClass("hidden");
+        errorElement
+            .text("Could not read the logged-in user.")
+            .removeClass("hidden");
+
+        return;
+    }
+
+    const userId = loggedInUser.id;
+
+    if (!userId) {
+        loadingElement.addClass("hidden");
+        errorElement
+            .text("User ID was not found.")
+            .removeClass("hidden");
+
+        return;
+    }
+
+    ajaxCall(
+        "GET",
+        `${API_ROUTES.quizAttemptAPI}/User/${userId}`,
+        "",
+        renderUserQuizAttempts,
+        function (error) {
+            console.error("Failed to load quiz attempts:", error);
+
+            loadingElement.addClass("hidden");
+            errorElement
+                .text("Could not load your quiz attempts.")
+                .removeClass("hidden");
+        }
+    );
+}
+
+function renderUserQuizAttempts(attempts) {
+    const loadingElement = $("#my-attempts-loading");
+    const emptyElement = $("#my-attempts-empty");
+    const errorElement = $("#my-attempts-error");
+    const attemptsList = $("#my-attempts-list");
+
+    loadingElement.addClass("hidden");
+    errorElement.addClass("hidden");
+    attemptsList.empty();
+
+    if (!attempts || attempts.length === 0) {
+        emptyElement.removeClass("hidden");
+        return;
+    }
+
+    emptyElement.addClass("hidden");
+
+    const sortedAttempts = [...attempts]
+        .sort((a, b) => new Date(b.dateTaken) - new Date(a.dateTaken))
+        .slice(0, 5);
+
+    sortedAttempts.forEach(attempt => {
+        const quizTitle =
+            attempt.quizTitle || `Quiz ${attempt.quizId}`;
+
+        const formattedDate = attempt.dateTaken
+            ? new Date(attempt.dateTaken).toLocaleString([], {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            })
+            : "Unknown date";
+
+        const score = attempt.score ?? 0;
+
+        attemptsList.append(`
+            <article class="uh-attempt-card">
+                <div class="uh-attempt-details">
+                    <h3 class="uh-attempt-title">
+                        ${escapeHtml(quizTitle)}
+                    </h3>
+
+                    <span class="uh-attempt-date">
+                        ${formattedDate}
+                    </span>
+                </div>
+
+                <div class="uh-attempt-score">
+                    ${score}%
+                </div>
+            </article>
+        `);
+    });
+}

@@ -113,6 +113,10 @@ function renderCountry(country) {
     document.getElementById("wiki-link").href =
         country.wikipediaUrl || "#";
 
+    
+    document.getElementById("country-quizzes-link").href = 
+        `user_quiz.html?tab=explore-section&countryId=${currentCountry?.id}`;
+
     renderBorderingCountries(country.borders || []);
 
     document
