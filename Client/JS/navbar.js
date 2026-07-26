@@ -137,7 +137,8 @@ function getUserLoggedIn() {
 }
 
 function isAdmin() {
-    return getUserLoggedIn()?.isAdmin === "true";
+    const user = getUserLoggedIn();
+    return user.isAdmin == true;
 }
 
 function logout() {
