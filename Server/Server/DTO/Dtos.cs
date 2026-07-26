@@ -84,4 +84,45 @@ namespace Server.DTO
 
         public string OptionD { get; set; } = string.Empty;
     }
+
+    // Client asks for a personalised country recommendation for a given user.
+    public sealed class CountryRecommendationRequest
+    {
+        public int UserId { get; set; }
+
+        // How many ranked recommendations to return.
+        public int Count { get; set; } = 3;
+    }
+
+    // A single recommended country returned to the client. Country facts are
+    // re-hydrated on the server; Reason/Rank come from Gemini.
+    public sealed class CountryRecommendationDto
+    {
+        public int Id { get; set; }
+
+        public string Cca3 { get; set; } = string.Empty;
+
+        public string CommonName { get; set; } = string.Empty;
+
+        public string Region { get; set; } = string.Empty;
+
+        public string FlagUrl { get; set; } = string.Empty;
+
+        // One-sentence, user-specific explanation written by Gemini.
+        public string Reason { get; set; } = string.Empty;
+
+        // 1 = best match.
+        public int Rank { get; set; }
+    }
+
+    // Raw shape Gemini returns for each pick; validated against the shortlist
+    // before being turned into a CountryRecommendationDto.
+    public sealed class GeminiRecommendationDto
+    {
+        public string Cca3 { get; set; } = string.Empty;
+
+        public string Reason { get; set; } = string.Empty;
+
+        public int Rank { get; set; }
+    }
 }

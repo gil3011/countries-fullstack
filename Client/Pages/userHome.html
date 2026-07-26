@@ -54,6 +54,30 @@
             </div>
         </section>
 
+        <!-- ===================== AI Recommendations ===================== -->
+        <section class="uh-panel">
+            <div class="uh-panel-head">
+                <div>
+                    <h2>Recommended For You</h2>
+                    <p class="uh-panel-subtitle">
+                        Suggestions based on your continents, languages and wishlist.
+                    </p>
+                </div>
+                <button type="button" id="get-reco-btn" class="uh-btn uh-btn-primary">
+                    Get recommendations
+                </button>
+            </div>
+
+            <div id="reco-loading" class="uh-shares-state hidden">
+                Finding countries for you...
+            </div>
+            <div id="reco-error" class="uh-error hidden"></div>
+            <div id="reco-empty" class="uh-shares-state hidden">
+                Click "Get recommendations" to see countries picked for you.
+            </div>
+            <div id="reco-list" class="uh-reco-list"></div>
+        </section>
+
         <div class="uh-two-col">
 
             <!-- ===================== Preferences ===================== -->
