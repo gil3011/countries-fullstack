@@ -442,6 +442,7 @@ function getUserActionButtons(user) {
         ? "Demote from Admin"
         : "Promote to Admin";
 
+
     return `
         <div class="action-buttons">
 
@@ -464,6 +465,13 @@ function getUserActionButtons(user) {
                 class="action-btn admin-btn"
                 data-user-id="${user.id}">
                 ${adminButtonText}
+            </button>
+
+            <button
+                type="button"
+                class="action-btn delete-btn"
+                data-user-id="${user.id}">
+                Delete User
             </button>
 
         </div>
@@ -489,6 +497,12 @@ $(document).on("click", ".admin-btn", function () {
     const userId = Number($(this).data("user-id"));
 
     changeUserAdminRole(userId);
+});
+
+$(document).on("click", ".delete-btn", function () {
+    const userId = Number($(this).data("user-id"));
+
+    deleteUser(userId);
 });
 
 /* =========================
@@ -604,6 +618,40 @@ function changeUserAdminRole(userId) {
         function () {
             user.isAdmin = !user.isAdmin;
             renderUsers(allUsers);
+        },
+        requestFailed
+    );
+}
+
+function deleteUser(userId) {
+    const user = allUsers.find(function (item) {
+        return item.id === userId;
+    });
+
+    if (!user) {
+        console.error("User was not found:", userId);
+        return;
+    }
+
+    const confirmed = confirm(
+        `Are you sure you want to permanently delete ${user.username}?`
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    ajaxCall(
+        "DELETE",
+        `${API_ROUTES.userAPI}/${userId}`,
+        null,
+        function () {
+            allUsers = allUsers.filter(function (item) {
+                return item.id !== userId;
+            });
+
+            renderUsers(allUsers);
+            alert(`${user.username} was deleted successfully.`);
         },
         requestFailed
     );
