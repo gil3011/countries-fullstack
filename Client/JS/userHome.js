@@ -334,6 +334,95 @@ function savePreferences() {
         .finally(() => { btn.disabled = false; });
 }
 
+/* ===================== AI Recommendations ===================== */
+function getRecommendations() {
+    const btn = document.getElementById("get-reco-btn");
+    const loading = document.getElementById("reco-loading");
+    const errEl = document.getElementById("reco-error");
+    const emptyEl = document.getElementById("reco-empty");
+    const list = document.getElementById("reco-list");
+
+    errEl.classList.add("hidden");
+    emptyEl.classList.add("hidden");
+    list.innerHTML = "";
+    loading.classList.remove("hidden");
+    btn.disabled = true;
+
+    apiRequest("POST", `${API_ROUTES.geminiAPI}/recommend`, { userId: userId, count: 3 })
+        .then(res => {
+            const recos = (res && res.data) || [];
+            if (!recos.length) {
+                emptyEl.textContent = "No recommendations available. Try adding some preferences first.";
+                emptyEl.classList.remove("hidden");
+                return;
+            }
+            renderRecommendations(recos);
+        })
+        .catch(xhr => {
+            const serverError = xhr?.responseJSON?.error;
+            errEl.textContent = serverError || "Could not get recommendations. Please try again.";
+            errEl.classList.remove("hidden");
+        })
+        .finally(() => {
+            loading.classList.add("hidden");
+            btn.disabled = false;
+        });
+}
+
+function renderRecommendations(recos) {
+    const list = document.getElementById("reco-list");
+    list.innerHTML = "";
+
+    recos.forEach(r => {
+        const card = document.createElement("article");
+        card.className = "uh-reco-card";
+
+        const flag = r.flagUrl ? `<img src="${r.flagUrl}" alt="${r.commonName || ""} flag">` : "";
+        const name = r.commonName || "Unknown";
+        const region = r.region || "";
+
+        card.innerHTML = `
+            <div class="uh-reco-head">
+                <span class="uh-reco-rank">#${r.rank}</span>
+                ${flag}
+                <div class="uh-reco-title">
+                    <b>${name}</b>
+                    <span class="uh-reco-region">${region}</span>
+                </div>
+            </div>
+            <p class="uh-reco-reason"></p>
+            <div class="uh-row-actions">
+                <button type="button" class="uh-btn uh-btn-small uh-reco-view">View country</button>
+                <button type="button" class="uh-btn uh-btn-success uh-btn-small uh-reco-wishlist">+ Wishlist</button>
+            </div>
+        `;
+
+        card.querySelector(".uh-reco-reason").textContent = r.reason || "";
+        card.querySelector(".uh-reco-view").addEventListener("click", () => goToCountry(r.cca3));
+
+        const wishBtn = card.querySelector(".uh-reco-wishlist");
+        wishBtn.addEventListener("click", () => addRecoToWishlist(r.id, wishBtn));
+
+        list.appendChild(card);
+    });
+}
+
+function addRecoToWishlist(countryId, btn) {
+    if (!countryId) return;
+    btn.disabled = true;
+    apiRequest("POST", `${API_ROUTES.userAPI}/${userId}/wishlist/${countryId}`, null)
+        .then(() => {
+            setStatus("Added to wishlist.");
+            btn.textContent = "★ Wishlisted";
+            // Refresh the map and country lists so the new wishlist entry shows up.
+            return loadCountries();
+        })
+        .catch(() => {
+            setStatus("Could not add to wishlist.", true);
+            btn.disabled = false;
+        });
+}
+
 /* ===================== Change password ===================== */
 function isValidPassword(pw) {
     return /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(pw);
@@ -387,6 +476,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("add-language-btn").addEventListener("click", addStagedLanguage);
     document.getElementById("save-prefs-btn").addEventListener("click", savePreferences);
     document.getElementById("password-form").addEventListener("submit", changePassword);
+    document.getElementById("get-reco-btn").addEventListener("click", getRecommendations);
+    document.getElementById("reco-empty").classList.remove("hidden");
 });
 
 let currentUserShares = [];

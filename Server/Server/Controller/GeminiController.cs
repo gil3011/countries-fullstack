@@ -107,4 +107,46 @@ public class GeminiController : ControllerBase
             });
         }
     }
+
+    [HttpPost("recommend")]
+    public async Task<IActionResult> RecommendCountries([FromBody] Server.DTO.CountryRecommendationRequest request)
+    {
+        try
+        {
+            if (request == null || request.UserId <= 0)
+            {
+                return BadRequest(new { success = false, error = "A valid userId is required." });
+            }
+
+            // Gather everything the recommender needs. Filtering/scoring happen
+            // in C# (see GeminiService.BuildShortlist); Gemini only ranks.
+            var allCountries = Server.BL.Country.Read();
+            var visited = Server.BL.User.getVisited(request.UserId);
+            var wishlist = Server.BL.User.getWishlist(request.UserId);
+            var continents = Server.BL.User.GetContinentPrefernces(request.UserId);
+            var languages = Server.BL.User.GetUserLanguages(request.UserId);
+
+            var recommendations = await _geminiService.GetRecommendationsAsync(
+                allCountries: allCountries,
+                visited: visited,
+                wishlist: wishlist,
+                preferredContinents: continents,
+                languages: languages,
+                count: request.Count);
+
+            return Ok(new
+            {
+                success = true,
+                data = recommendations
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                success = false,
+                error = ex.Message
+            });
+        }
+    }
 }
