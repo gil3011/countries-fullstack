@@ -1203,7 +1203,6 @@ function renderMyQuizAttempts(attempts) {
     }
 
     attempts.forEach(attempt => {
-        console.log("Attempt:", attempt);
         const attemptDate = new Date(attempt.dateTaken);
 
         const formattedDate = attemptDate.toLocaleDateString("en-GB");
