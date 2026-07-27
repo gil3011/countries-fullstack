@@ -20,9 +20,14 @@ function fetchCountries(onLoaded) {
             // Keep the first option ("All Countries") for exploreSelect and clear the rest
             exploreSelect.find('option:not(:first)').remove();
             
+            const aiGenSelect = $('#ai-gen-country');
+            aiGenSelect.empty();
+            aiGenSelect.append(new Option("Select a country...", ""));
+
             allCountries.forEach(c => {
                 select.append(new Option(c.commonName, c.id));
                 exploreSelect.append(new Option(c.commonName, c.id));
+                aiGenSelect.append(new Option(c.commonName, c.cca3));
             });
 
             if (onLoaded) onLoaded();
@@ -85,16 +90,19 @@ $(document).ready(function () {
         if (target === 'manage-section') {
             $('#section-title').text('Manage My Quizzes');
             $('#btn-create-quiz').show();
+            $('#btn-generate-ai').show();
             fetchMyQuizzes();
 
         } else if (target === 'attempts-section') {
             $('#section-title').text('My Attempts');
             $('#btn-create-quiz').hide();
+            $('#btn-generate-ai').hide();
             fetchMyAttempts();
 
         } else {
             $('#section-title').text('Explore Quizzes');
             $('#btn-create-quiz').hide();
+            $('#btn-generate-ai').hide();
 
             if (countryIdFromUrl) {
                 $('#explore-country-filter')
@@ -362,8 +370,8 @@ function renderQuestionsList() {
                 <li>
                     <span>${q.text}</span>
                     <div>
-                        <button class="btn btn-secondary btn-sm" style="padding: 0.3rem 0.6rem;" onclick="editQuestion(${q.id})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="btn btn-danger btn-sm" style="padding: 0.3rem 0.6rem;" onclick="deleteQuestion(${q.id})"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn btn-secondary btn-sm" style="padding: 0.3rem 0.6rem;" onclick="editQuestion('${q.id}')"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn btn-danger btn-sm" style="padding: 0.3rem 0.6rem;" onclick="deleteQuestion('${q.id}')"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </li>
             `;
@@ -415,12 +423,194 @@ function deleteQuiz(quizId) {
 }
 
 function finishQuizEditor() {
+    const title = $('#editor-quiz-title').val();
     if (currentEditingQuizId && currentAssociatedCountryIds.length === 0 && currentAssociatedRegions.length === 0) {
         showToast("You must select at least one country or continent before finishing.", "error");
         return;
     }
+
+    const unsavedQuestions = currentQuestions.filter(q => !q.id || String(q.id).startsWith('temp_'));
+    if (unsavedQuestions.length > 0) {
+        saveAllAndClose(unsavedQuestions, title);
+        return;
+    }
+
     closeModal('quiz-editor-modal');
     fetchMyQuizzes();
+}
+
+function closeQuizEditorModal() {
+    const unsavedQuestions = currentQuestions.filter(q => !q.id || String(q.id).startsWith('temp_'));
+    if (unsavedQuestions.length > 0) {
+        if (confirm("There's unsaved work. Are you sure you want to exit and discard them?")) {
+            // Discard unsaved questions
+            currentQuestions = currentQuestions.filter(q => q.id && !String(q.id).startsWith('temp_'));
+            closeModal('quiz-editor-modal');
+        }
+    } else {
+        closeModal('quiz-editor-modal');
+    }
+}
+
+function saveAllAndClose(unsavedQuestions, title) {
+    if (!title && unsavedQuestions.length > 0) {
+        showToast("Quiz title is required to save questions.", "error");
+        return;
+    }
+    
+    if (currentAssociatedCountryIds.length === 0 && currentAssociatedRegions.length === 0) {
+        showToast("You must select at least one country or continent.", "error");
+        return;
+    }
+
+    if (!currentEditingQuizId) {
+        // Create Quiz first
+        const quizData = {
+            title: title,
+            associatedCountryIds: currentAssociatedCountryIds,
+            associatedRegions: currentAssociatedRegions,
+            creatorId: getUserId()
+        };
+        
+        ajaxCall("POST", `${API_BASE_URL}/Quiz`, JSON.stringify(quizData),
+            (res) => {
+                currentEditingQuizId = res;
+                saveUnsavedQuestionsList(unsavedQuestions);
+            },
+            (err) => handleError(err, "Failed to create quiz.")
+        );
+    } else {
+        // Update quiz details if needed
+        const quizData = {
+            id: currentEditingQuizId,
+            title: title,
+            associatedCountryIds: currentAssociatedCountryIds,
+            associatedRegions: currentAssociatedRegions,
+            creatorId: getUserId()
+        };
+        ajaxCall("PUT", `${API_BASE_URL}/Quiz/${currentEditingQuizId}?userId=${getUserId()}`, JSON.stringify(quizData),
+            () => saveUnsavedQuestionsList(unsavedQuestions),
+            (err) => handleError(err, "Failed to update quiz.")
+        );
+    }
+}
+
+function saveUnsavedQuestionsList(unsavedQuestions) {
+    let savedCount = 0;
+    unsavedQuestions.forEach(q => {
+        const payload = { ...q };
+        if (payload.id && String(payload.id).startsWith('temp_')) {
+            delete payload.id;
+        }
+        
+        ajaxCall("POST", `${API_BASE_URL}/Quiz/${currentEditingQuizId}/Question?userId=${getUserId()}`, JSON.stringify(payload),
+            (res) => {
+                savedCount++;
+                if (savedCount === unsavedQuestions.length) {
+                    closeModal('quiz-editor-modal');
+                    fetchMyQuizzes();
+                    showToast("Quiz and questions saved successfully!", "success");
+                }
+            },
+            (err) => handleError(err, "Failed to save a question.")
+        );
+    });
+}
+
+/* ==========================================================================
+   AI GENERATOR
+   ========================================================================== */
+function openAIGeneratorModal() {
+    if (!$('#quiz-editor-modal').hasClass('show')) {
+        $('#btn-create-quiz').click();
+    }
+    openModal('ai-generator-modal');
+    $('#ai-gen-loading').hide();
+    $('#ai-gen-submit-btn').prop('disabled', false).text('✨ Generate Quiz');
+}
+
+function toggleAIGenType() {
+    const genType = $('input[name="ai-gen-type"]:checked').val();
+    if (genType === 'region') {
+        $('#ai-gen-region-group').show();
+        $('#ai-gen-country-group').hide();
+    } else {
+        $('#ai-gen-region-group').hide();
+        $('#ai-gen-country-group').show();
+    }
+}
+
+function generateQuizWithAI(event) {
+    event.preventDefault();
+    
+    const genType = $('input[name="ai-gen-type"]:checked').val();
+    const count = parseInt($('#ai-gen-count').val()) || 5;
+    const difficulty = $('#ai-gen-difficulty').val();
+    
+    let url = `${API_BASE_URL}/gemini/generate-region-quiz`;
+    let payload = { questionCount: count, difficulty: difficulty };
+    
+    if (genType === 'region') {
+        const region = $('#ai-gen-region').val();
+        if (!region) return showToast("Please select a region.", "error");
+        payload.region = region;
+        
+        // Auto-select region in the quiz editor
+        if (!currentAssociatedRegions.includes(region)) {
+            currentAssociatedRegions.push(region);
+            renderSelectedRegions();
+        }
+    } else {
+        url = `${API_BASE_URL}/gemini/generate-country-quiz`;
+        const cca3 = $('#ai-gen-country').val();
+        if (!cca3) return showToast("Please select a country.", "error");
+        payload.cca3 = cca3;
+        
+        // Auto-select country in the quiz editor
+        const countryObj = allCountries.find(c => c.cca3 === cca3);
+        if (countryObj && !currentAssociatedCountryIds.includes(countryObj.id)) {
+            currentAssociatedCountryIds.push(countryObj.id);
+            renderSelectedCountries();
+        }
+    }
+    
+    $('#ai-gen-loading').show();
+    $('#ai-gen-submit-btn').prop('disabled', true).text('Generating...');
+    
+    ajaxCall("POST", url, JSON.stringify(payload),
+        (res) => {
+            $('#ai-gen-loading').hide();
+            $('#ai-gen-submit-btn').prop('disabled', false).text('✨ Generate Quiz');
+            
+            if (res && res.success) {
+                closeModal('ai-generator-modal');
+                showToast("Quiz generated successfully! Review the questions.", "success");
+                
+                $('#editor-quiz-title').val(res.data.title);
+                
+                // Map AI questions to frontend format
+                const newQuestions = res.data.questions.map(q => ({
+                    id: 'temp_' + Date.now() + Math.random().toString(36).substr(2, 9),
+                    text: q.text,
+                    optionA: q.optionA,
+                    optionB: q.optionB,
+                    optionC: q.optionC,
+                    optionD: q.optionD
+                }));
+                
+                // Append or replace? Let's replace unsaved, or just append
+                currentQuestions.push(...newQuestions);
+                renderQuestionsList();
+            } else {
+                showToast("Failed to generate quiz: " + (res.message || res.error || "Unknown error"), "error");
+            }
+        },
+        (err) => {
+            $('#ai-gen-loading').hide();
+            $('#ai-gen-submit-btn').prop('disabled', false).text('✨ Generate Quiz');
+            handleError(err, "Failed to connect to AI service.");
+        }
+    );
 }
 
 /* ==========================================================================
@@ -430,7 +620,7 @@ let currentEditingQuizId = null;
 let currentQuestions = [];
 
 function editQuestion(qId) {
-    const q = currentQuestions.find(x => x.id === qId);
+    const q = currentQuestions.find(x => x.id == qId);
     if (!q) return;
 
     $('#q-id-input').val(q.id);
@@ -501,7 +691,7 @@ function saveQuestion() {
 }
 
 function performSaveQuestion(newQuestion, qId) {
-    if (qId) {
+    if (qId && !String(qId).startsWith('temp_')) {
         newQuestion.id = parseInt(qId);
         ajaxCall("PUT", `${API_BASE_URL}/Quiz/Question/${qId}?userId=${getUserId()}`, JSON.stringify(newQuestion),
             (res) => {
@@ -517,6 +707,9 @@ function performSaveQuestion(newQuestion, qId) {
         ajaxCall("POST", `${API_BASE_URL}/Quiz/${currentEditingQuizId}/Question?userId=${getUserId()}`, JSON.stringify(newQuestion),
             (res) => {
                 showToast("Question saved!", "success");
+                if (typeof qId === 'string' && qId.startsWith('temp_')) {
+                    currentQuestions = currentQuestions.filter(q => q.id !== qId);
+                }
                 clearQuestionEditor();
                 refreshQuestionsList();
             },
@@ -530,7 +723,8 @@ function performSaveQuestion(newQuestion, qId) {
 function refreshQuestionsList() {
     ajaxCall("GET", `${API_BASE_URL}/Quiz/${currentEditingQuizId}`, "",
         (quiz) => {
-            currentQuestions = quiz.questions || [];
+            const unsaved = currentQuestions.filter(q => typeof q.id === 'string' && q.id.startsWith('temp_'));
+            currentQuestions = [...(quiz.questions || []), ...unsaved];
             renderQuestionsList();
         },
         (err) => {
@@ -542,10 +736,19 @@ function refreshQuestionsList() {
 function deleteQuestion(qId) {
     if (!confirm("Delete question?")) return;
 
+    if (typeof qId === 'string' && qId.startsWith('temp_')) {
+        currentQuestions = currentQuestions.filter(q => q.id !== qId);
+        renderQuestionsList();
+        showToast("Unsaved AI question discarded.", "success");
+        if ($('#q-id-input').val() === qId) clearQuestionEditor();
+        return;
+    }
+
     ajaxCall("DELETE", `${API_BASE_URL}/Quiz/Question/${qId}?userId=${getUserId()}`, "",
         (res) => {
             showToast("Question deleted", "success");
             refreshQuestionsList();
+            if ($('#q-id-input').val() == qId) clearQuestionEditor();
         },
         (err) => {
             handleError(err, "Failed to delete question.");
