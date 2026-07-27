@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Master</title>
+    <script src="../JS/authGuard.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="../CSS/NavBar.css" rel="stylesheet" />
+    <link href="../CSS/user_quiz.css?v=2" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+    <script src="../JS/ajaxCalls.js"></script>
+    <script src="../JS/navbar.js"></script>
+</head>
+<body>
+    <div id="navbar-container"></div>
+    <div class="app-container">
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <header class="top-header">
+                <h1 id="section-title">Explore Quizzes</h1>
+                <div class="header-actions" style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" id="btn-create-quiz" style="display: none;">
+                        <i class="fa-solid fa-plus"></i> Create Quiz
+                    </button>
+                    <button class="btn btn-primary" id="btn-generate-ai" onclick="openAIGeneratorModal()" style="display: none; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate with AI
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                
+                <!-- Explore Section -->
+                <section id="explore-section" class="tab-section active">
+                    <div class="controls-bar">
+                        <input type="text" id="search-quiz" placeholder="Search public quizzes..." class="glass-input">
+                        <select id="explore-country-filter" class="glass-input" style="width: auto; min-width: 200px;" onchange="fetchPublicQuizzes()">
+                            <option value="">All Countries</option>
+                        </select>
+                        <select id="explore-region-filter" class="glass-input" style="width: auto; min-width: 150px;" onchange="fetchPublicQuizzes()">
+                            <option value="">All Continents</option>
+                            <option value="Africa">Africa</option>
+                            <option value="Americas">Americas</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Oceania">Oceania</option>
+                        </select>
+
+                        <select id="explore-sort" class="glass-input" style="width: auto;" onchange="fetchPublicQuizzes()">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="likes">Most Likes</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="fetchPublicQuizzes()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    </div>
+                    <div id="public-quizzes-grid" class="cards-grid">
+                        <!-- Cards will be populated here by JS -->
+                    </div>
+                </section>
+
+                <!-- Manage Section -->
+                <section id="manage-section" class="tab-section">
+                    <div class="controls-bar">
+                        <p class="section-desc">Manage quizzes you've created. Add questions, update titles, or publish them for the world to see.</p>
+                        <button class="btn btn-secondary" onclick="fetchMyQuizzes()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    </div>
+                    <div id="my-quizzes-grid" class="cards-grid">
+                        <!-- Cards will be populated here by JS -->
+                    </div>
+                </section>
+
+                <!-- Attempts Section -->
+                <section id="attempts-section" class="tab-section">
+                    <div class="controls-bar">
+                        <p class="section-desc">Review your past quiz attempts and scores.</p>
+                        <button class="btn btn-secondary" onclick="fetchMyAttempts()"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                    </div>
+                    <div id="my-attempts-grid" class="list-layout">
+                        <!-- List items populated by JS -->
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Unified Quiz Editor Modal -->
+    <div id="quiz-editor-modal" class="modal-overlay">
+        <div class="modal-content glass-panel large-modal" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h2 id="editor-modal-title">Create/Edit Quiz</h2>
+                <button class="btn-close" onclick="closeQuizEditorModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body flex-row">
+                <!-- Left Pane: Quiz Settings & Added Questions -->
+                <div class="quiz-settings-pane" style="flex: 1; display: flex; flex-direction: column; border-right: 1px solid var(--border-color); padding-right: 1.5rem;">
+                    <h3>Quiz Details</h3>
+                    <input type="hidden" id="editor-quiz-id">
+                    <div class="form-group">
+                        <label for="editor-quiz-title">Quiz Title</label>
+                        <input type="text" id="editor-quiz-title" class="glass-input" placeholder="e.g., European Capitals">
+                    </div>
+                    <div class="form-group">
+                        <label for="editor-quiz-country-select">Associated Countries</label>
+                        <select id="editor-quiz-country-select" class="glass-input">
+                            <option value="">Select a country to add...</option>
+                        </select>
+                        <div id="editor-selected-countries-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editor-quiz-region-select">Associated Continents</label>
+                        <select id="editor-quiz-region-select" class="glass-input">
+                            <option value="">Select a continent to add...</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Europe">Europe</option>
+                            <option value="Americas">Americas</option>
+                            <option value="Africa">Africa</option>
+                            <option value="Oceania">Oceania</option>
+                            <option value="Antarctic">Antarctic</option>
+                        </select>
+                        <div id="editor-selected-regions-list" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.8rem;"></div>
+                    </div>
+                    
+                    <h3 style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                        Questions
+                        <button class="btn btn-secondary btn-sm" onclick="clearQuestionEditor()"><i class="fa-solid fa-plus"></i> New</button>
+                    </h3>
+                    <ul id="editor-questions-list" class="styled-list" style="flex-grow: 1; overflow-y: auto; max-height: 250px;">
+                        <p class="text-muted text-sm">No questions added yet. Add your first question on the right.</p>
+                    </ul>
+                </div>
+
+                <!-- Right Pane: Add/Edit Question Form -->
+                <div class="question-editor-pane glass-panel-inner" style="flex: 1; margin-left: 0.5rem;">
+                    <h3 id="question-editor-title">Add Question</h3>
+                    <input type="hidden" id="q-id-input">
+                    <div class="form-group">
+                        <label>Question Text</label>
+                        <textarea id="q-text-input" class="glass-input" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Option 1 (Correct Answer)</label>
+                        <input type="text" id="q-opt1-input" class="glass-input answer-correct">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 2</label>
+                        <input type="text" id="q-opt2-input" class="glass-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 3</label>
+                        <input type="text" id="q-opt3-input" class="glass-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Option 4</label>
+                        <input type="text" id="q-opt4-input" class="glass-input">
+                    </div>
+                    <button class="btn btn-primary mt-2" id="btn-save-question" style="width: 100%;">Save Question</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="finishQuizEditor()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Details Modal -->
+    <div id="quiz-details-modal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 id="details-quiz-title" style="margin: 0; font-size: 1.5rem;">Quiz Title</h2>
+                <button class="btn-close" onclick="closeModal('quiz-details-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; color: var(--text-muted);">
+                    <span><i class="fa-solid fa-user"></i> Creator: <span id="details-quiz-creator"></span></span>
+                    <span><i class="fa-regular fa-calendar"></i> <span id="details-quiz-date"></span></span>
+                    <span><i class="fa-solid fa-layer-group"></i> <span id="details-quiz-questions"></span> Qs</span>
+                    <span><i class="fa-solid fa-heart" style="color:var(--danger)"></i> <span id="details-quiz-likes"></span></span>
+                </div>
+                
+                <h3 style="margin-bottom: 0.5rem; font-size: 1rem;">Associated Locations</h3>
+                <div id="details-quiz-countries" style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <!-- Countries badges -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="btn-details-take-quiz" style="width: 100%; font-size: 1.1rem; padding: 0.75rem;">
+                    <i class="fa-solid fa-play"></i> Start Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Take Quiz Modal -->
+    <div id="take-quiz-modal" class="modal-overlay">
+        <div class="modal-content glass-panel" style="max-width: 600px;">
+            <div class="modal-header">
+                <div>
+                    <h2 id="take-quiz-title" style="margin-bottom: 0.25rem;">Quiz Title</h2>
+                    <span id="take-quiz-progress" class="text-muted text-sm">Question 1 of 5</span>
+                </div>
+                <button class="btn-close" onclick="closeTakeQuiz()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="take-quiz-body">
+                <h3 id="tq-question-text" style="margin-bottom: 1.5rem; font-size: 1.3rem;">Question text goes here</h3>
+                <div id="tq-options-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+            <div class="modal-footer" style="justify-content: space-between;">
+                <span id="tq-error-msg" style="color: var(--danger); font-size: 0.9rem;"></span>
+                <button class="btn btn-primary" id="btn-tq-next" onclick="nextQuestion()">Next Question <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Generator Modal -->
+    <div id="ai-generator-modal" class="modal-overlay" style="z-index: 2000;">
+        <div class="modal-content glass-panel" style="max-width: 500px; padding: 2rem;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <h2 style="display: flex; align-items: center; gap: 0.5rem; color: #a855f7;">
+                    <i class="fa-solid fa-robot"></i> AI Quiz Generator
+                </h2>
+                <button class="btn-close" type="button" onclick="closeModal('ai-generator-modal')"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" style="padding-top: 1rem;">
+                <form id="ai-generator-form" onsubmit="generateQuizWithAI(event)">
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label>Generate By</label>
+                        <div style="display: flex; gap: 1rem;">
+                            <label style="display: flex; align-items: center; gap: 0.3rem;">
+                                <input type="radio" name="ai-gen-type" value="region" checked onchange="toggleAIGenType()"> Region
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.3rem;">
+                                <input type="radio" name="ai-gen-type" value="country" onchange="toggleAIGenType()"> Country
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="ai-gen-region-group">
+                        <label for="ai-gen-region">Select Region</label>
+                        <select id="ai-gen-region" class="glass-input" required>
+                            <option value="Europe">Europe</option>
+                            <option value="Asia">Asia</option>
+                            <option value="Americas">Americas</option>
+                            <option value="Africa">Africa</option>
+                            <option value="Oceania">Oceania</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="ai-gen-country-group" style="display: none;">
+                        <label for="ai-gen-country">Select Country</label>
+                        <select id="ai-gen-country" class="glass-input">
+                            <option value="">Select a country...</option>
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="ai-gen-count">Number of Questions (1-15)</label>
+                        <input type="number" id="ai-gen-count" class="glass-input" min="1" max="15" value="5" required>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <label for="ai-gen-difficulty">Difficulty</label>
+                        <select id="ai-gen-difficulty" class="glass-input" required>
+                            <option value="Easy">Easy</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+
+                    <div id="ai-gen-loading" style="display: none; text-align: center; margin: 1.5rem 0;">
+                        <i class="fa-solid fa-circle-notch fa-spin fa-2x" style="color: #a855f7;"></i>
+                        <p style="margin-top: 0.5rem; color: var(--text-secondary);">Generating your quiz using AI...</p>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">(This may take a minute or two)</p>
+                    </div>
+
+                    <button type="submit" id="ai-gen-submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; padding: 1rem; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+                        ✨ Generate Quiz
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="../JS/user_quiz.js"></script>
+</body>
+</html>

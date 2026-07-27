@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Country</title>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous">
+    </script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <link href="../CSS/country.css" rel="stylesheet" />
+    <link href="../CSS/createShare.css" rel="stylesheet" />
+
+    <script src="../JS/ajaxCalls.js"></script>
+    <script src="../JS/navbar.js"></script>
+    <script src="../JS/apiRoutes.js"></script>
+    <script src="../JS/userLists.js"></script>
+    <script src="../JS/createShare.js"></script>
+    <script src="../JS/country.js"></script>
+
+    <link href="../CSS/NavBar.css" rel="stylesheet" />
+
+
+</head>
+
+<body>
+
+    <div id="navbar-container"></div>
+
+    <main class="page">
+
+        <a href="index.html" class="back-link">← Back to map</a>
+
+        <!-- Country loading -->
+
+        <div id="loading" class="center">
+            <div class="spinner" aria-hidden="true"></div>
+            <p class="muted">Fetching country details...</p>
+        </div>
+
+        <!-- Country error -->
+
+        <div id="error"
+             class="card hidden"
+             style="max-width: 420px; margin: 2rem auto; text-align: center;">
+
+            <div style="font-size: 2.5rem; color: #ef4444;">
+                ⚠️
+            </div>
+
+            <h2 style="margin: 0.25rem 0;">
+                Country Not Found
+            </h2>
+
+            <p id="error-message" class="muted">
+                Please provide a valid 'cca3' query parameter.
+            </p>
+
+            <p class="muted"
+               style="
+                    display: inline-block;
+                    margin-top: 0.5rem;
+                    padding: 0.3rem 0.5rem;
+                    border-radius: 6px;
+                    background: rgba(255, 255, 255, 0.02);
+                ">
+                Example: ?cca3=ISR
+            </p>
+        </div>
+
+        <!-- Main content -->
+
+        <div id="content" class="hidden">
+
+            <section class="hero">
+
+                <div class="hero-left">
+
+                    <img id="country-flag"
+                         class="flag"
+                         src=""
+                         alt="Country flag" />
+
+                    <div>
+                        <div id="country-name" class="title"></div>
+
+                        <div id="official-name"
+                             class="muted"
+                             style="font-style: italic;">
+                        </div>
+
+                        <div class="muted" style="margin-top: 0.5rem;">
+                            Region:
+                            <span id="region"
+                                  style="font-weight: 600; color: var(--text);">
+                            </span>
+                        </div>
+
+                        <div class="muted">
+                            Sub-region:
+                            <span id="subregion"
+                                  style="font-weight: 600; color: var(--text);">
+                            </span>
+                        </div>
+
+                        <div id="list-actions" class="list-actions hidden">
+                            <button id="btn-visited"
+                                    type="button"
+                                    class="list-action-btn">
+                            </button>
+
+                            <button id="btn-wishlist"
+                                    type="button"
+                                    class="list-action-btn">
+                            </button>
+                        </div>
+
+                        <div id="guest-prompt" class="guest-prompt hidden">
+                            🔒 <a href="login.html">Log in</a> to add this
+                            country to your lists, explore quizzes, and share
+                            your experience.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-map">
+                    <div id="country-map"></div>
+                </div>
+            </section>
+
+            <!-- Country shares -->
+
+            <section class="shares-section hidden">
+
+                <div class="shares-header">
+
+                    <div>
+                        <span class="label">Community</span>
+                        <h2>Shares about this country</h2>
+                    </div>
+
+                    <div class="shares-actions">
+                        <span id="shares-count" class="shares-count">
+                            0 shares
+                        </span>
+
+                        <button id="open-share-form-btn"
+                                class="add-share-btn"
+                                type="button">
+                            + Add Share
+                        </button>
+                    </div>
+                </div>
+
+                <div id="shares-loading"
+                     class="shares-message">
+                    Loading shares...
+                </div>
+
+                <div id="shares-empty"
+                     class="shares-message hidden">
+                    No shares have been published about this country yet.
+                </div>
+
+                <div id="shares-error"
+                     class="shares-message shares-error hidden">
+                    Could not load shares.
+                </div>
+
+                <div id="shares-list"
+                     class="shares-list">
+                </div>
+            </section>
+
+            <div class="grid">
+
+                <div>
+
+                    <div class="cards" style="margin-top: 1rem;">
+
+                        <div class="card">
+                            <span class="label">Population</span>
+                            <div id="population" class="value"></div>
+                        </div>
+
+                        <div class="card">
+                            <span class="label">Area</span>
+                            <div id="area" class="value"></div>
+                        </div>
+
+                        <div class="card">
+                            <span class="label">Capital(s)</span>
+                            <div id="capitals" class="value"></div>
+                        </div>
+
+                        <div class="card">
+                            <span class="label">Currency</span>
+                            <div id="currency" class="value"></div>
+                        </div>
+                    </div>
+
+                    <div class="card large" style="margin-top: 1rem;">
+
+                        <h3 class="muted"
+                            style="
+                                margin: 0 0 0.6rem 0;
+                                font-size: 0.85rem;
+                                text-transform: uppercase;
+                            ">
+                            Languages &amp; Geography
+                        </h3>
+
+                        <div>
+                            <div class="muted">
+                                Official Languages:
+                            </div>
+
+                            <div id="languages-tags"
+                                 class="languages">
+                            </div>
+                        </div>
+
+                        <hr style="
+                                margin: 0.8rem 0;
+                                border: none;
+                                border-top: 1px solid rgba(255, 255, 255, 0.04);
+                            ">
+
+                        <div class="muted"
+                             style="
+                                display: flex;
+                                justify-content: space-between;
+                            ">
+
+                            <div>Landlocked:</div>
+                            <div id="landlocked-status"></div>
+                        </div>
+
+                        <div class="muted"
+                             style="
+                                display: flex;
+                                justify-content: space-between;
+                                margin-top: 0.4rem;
+                            ">
+
+                            <div>Coordinates:</div>
+                            <div id="coordinates"></div>
+                        </div>
+
+                        <div class="muted"
+                             style="
+                                display: flex;
+                                justify-content: space-between;
+                                margin-top: 0.4rem;
+                            ">
+
+                            <div>Timezones:</div>
+                            <div id="timezones"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <aside>
+
+                    <div class="card quiz-cta">
+                        <div class="quiz-cta-icon">🧠</div>
+                        <h3 class="quiz-cta-title">Think you know this country?</h3>
+                        <p class="quiz-cta-text">
+                            Put your knowledge to the test with community quizzes
+                            about this country.
+                        </p>
+                        <a id="country-quizzes-link"
+                           class="quiz-cta-btn"
+                           href="#">
+                            Explore quizzes →
+                        </a>
+                    </div>
+
+                    <div class="card" style="margin-top: 1rem;">
+
+                        <h3 class="muted"
+                            style="
+                                margin: 0 0 0.6rem 0;
+                                font-size: 0.85rem;
+                                text-transform: uppercase;
+                            ">
+                            Bordering Countries
+                        </h3>
+
+                        <ul id="borders-list"
+                            class="borders">
+                        </ul>
+                    </div>
+
+                    <div class="card" style="margin-top: 1rem;">
+
+                        <a id="wiki-link"
+                           class="wiki"
+                           href="#"
+                           target="_blank"
+                           rel="noopener">
+                            View on Wikipedia ↗
+                        </a>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

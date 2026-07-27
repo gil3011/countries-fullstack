@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>World Countries</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="../CSS/indexStyle.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
+    <script src="../JS/apiRoutes.js"></script>
+    <script src="../JS/ajaxCalls.js"></script>
+    <script src="../JS/userLists.js"></script>
+    <script src="../JS/navbar.js"></script>
+    <link href="../CSS/NavBar.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div id="navbar-container"></div>
+
+    <header>
+        <h1>World Countries</h1>
+    </header>
+
+    <div id="map"></div>
+
+    <div id="map-legend" class="map-legend" style="display:none">
+        <span class="legend-item"><span class="legend-dot visited"></span> Visited</span>
+        <span class="legend-item"><span class="legend-dot wishlist"></span> Wishlist</span>
+        <span class="legend-item"><span class="legend-dot other"></span> Not in your lists</span>
+    </div>
+
+    <section class="controls-section">
+
+        <div class="control-block">
+            <span class="control-block-title">Filter</span>
+            <div class="control-fields">
+                <select id="region">
+                    <option value="">All Regions</option>
+                    <option value="Asia">Asia</option>
+                    <option value="Europe">Europe</option>
+                    <option value="Americas">Americas</option>
+                    <option value="Africa">Africa</option>
+                    <option value="Oceania">Oceania</option>
+                    <option value="Antarctic">Antarctic</option>
+                </select>
+
+                <input type="text" id="language-filter" list="language-options" placeholder="Any language" autocomplete="off">
+                <datalist id="language-options"></datalist>
+
+                <input type="text" id="currency-filter" list="currency-options" placeholder="Any currency" autocomplete="off">
+                <datalist id="currency-options"></datalist>
+
+                <select id="list-filter" style="display:none">
+                    <option value="">All Countries</option>
+                    <option value="visited">My Visited</option>
+                    <option value="wishlist">My Wishlist</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="control-block">
+            <span class="control-block-title">Sort by</span>
+            <div class="control-fields">
+                <select id="sort">
+                    <option value="name">Country Name</option>
+                    <option value="pop">Population</option>
+                    <option value="area">Area</option>
+                </select>
+                <button id="sort-dir" type="button" class="sort-dir-btn" title="Ascending (click for descending)" aria-label="Toggle sort direction">↑</button>
+            </div>
+        </div>
+        <div class="control-block">
+            <span class="control-block-title">Search</span>
+            <div class="control-fields">
+                <input type="text" id="search" class="search-input" placeholder="Name, code or capital...">
+            </div>
+        </div>
+        <div class="control-block">
+            <span class="control-block-title">&nbsp;</span>
+            <div class="control-fields">
+                <button id="reset">Reset</button>
+            </div>
+        </div>
+
+        <p class="counter-text">Found <span id="count">0</span> countries</p>
+    </section>
+
+    <div id="loading" class="loading-state">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Loading countries…</p>
+    </div>
+
+    <main id="grid"></main>
+
+    <div id="pagination" class="pagination"></div>
+    <script src="../JS/indexScript.js"></script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+﻿:root {
+    /* Dark theme variables (adjustable) */
+    --bg: #071226;         /* page background */
+    --card: #0f1724;       /* card / panel background */
+    --muted: #94a3b8;      /* subdued text */
+    --accent: #60a5fa;     /* primary accent (buttons, links) */
+    --border: #1f2a37;     /* panel borders */
+    --text: #e6f0fb;       /* primary text */
+    --danger: #ef4444;     /* reset button accent */
+    --visited: #22c55e;    /* visited pin */
+    --wishlist: #f59e0b;   /* wishlist pin */
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+}
+
+/* Page width increased to 1200px and centered */
+header {
+    max-width: 1200px;
+    margin: 0 auto 20px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+/* Map container - dark framed look */
+#map {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    height: 360px;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(13,24,39,0.6), rgba(9,18,34,0.9));
+    box-shadow: 0 6px 18px rgba(2,6,23,0.5);
+}
+
+/* Loading state */
+.loading-state {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 48px 0;
+    color: var(--muted);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.spinner {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 4px solid var(--border);
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Dim the grid while a fetch is in progress */
+body.is-loading #grid { opacity: 0.4; pointer-events: none; }
+
+/* Colored status pins (Leaflet divIcon) */
+.status-pin { background: transparent; border: none; }
+
+.status-pin-dot {
+    display: block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Map legend */
+.map-legend {
+    max-width: 1200px;
+    margin: -12px auto 24px;
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.legend-dot.visited { background: var(--visited); }
+.legend-dot.wishlist { background: var(--wishlist); }
+.legend-dot.other { background: var(--accent); }
+
+/* Card list-action buttons */
+.card-details-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+    .card-details-link:hover {
+        text-decoration: underline;
+    }
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.card-action-btn {
+    flex: 1;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, transform .08s;
+}
+
+.card-action-btn:hover { transform: translateY(-1px); }
+
+.card-action-btn.active-visited {
+    color: var(--visited);
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.1);
+}
+
+.card-action-btn.active-wishlist {
+    color: var(--wishlist);
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(245, 158, 11, 0.1);
+}
+
+/* Map popup content (bigger, with flag) */
+.map-popup { text-align: center; min-width: 180px; }
+
+.popup-flag {
+    width: 100%;
+    max-width: 180px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    display: block;
+    margin: 0 auto 8px;
+}
+
+.popup-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 2px;
+}
+
+.popup-sub {
+    font-size: 0.85rem;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.popup-link {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1d4ed8;
+    text-decoration: none;
+}
+
+.popup-link:hover { text-decoration: underline; }
+
+.leaflet-popup-content { margin: 12px 14px; }
+
+/* Map popup action buttons */
+.popup-actions { display: flex; gap: 6px; margin-top: 10px; }
+
+.popup-btn {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #111;
+    padding: 5px 6px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.popup-btn.active-visited { color: #15803d; border-color: #86efac; background: #f0fdf4; }
+.popup-btn.active-wishlist { color: #b45309; border-color: #fcd34d; background: #fffbeb; }
+
+/* Controls area: labeled Search / Filter / Sort groups */
+.controls-section {
+    max-width: 1200px;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 28px;
+    align-items: flex-start;
+    background: var(--card);
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.control-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-block-title {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 800;
+    color: var(--accent);
+    min-height: 1em;
+}
+
+.control-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.controls-section input,
+.controls-section select,
+.controls-section button {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    outline: none;
+    min-width: 150px;
+    box-sizing: border-box;
+    transition: border-color .12s, box-shadow .12s;
+}
+
+.controls-section .search-input { min-width: 240px; }
+
+.controls-section input::placeholder {
+    color: var(--muted);
+}
+
+/* Native dropdown popup: readable on the dark theme (was bright-on-bright) */
+.controls-section select option {
+    background: var(--card);
+    color: var(--text);
+}
+
+.controls-section input:focus,
+.controls-section select:focus,
+.controls-section button:focus {
+    border-color: rgba(96,165,250,0.45);
+    box-shadow: 0 4px 12px rgba(96,165,250,0.08);
+}
+
+.controls-section button#sort-dir {
+    min-width: 0;
+    width: 42px;
+    padding: 10px 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .controls-section button#sort-dir:hover {
+        color: var(--accent);
+        border-color: rgba(96, 165, 250, 0.4);
+        background: rgba(96, 165, 250, 0.08);
+    }
+
+.controls-section button#reset {
+    background: linear-gradient(180deg, rgba(239,68,68,0.06), rgba(239,68,68,0.03));
+    color: var(--danger);
+    border: 1px solid rgba(239,68,68,0.14);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.controls-section button#reset:hover {
+    background: rgba(239,68,68,0.06);
+}
+
+/* Counter */
+.counter-text {
+    flex-basis: 100%;
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0;
+}
+
+/* Grid of country cards - smaller cards, more per row */
+#grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--muted);
+    padding: 32px 0;
+    font-weight: 600;
+}
+
+/* Pagination */
+.pagination {
+    max-width: 1200px;
+    margin: 24px auto 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.page-btn {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, transform .08s;
+}
+
+.page-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(96, 165, 250, 0.1);
+    transform: translateY(-1px);
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-info {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.95rem;
+    min-width: 110px;
+    text-align: center;
+}
+
+/* Card styles */
+.country-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(2,6,23,0.35);
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    cursor: pointer;
+}
+
+.country-card:hover {
+    border-color: rgba(96, 165, 250, 0.4);
+}
+
+.country-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(2,6,23,0.48);
+}
+
+.flag-img {
+    height: 96px;
+    width: 100%;
+    object-fit: cover;
+    background-color: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255,255,255,0.02);
+}
+
+.country-card h3 {
+    margin: 0 0 6px 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.country-card p {
+    margin: 3px 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+/* Map button (accent) */
+.map-btn {
+    margin-top: 12px;
+    background: linear-gradient(180deg, var(--accent), #2b8df6);
+    color: #021428;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform .08s, filter .08s;
+    width: 100%;
+}
+
+.map-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.03);
+}
+
+/* Responsive tweaks */
+@media (min-width: 1024px) {
+    #map {
+        height: 420px;
+    }
+
+    .country-card {
+        padding: 14px;
+    }
+}
+
