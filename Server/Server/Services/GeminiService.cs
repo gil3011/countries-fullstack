@@ -3,6 +3,8 @@ using Google.GenAI;
 using Google.GenAI.Types;
 using Server.BL;
 using Server.DTO;
+using Server.Exceptions;
+using Microsoft.Extensions.Logging;
 
 using GeminiSchemaType = Google.GenAI.Types.Type;
 
@@ -11,9 +13,11 @@ namespace Server.Services
     public sealed class GeminiService
     {
         private readonly Client _client;
+        private readonly ILogger<GeminiService> _logger;
 
-        public GeminiService(IConfiguration configuration)
+        public GeminiService(IConfiguration configuration, ILogger<GeminiService> logger)
         {
+            _logger = logger;
             string apiKey = configuration["Gemini:ApiKey"]
                 ?? throw new InvalidOperationException(
                     "Gemini API key is missing."
@@ -26,7 +30,8 @@ namespace Server.Services
             string topic,
             int questionCount,
             string difficulty,
-            List<Country> countries)
+            List<Country> countries,
+            CancellationToken cancellationToken = default)
         {
             ValidateRequest(topic, questionCount, countries);
 
@@ -34,15 +39,7 @@ namespace Server.Services
             string prompt = BuildPrompt(topic, questionCount, difficulty, countryData);
             Schema responseSchema = BuildQuizSchema();
 
-            var response = await _client.Models.GenerateContentAsync(
-                model: "gemini-3.5-flash",
-                contents: prompt,
-                config: new GenerateContentConfig
-                {
-                    ResponseMimeType = "application/json",
-                    ResponseSchema = responseSchema
-                }
-            );
+            var response = await GenerateContentWithRetryAsync(prompt, responseSchema, cancellationToken);
 
             string json = response.Candidates?
                 .FirstOrDefault()?
@@ -124,15 +121,7 @@ namespace Server.Services
 
             Schema responseSchema = BuildRecommendationSchema();
 
-            var response = await _client.Models.GenerateContentAsync(
-                model: "gemini-3.5-flash",
-                contents: prompt,
-                config: new GenerateContentConfig
-                {
-                    ResponseMimeType = "application/json",
-                    ResponseSchema = responseSchema
-                }
-            );
+            var response = await GenerateContentWithRetryAsync(prompt, responseSchema, default);
 
             string json = response.Candidates?
                 .FirstOrDefault()?
@@ -406,6 +395,64 @@ CANDIDATE COUNTRIES:
                 Type = GeminiSchemaType.Array,
                 Items = itemSchema
             };
+        }
+
+        private async Task<GenerateContentResponse> GenerateContentWithRetryAsync(string prompt, Schema responseSchema, CancellationToken cancellationToken)
+        {
+            var config = new GenerateContentConfig
+            {
+                ResponseMimeType = "application/json",
+                ResponseSchema = responseSchema
+            };
+
+            string[] modelsToTry = new[]
+            {
+                "gemini-3.6-flash",
+                "gemini-3.5-flash",
+                "gemini-3.5-flash-lite",
+                "gemini-3.1-flash-lite",
+                "gemini-2.5-flash",
+                "gemini-2.5-flash-lite",
+                "gemini-2.5-pro"
+            };
+
+            int maxAttempts = modelsToTry.Length;
+            var random = new Random();
+
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                string currentModel = modelsToTry[attempt];
+
+                try
+                {
+                    return await _client.Models.GenerateContentAsync(
+                        model: currentModel,
+                        contents: prompt,
+                        config: config
+                    );
+                }
+                catch (OperationCanceledException)
+                {
+                    throw; // Do not retry if the request was canceled
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Gemini API call failed on attempt {Attempt} using model '{Model}'. Error: {Message}", attempt + 1, currentModel, ex.Message);
+
+                    if (attempt == maxAttempts - 1)
+                    {
+                        _logger.LogError(ex, "All {MaxAttempts} Gemini API models failed.", maxAttempts);
+                        throw new GeminiTemporarilyUnavailableException($"All {maxAttempts} models failed.", ex);
+                    }
+
+                    int waitTimeMs = 1000 + random.Next(0, 500);
+                    _logger.LogInformation("Waiting {WaitTimeMs}ms before trying the next model.", waitTimeMs);
+                    
+                    await Task.Delay(waitTimeMs, cancellationToken);
+                }
+            }
+
+            throw new GeminiTemporarilyUnavailableException();
         }
 
         private static void ValidateRequest(

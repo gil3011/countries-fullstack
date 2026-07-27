@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Server.Services;
+using Server.Exceptions;
 
 namespace Server.Controllers;
 
@@ -16,7 +17,7 @@ public class GeminiController : ControllerBase
     }
 
     [HttpPost("generate-region-quiz")]
-    public async Task<IActionResult> GenerateRegionQuiz([FromBody] Server.DTO.GenerateRegionQuizRequest request)
+    public async Task<IActionResult> GenerateRegionQuiz([FromBody] Server.DTO.GenerateRegionQuizRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -40,12 +41,21 @@ public class GeminiController : ControllerBase
                 topic: $"the region: {request.Region}",
                 questionCount: request.QuestionCount,
                 difficulty: request.Difficulty,
-                countries: regionCountries);
+                countries: regionCountries,
+                cancellationToken: cancellationToken);
             
             return Ok(new
             {
                 success = true,
                 data = quizDto
+            });
+        }
+        catch (GeminiTemporarilyUnavailableException ex)
+        {
+            return StatusCode(503, new
+            {
+                success = false,
+                error = "שירות יצירת השאלונים עמוס כרגע. נסה שוב בעוד זמן קצר."
             });
         }
         catch (Exception ex)
@@ -59,7 +69,7 @@ public class GeminiController : ControllerBase
     }
 
     [HttpPost("generate-country-quiz")]
-    public async Task<IActionResult> GenerateCountryQuiz([FromBody] Server.DTO.GenerateCountryQuizRequest request)
+    public async Task<IActionResult> GenerateCountryQuiz([FromBody] Server.DTO.GenerateCountryQuizRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -90,12 +100,21 @@ public class GeminiController : ControllerBase
                 topic: $"the country: {targetCountry.CommonName}",
                 questionCount: request.QuestionCount,
                 difficulty: request.Difficulty,
-                countries: regionCountries);
+                countries: regionCountries,
+                cancellationToken: cancellationToken);
             
             return Ok(new
             {
                 success = true,
                 data = quizDto
+            });
+        }
+        catch (GeminiTemporarilyUnavailableException ex)
+        {
+            return StatusCode(503, new
+            {
+                success = false,
+                error = "שירות יצירת השאלונים עמוס כרגע. נסה שוב בעוד זמן קצר."
             });
         }
         catch (Exception ex)
