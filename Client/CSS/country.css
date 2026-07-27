@@ -317,9 +317,9 @@ body {
         text-decoration: none;
     }
 
-    .guest-prompt a:hover {
-        text-decoration: underline;
-    }
+        .guest-prompt a:hover {
+            text-decoration: underline;
+        }
 
 /* Visited / Wishlist actions on the country detail page */
 
@@ -543,5 +543,68 @@ body {
     .share-footer {
         align-items: flex-start;
         flex-direction: column;
+    }
+}
+
+/* ===================== Country Share Cards Layout + RTL ===================== */
+
+.shares-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 0.75rem;
+}
+
+.share-card {
+    height: 100%;
+    direction: rtl;
+    text-align: right;
+}
+
+.share-top {
+    direction: rtl;
+}
+
+    .share-top > div,
+    .share-top > h3 {
+        min-width: 0;
+        flex: 1;
+    }
+
+.share-title {
+    direction: rtl;
+    text-align: right;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+}
+
+.share-type {
+    flex-shrink: 0;
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+}
+
+.share-description {
+    direction: rtl;
+    text-align: right;
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+}
+
+.share-footer {
+    direction: ltr;
+    text-align: left;
+}
+
+    .share-footer > * {
+        direction: ltr;
+        unicode-bidi: isolate;
+    }
+
+@media (max-width: 700px) {
+    .shares-list {
+        grid-template-columns: 1fr;
     }
 }

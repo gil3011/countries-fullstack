@@ -1171,7 +1171,7 @@ function loadUserQuizAttempts() {
         "GET",
         `${API_ROUTES.quizAttemptAPI}/User/${userId}`,
         "",
-        renderUserQuizAttempts,
+        renderMyQuizAttempts,
         function (error) {
             console.error("Failed to load quiz attempts:", error);
 
@@ -1183,59 +1183,67 @@ function loadUserQuizAttempts() {
     );
 }
 
-function renderUserQuizAttempts(attempts) {
-    const loadingElement = $("#my-attempts-loading");
-    const emptyElement = $("#my-attempts-empty");
-    const errorElement = $("#my-attempts-error");
-    const attemptsList = $("#my-attempts-list");
+function renderMyQuizAttempts(attempts) {
+    const loadingElement = document.getElementById("my-attempts-loading");
+    const emptyElement = document.getElementById("my-attempts-empty");
+    const errorElement = document.getElementById("my-attempts-error");
+    const tableWrapper = document.getElementById("my-attempts-table-wrapper");
+    const attemptsList = document.getElementById("my-attempts-list");
 
-    loadingElement.addClass("hidden");
-    errorElement.addClass("hidden");
-    attemptsList.empty();
+    loadingElement.classList.add("hidden");
+    emptyElement.classList.add("hidden");
+    errorElement.classList.add("hidden");
+    tableWrapper.classList.add("hidden");
+
+    attemptsList.innerHTML = "";
 
     if (!attempts || attempts.length === 0) {
-        emptyElement.removeClass("hidden");
+        emptyElement.classList.remove("hidden");
         return;
     }
 
-    emptyElement.addClass("hidden");
+    attempts.forEach(attempt => {
+        const attemptDate = new Date(attempt.dateTaken);
 
-    const sortedAttempts = [...attempts]
-        .sort((a, b) => new Date(b.dateTaken) - new Date(a.dateTaken))
-        .slice(0, 5);
+        const formattedDate = attemptDate.toLocaleDateString("en-GB");
 
-    sortedAttempts.forEach(attempt => {
-        const quizTitle =
-            attempt.quizTitle || `Quiz ${attempt.quizId}`;
+        const formattedTime = attemptDate.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
 
-        const formattedDate = attempt.dateTaken
-            ? new Date(attempt.dateTaken).toLocaleString([], {
-                year: "numeric",
-                month: "numeric",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            })
-            : "Unknown date";
+        let scoreClass = "uh-score-low";
 
-        const score = attempt.score ?? 0;
+        if (attempt.score >= 80) {
+            scoreClass = "uh-score-high";
+        } else if (attempt.score >= 50) {
+            scoreClass = "uh-score-medium";
+        }
 
-        attemptsList.append(`
-            <article class="uh-attempt-card">
-                <div class="uh-attempt-details">
-                    <h3 class="uh-attempt-title">
-                        ${escapeHtml(quizTitle)}
-                    </h3>
+        const row = document.createElement("tr");
 
-                    <span class="uh-attempt-date">
-                        ${formattedDate}
-                    </span>
-                </div>
+        row.innerHTML = `
+            <td class="uh-attempt-quiz-name">
+                ${attempt.quizTitle}
+            </td>
 
-                <div class="uh-attempt-score">
-                    ${score}%
-                </div>
-            </article>
-        `);
+            <td>
+                ${formattedDate}
+            </td>
+
+            <td>
+                ${formattedTime}
+            </td>
+
+            <td>
+                <span class="uh-score-badge ${scoreClass}">
+                    ${attempt.score}%
+                </span>
+            </td>
+        `;
+
+        attemptsList.appendChild(row);
     });
+
+    tableWrapper.classList.remove("hidden");
 }

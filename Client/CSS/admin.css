@@ -180,6 +180,13 @@ body {
         transition: border-color 0.15s, box-shadow 0.15s;
     }
 
+    #user-search {
+        width: 300px;
+        min-width: 300px;
+        padding: 12px 16px;
+        font-size: 0.95rem;
+    }
+
         .panel-header input::placeholder {
             color: var(--muted);
         }
@@ -429,6 +436,12 @@ body {
         padding-left: 16px;
         padding-right: 16px;
     }
+
+    #user-search {
+        width: 100%;
+        min-width: 0;
+    }
+
 
     .admin-header {
         align-items: flex-start;
